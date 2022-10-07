@@ -576,7 +576,7 @@ var nkchCSS = /** @class */ (function () {
 }());
 jQuery(function () {
     var options = {};
-    mw.loader.load("https://nkch.fandom.com/wiki/MediaWiki:NkchCSS4.css?action=raw&ctype=text/css", "text/css");
+    mw.loader.load("https://cdn.jsdelivr.net/gh/Vonavy/nkch-css@latest/css/index.css", "text/css");
     if (window.nkch) {
         if (window.nkch.css4)
             return;

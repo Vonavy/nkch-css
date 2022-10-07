@@ -800,7 +800,7 @@ class nkchCSS {
 jQuery(() => {
     let options: nkch.css.Options = {};
 
-    mw.loader.load("https://cdn.jsdelivr.net/gh/Vonavy/nkch-css/css/index.css", "text/css");
+    mw.loader.load("https://cdn.jsdelivr.net/gh/Vonavy/nkch-css@latest/css/index.css", "text/css");
 
     if (window.nkch) {
         if (window.nkch.css4) return;
