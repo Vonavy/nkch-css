@@ -236,7 +236,7 @@
 }
 
 .nkch-css4__codearea {
-    height: 300px;
+    height: 280px;
     width: 450px;
 }
 
@@ -380,7 +380,7 @@
 
 .nkch-css4__quickbar-button-spinner.is-hidden,
 .nkch-css4__sidebar-button-spinner.is-hidden {
-	display: none;
+    display: none;
 }
 
 .nkch-css4__window-manager {
