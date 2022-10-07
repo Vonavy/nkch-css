@@ -1,0 +1,394 @@
+:root {
+    --theme-nkch-css-page-background-color: #FFFFFF;
+    --theme-nkch-css-page-background-color--rgb: 255, 255, 255;
+    
+    --theme-nkch-css-page-background-color--secondary: #f8f9fa;
+    --theme-nkch-css-page-background-color--secondary--rgb: 248, 249, 250;
+    
+    --theme-nkch-css-border-color: lightgray;
+    
+    --theme-nkch-css-link-color: #3366CC;
+    --theme-nkch-css-link-color--rgb: 51, 102, 204;
+    --theme-nkch-css-link-color--hover: #2A4B8D;
+    --theme-nkch-css-link-color--hover--rgb: 42, 75, 141;
+    
+    --theme-nkch-css-link-label-color: #FFFFFF;
+    
+    --theme-nkch-css-accent-label-color: #FFFFFF;
+    
+    --theme-nkch-css-text-color: #202122;
+    --theme-nkch-css-text-color--hover: #54595d;
+    
+    --theme-nkch-css-alert-color: #DD3333;
+    --theme-nkch-css-alert-color--hover: #b32424;
+    
+    --theme-nkch-css-success-color: #00af89;
+    --theme-nkch-css-success-color--hover: #14866d;
+}
+
+.nkch-css4 {
+    backdrop-filter: blur(10px);
+    background-color: rgba(var(
+        --theme-page-background-color--rgb,
+        var(--theme-nkch-css-page-background-color--rgb)
+    ), .7);
+    border-color: var(
+        --theme-border-color,
+        var(--theme-nkch-css-border-color)
+    );
+    border-radius: 10px;
+    border-style: solid;
+    border-width: 1px;
+    bottom: 50px;
+    font-family: Rubik, Helvetica, sans-serif;
+    height: auto;
+    right: 20px;
+    transition: opacity .3s;
+    width: auto;
+    z-index: 99999;
+}
+
+.nkch-css4.is-closed {
+    visibility: hidden;
+}
+
+.nkch-css4__notice {
+    background-color: #FF3F3F;
+    border-radius: 3px;
+}
+
+.nkch-css4__container {
+    height: 100%;
+    padding: 10px;
+}
+
+.nkch-css4__header {
+    cursor: default;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.nkch-css4__header-left {
+    align-items: center;
+    display: flex;
+    min-width: 0;
+}
+
+.nkch-css4__header-title {
+    color: var(
+        --theme-page-text-color,
+        var(--theme-nkch-css-text-color)
+    );
+    font-size: 18px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nkch-css4__header-right {
+    display: flex;
+}
+
+.nkch-css4__header-button-group {
+    align-items: stretch;
+    display: inline-flex;
+    justify-content: flex-start;
+}
+
+.nkch-css4__header-button {
+    align-items: center;
+    background-color: transparent;
+    color: var(
+        --theme-page-text-color,
+        var(--theme-nkch-css-text-color)
+    );
+    cursor: pointer;
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(
+        --theme-page-text-color,
+        var(--theme-nkch-css-text-color)
+    );
+    display: inline-flex;
+    min-height: 18px;
+    padding: 5px 6px;
+    transition: border-color .3s, color .3s;
+}
+
+.nkch-css4__header-button:hover {
+    border-color: var(
+        --theme-page-text-color--hover,
+        var(--theme-nkch-css-text-color--hover)
+    );
+    color: var(
+        --theme-page-text-color--hover,
+        var(--theme-nkch-css-text-color--hover)
+    );;
+}
+
+.nkch-css4__header-button-group>.nkch-css4__header-button:first-child {
+    border-radius: 3px 0 0 3px;
+}
+
+.nkch-css4__header-button-group>.nkch-css4__header-button:not(:last-child) {
+    margin-right: -1px;
+}
+
+.nkch-css4__header-button-group>.nkch-css4__header-button:last-child {
+    border-radius: 0 3px 3px 0;
+}
+
+.nkch-css4__header-button--toggle.is-enabled {
+    color: var(
+        --theme-success-color,
+        var(--theme-nkch-css-success-color)
+    );
+}
+
+.nkch-css4__header-button--toggle.is-disabled {
+    color: var(
+        --theme-alert-color,
+        var(--theme-nkch-css-alert-color)
+    );
+}
+
+.nkch-css4__header-button--close {
+    border-color: var(
+        --theme-alert-color,
+        var(--theme-nkch-css-alert-color)
+    );
+    color: var(
+        --theme-alert-color,
+        var(--theme-nkch-css-alert-color)
+    );
+}
+
+.nkch-css4__header-button--close:hover {
+    border-color: var(
+        --theme-alert-color--hover,
+        var(--theme-nkch-css-alert-color--hover)
+    );
+    color: var(
+        --theme-alert-color--hover,
+        var(--theme-nkch-css-alert-color--hover)
+    );
+}
+
+.nkch-css4__header-icon {
+    fill: currentColor;
+    height: 18px;
+    min-width: 18px;
+    width: 18px;
+    pointer-events: none;
+}
+
+.nkch-css4__compile {
+	height: 0;
+    position: relative;
+    width: auto;
+    z-index: 1
+}
+
+.nkch-css4__compile .oo-ui-horizontalLayout {
+    position: absolute;
+    right: 0;
+}
+
+.nkch-css4__compile .oo-ui-horizontalLayout > .oo-ui-widget {
+	margin: 0;
+}
+
+.nkch-css4__compile .oo-ui-horizontalLayout > .nkch-css4__compile-button {
+    margin-block: 5px;
+}
+
+.nkch-css4__compile .oo-ui-horizontalLayout > .nkch-css4__compile-button a {
+    color: var(
+    	--theme-link-color,
+    	var(--theme-nkch-css-link-color)
+	);
+    padding: 5px 6px;
+}
+
+.nkch-css4__compile .oo-ui-horizontalLayout > .nkch-css4__compile-button a:hover,
+.nkch-css4__compile .oo-ui-horizontalLayout > .nkch-css4__compile-button a:focus {
+    background-color: rgba(var(
+    	--theme-link-color--rgb,
+    	var(--theme-nkch-css-link-color--rgb)
+    ), .1);
+    color: var(
+    	--theme-link-color--hover,
+    	var(--theme-nkch-css-link-color--hover)
+	);
+}
+
+.nkch-css4__compile .oo-ui-horizontalLayout > .nkch-css4__compile-button a:active {
+    background-color: rgba(var(
+    	--theme-link-color--rgb,
+    	var(--theme-nkch-css-link-color--rgb)
+	), .2);
+}
+
+.nkch-css4__content {
+    height: 100%;
+    position: relative;
+}
+
+.nkch-css4__codearea {
+    height: 300px;
+    width: 450px;
+}
+
+.nkch-css4__content .monaco-editor {
+    margin-top: 10px;
+}
+
+.nkch-css4__content .oo-ui-tabSelectWidget-framed {
+    background-color: transparent;
+    border-bottom-width: 2px;
+    border-bottom-style: solid;
+    border-bottom-color: var(
+        --theme-link-color,
+        var(--theme-nkch-css-link-color)
+    );
+}
+
+.oo-ui-tabSelectWidget-framed .oo-ui-tabOptionWidget {
+    background-color: var(
+        --theme-page-background-color--secondary,
+        var(--theme-nkch-css-page-background-color--secondary)
+    );
+}
+
+.nkch-css4__content .oo-ui-tabSelectWidget-framed .oo-ui-tabOptionWidget.oo-ui-optionWidget-selected,
+.nkch-css4__content .oo-ui-tabSelectWidget-framed .oo-ui-tabOptionWidget.oo-ui-widget-enabled.oo-ui-optionWidget-selected:hover{
+    background-color: var(--theme-link-color, var(--theme-nkch-css-link-color));
+    color: var(--theme-link-label-color, var(--theme-nkch-css-link-label-color));
+}
+
+.oo-ui-tabSelectWidget-framed .oo-ui-tabOptionWidget .oo-ui-labelElement-label {
+    border: none;
+}
+
+.nkch-css4__content .oo-ui-menuLayout-content {
+    display: none;
+}
+
+.nkch-css4__statusbar {
+    background-color: var(
+        --theme-page-background-color--secondary,
+        var(--theme-nkch-css-page-background-color--secondary)
+    );
+    border-radius: 0 0 3px 3px;
+    display: flex;
+    font-size: 12px;
+    height: 24px;
+    justify-content: flex-end;
+    overflow: hidden;
+}
+
+.nkch-css4__statusbar-container {
+    display: flex;
+}
+
+.nkch-css4__statusbar-container--left {
+    flex-grow: 1;
+}
+
+.nkch-css4__statusbar-item {
+    color: var(
+        --theme-page-text-color,
+        var(--theme-nkch-css-text-color)
+    );
+    cursor: pointer;
+    max-height: 24px;
+    padding: 5px 10px;
+    user-select: none;
+}
+
+.nkch-css4__statusbar-item:hover {
+    background-color: rgba(var(
+        --theme-link-color--rgb, var(--theme-nkch-css-link-color--rgb)
+    ), .1);
+    color: var(
+        --theme-page-text-color,
+        var(--theme-nkch-css-text-color)
+    );
+    text-decoration: none;
+}
+
+.nkch-css4__statusbar-item:active {
+    background-color: rgba(var(
+        --theme-link-color--rgb,
+        var(--theme-nkch-css-link-color--rgb)
+    ), .2);
+    color: var(
+        --theme-page-text-color,
+        var(--theme-nkch-css-text-color)
+    );
+    text-decoration: none;
+}
+
+.nkch-css4__statusbar-item-icon {
+    fill: currentColor;
+    height: 12px;
+    width: 12px;
+}
+
+.nkch-css4__error.is-visible {
+    background-color: #FF5555;
+    border-radius: 3px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-inline: auto;
+    margin-top: 10px;
+    max-width: 450px;
+    padding: 6px 10px;
+}
+
+.nkch-css4__error-title {
+    font-weight: bold;
+}
+
+.nkch-css4__sidebar-button {
+    align-items: center;
+    display: inline-flex;
+}
+
+.nkch-css4__quickbar-button,
+.nkch-css4__sidebar-button {
+    gap: 8px;
+}
+
+.nkch-css4__quickbar-button-spinner,
+.nkch-css4__sidebar-button-spinner {
+    animation: nkch-css4-spinner--spin 1s infinite linear;
+    border: 3px solid var(
+        --theme-accent-label-color,
+        var(--theme-nkch-css-link-color)
+    );
+    border-bottom-color: transparent;
+    border-radius: 100%;
+    display: inline-block;
+    height: 12px;
+    line-height: 1;
+    width: 12px;
+}
+
+.nkch-css4__quickbar-button-spinner.is-hidden,
+.nkch-css4__sidebar-button-spinner.is-hidden {
+	display: none;
+}
+
+.nkch-css4__window-manager {
+    z-index: 100000;
+}
+
+@keyframes nkch-css4-spinner--spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
