@@ -306,7 +306,7 @@ class nkchCSS {
     }
 
     private onModuleLoad(): void {
-        requirejs.config({
+        let req = requirejs.config({
             paths: {
                 "jquery": `https://code.jquery.com/jquery-${this.versions.get("jquery")}.min`,
                 "jquery-ui": `https://code.jquery.com/ui/${this.versions.get("jquery-ui")}/jquery-ui.min`,
@@ -794,6 +794,11 @@ class nkchCSS {
             this.checks.editor.isInitialized = true;
             this.open();
         });
+
+        req.undef("jquery");
+        req.undef("jquery-ui");
+        req.undef("less");
+        req.undef("vs");
     }
 }
 
