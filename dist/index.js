@@ -183,7 +183,7 @@ class nkchCSS {
                 const quickbarItem_link = document.createElement("a");
                 quickbarItem_link.classList.add("nkch-css4__quickbar-button-link");
                 quickbarItem_link.setAttribute("href", "#");
-                quickbarItem_link.innerHTML = "nkchCSS" + "<sup>" + 4 + "</sup>";
+                quickbarItem_link.innerHTML = "nkchCSS 4";
                 this.elements.quickbarItem_link = quickbarItem_link;
                 quickbarItem.append(quickbarItem_link);
                 quickbarItem_link.addEventListener("click", () => this.open(), false);
@@ -232,7 +232,7 @@ class nkchCSS {
         $.when(mw.loader.using(["oojs-ui"]), mw.loader.getScript(`https://cdnjs.cloudflare.com/ajax/libs/require.js/${this.versions.get("require.js")}/require.min.js`)).then(() => this.onModuleLoad());
     }
     onModuleLoad() {
-        requirejs.config({
+        let req = requirejs.config({
             paths: {
                 "jquery": `https://code.jquery.com/jquery-${this.versions.get("jquery")}.min`,
                 "jquery-ui": `https://code.jquery.com/ui/${this.versions.get("jquery-ui")}/jquery-ui.min`,
@@ -286,7 +286,7 @@ class nkchCSS {
             /* ~ main : header title ~ */
             const main_headerTitle = document.createElement("div");
             main_headerTitle.classList.add("nkch-css4__header-title");
-            main_headerTitle.innerHTML = "nkchCSS 4<sup style='font-size: 10px; vertical-align: super;'>OBT 5</sup>";
+            main_headerTitle.innerHTML = "nkchCSS 4<sup style='font-size: 10px; vertical-align: super;'>DEV</sup>";
             this.elements.main_headerTitle = main_headerTitle;
             main_headerLeft.append(main_headerTitle);
             /* ~ main : header right ~ */
@@ -570,6 +570,10 @@ class nkchCSS {
             this.checks.editor.isInitialized = true;
             this.open();
         });
+        req.undef("jquery");
+        req.undef("jquery-ui");
+        req.undef("less");
+        req.undef("vs");
     }
 }
 jQuery(() => {
