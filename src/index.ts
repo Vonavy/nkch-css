@@ -558,12 +558,6 @@ class nkchCSS {
             this.elements.main_codearea = main_codearea;
             main_content.append(main_codearea);
 
-            // $(main_codearea).resizable({
-            //     handles: "se",
-            //     minHeight: 280,
-            //     minWidth: 450
-            // });
-
             this.editor = monaco.editor.create(main_codearea, {
                 language: "css",
                 theme: "vs-dark",
@@ -779,6 +773,10 @@ class nkchCSS {
                     main_statusbarItem__selection.innerText += ` • S: ${model.getValueInRange(selection!.toJSON()).length}`;
             });
 
+            main_statusbarItem__selection.addEventListener("click", () => {
+                this.editor.focus();
+                this.editor.getAction("editor.action.gotoLine").run();
+            }, false);
 
             switch (this.env.skin) {
                 case "fandomdesktop":
