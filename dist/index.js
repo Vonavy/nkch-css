@@ -214,7 +214,7 @@ class nkchCSS {
                 break;
         }
     }
-    initializeEditor() {
+    async initializeEditor() {
         let targetSpinner;
         switch (this.env.skin) {
             case "fandomdesktop":
@@ -227,12 +227,16 @@ class nkchCSS {
                 break;
         }
         targetSpinner.classList.remove("is-hidden");
-        mw.loader.load(`https://code.jquery.com/ui/${this.versions.get("jquery-ui")}/themes/base/jquery-ui.css`, "text/css");
-        mw.loader.load(`https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs/editor/editor.main.min.css`, "text/css");
-        $.when(mw.loader.using(["oojs-ui"]), mw.loader.getScript(`https://cdnjs.cloudflare.com/ajax/libs/require.js/${this.versions.get("require.js")}/require.min.js`)).then(() => this.onModuleLoad());
+        mw.loader.load([
+            `https://code.jquery.com/ui/${this.versions.get("jquery-ui")}/themes/base/jquery-ui.css`,
+            `https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs/editor/editor.main.min.css`,
+        ], "text/css");
+        await mw.loader.using(["oojs-ui"]);
+        await mw.loader.getScript(`https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs/loader.min.js`);
+        this.onModuleLoad();
     }
     onModuleLoad() {
-        let req = requirejs.config({
+        require.config({
             paths: {
                 "jquery": `https://code.jquery.com/jquery-${this.versions.get("jquery")}.min`,
                 "jquery-ui": `https://code.jquery.com/ui/${this.versions.get("jquery-ui")}/jquery-ui.min`,
@@ -241,7 +245,7 @@ class nkchCSS {
             },
             waitSeconds: 100
         });
-        requirejs(["jquery-ui", "less", "vs/editor/editor.main"], () => {
+        require(["jquery-ui", "less", "vs/editor/editor.main"], () => {
             /* ~ window manager ~ */
             const windowManager = new OO.ui.WindowManager({
                 classes: ["nkch-css4__window-manager"]
@@ -402,11 +406,11 @@ class nkchCSS {
             main_codearea.classList.add("nkch-css4__codearea");
             this.elements.main_codearea = main_codearea;
             main_content.append(main_codearea);
-            $(main_codearea).resizable({
-                handles: "se",
-                minHeight: 280,
-                minWidth: 450
-            });
+            // $(main_codearea).resizable({
+            //     handles: "se",
+            //     minHeight: 280,
+            //     minWidth: 450
+            // });
             this.editor = monaco.editor.create(main_codearea, {
                 language: "css",
                 theme: "vs-dark",
@@ -570,10 +574,6 @@ class nkchCSS {
             this.checks.editor.isInitialized = true;
             this.open();
         });
-        req.undef("jquery");
-        req.undef("jquery-ui");
-        req.undef("less");
-        req.undef("vs");
     }
 }
 jQuery(() => {

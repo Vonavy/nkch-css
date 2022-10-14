@@ -43,7 +43,7 @@ class nkchCSS {
         this.initialize();
     }
     
-    public open(event?: Event): void {
+    public open(event?: Event): Promise<void> | void {
         if (event) event.preventDefault();
 
         if (!this.checks.editor.isInitialized) return this.initializeEditor();
@@ -70,7 +70,7 @@ class nkchCSS {
         this.checks.editor.isOpen = true;
     }
 
-    public close(event?: Event): void {
+    public close(event?: Event): Promise<void> | void {
         if (event) event.preventDefault();
 
         if (!this.checks.editor.isInitialized) return this.initializeEditor();
@@ -276,7 +276,7 @@ class nkchCSS {
         }
     }
 
-    private initializeEditor(): void {
+    private async initializeEditor(): Promise<void> {
         let targetSpinner: Element;
 
         switch (this.env.skin) {
@@ -296,17 +296,19 @@ class nkchCSS {
         targetSpinner.classList.remove("is-hidden");
 
 
-        mw.loader.load(`https://code.jquery.com/ui/${this.versions.get("jquery-ui")}/themes/base/jquery-ui.css`, "text/css");
-        mw.loader.load(`https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs/editor/editor.main.min.css`, "text/css");
+        mw.loader.load([
+            `https://code.jquery.com/ui/${this.versions.get("jquery-ui")}/themes/base/jquery-ui.css`,
+            `https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs/editor/editor.main.min.css`,
+        ], "text/css");
 
-        $.when(
-            mw.loader.using(["oojs-ui"]),
-            mw.loader.getScript(`https://cdnjs.cloudflare.com/ajax/libs/require.js/${this.versions.get("require.js")}/require.min.js`)
-        ).then(() => this.onModuleLoad());
+        await mw.loader.using(["oojs-ui"]);
+        await mw.loader.getScript(`https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs/loader.min.js`);
+
+        this.onModuleLoad();
     }
 
     private onModuleLoad(): void {
-        let req = requirejs.config({
+        require.config({
             paths: {
                 "jquery": `https://code.jquery.com/jquery-${this.versions.get("jquery")}.min`,
                 "jquery-ui": `https://code.jquery.com/ui/${this.versions.get("jquery-ui")}/jquery-ui.min`,
@@ -316,7 +318,7 @@ class nkchCSS {
             waitSeconds: 100
         })
 
-        requirejs(["jquery-ui", "less", "vs/editor/editor.main"], () => {
+        require(["jquery-ui", "less", "vs/editor/editor.main"], () => {
             /* ~ window manager ~ */
             const windowManager = new OO.ui.WindowManager({
                 classes: ["nkch-css4__window-manager"]
@@ -556,11 +558,11 @@ class nkchCSS {
             this.elements.main_codearea = main_codearea;
             main_content.append(main_codearea);
 
-            $(main_codearea).resizable({
-                handles: "se",
-                minHeight: 280,
-                minWidth: 450
-            });
+            // $(main_codearea).resizable({
+            //     handles: "se",
+            //     minHeight: 280,
+            //     minWidth: 450
+            // });
 
             this.editor = monaco.editor.create(main_codearea, {
                 language: "css",
@@ -794,11 +796,6 @@ class nkchCSS {
             this.checks.editor.isInitialized = true;
             this.open();
         });
-
-        req.undef("jquery");
-        req.undef("jquery-ui");
-        req.undef("less");
-        req.undef("vs");
     }
 }
 
