@@ -44,6 +44,7 @@
     height: auto;
     right: 20px;
     transition: opacity .3s;
+    user-select: none;
     width: auto;
     z-index: 99999;
 }
