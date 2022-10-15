@@ -19,7 +19,9 @@ class nkchCSS {
             editor: {
                 isInitialized: false,
                 isEnabled: true,
-                isOpen: false
+                isOpen: false,
+                isHolding: false,
+                isDragging: false
             },
             isCodeInvalid: false
         }
@@ -207,6 +209,25 @@ class nkchCSS {
             });
     }
 
+    public getParents(element: Element): Element[] {
+        let parents: Element[] = [],
+            currentElement = element,
+            reachedEnd: boolean = false;
+
+        while (reachedEnd != true) {
+            let parent = currentElement.parentElement;
+
+            if (parent) {
+                parents.push(parent);
+                currentElement = parent;
+            } else {
+                reachedEnd = true;
+            }
+        }
+
+        return parents;
+    }
+
     private initialize(): void {
         switch (this.env.skin) {
             case "fandomdesktop":
@@ -297,7 +318,6 @@ class nkchCSS {
 
 
         mw.loader.load([
-            `https://code.jquery.com/ui/${this.versions.get("jquery-ui")}/themes/base/jquery-ui.css`,
             `https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs/editor/editor.main.min.css`,
         ], "text/css");
 
@@ -310,15 +330,19 @@ class nkchCSS {
     private onModuleLoad(): void {
         require.config({
             paths: {
-                "jquery": `https://code.jquery.com/jquery-${this.versions.get("jquery")}.min`,
-                "jquery-ui": `https://code.jquery.com/ui/${this.versions.get("jquery-ui")}/jquery-ui.min`,
                 "less": `https://cdnjs.cloudflare.com/ajax/libs/less.js/${this.versions.get("less")}/less.min`,
                 "vs": `https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs`
             },
+            // @ts-ignore
+            "vs/nls": {
+                availableLanguages: {
+                    "*": globalThis.navigator.language || "en"
+                }
+            },
             waitSeconds: 100
-        })
+        });
 
-        require(["jquery-ui", "less", "vs/editor/editor.main"], () => {
+        require(["less", "vs/editor/editor.main"], () => {
             /* ~ window manager ~ */
             const windowManager = new OO.ui.WindowManager({
                 classes: ["nkch-css4__window-manager"]
@@ -344,16 +368,51 @@ class nkchCSS {
             this.elements.main = main;
             document.body.after(main);
 
-            $(main).draggable({
-                cancel: ".nkch-css4__content, .nkch-css4__popup, .nkch-css4__header-button, .nkch-css4__compile, .nkch-css4__statusbar, .nkch-css4__error",
-                opacity: 0.8,
-                start: function() {
-                    main.style.right = "auto";
-                    main.style.bottom = "auto";
+            let main_position = {
+                x: 0,
+                y: 0
+            };
+
+            main.style.position = "fixed";
+
+            main.addEventListener("mousedown", e => {
+                if (e.button !== 0) return;
+
+                let cancelElements: Element[] = [main_content, main_headerButtonGroup, main_compile, main_statusbar],
+                    parents: Element[] = this.getParents(e.target as Element);
+
+                for (let element of cancelElements) {
+                    if (parents.includes(element)) return;
                 }
-            }).css({
-                position: "fixed"
-            });
+
+                this.checks.editor.isHolding = true;
+
+                main_position.x = e.clientX;
+                main_position.y = e.clientY;
+            }, false);
+
+            main.addEventListener("mouseup", () => {
+                this.checks.editor.isHolding = false;
+                this.checks.editor.isDragging = false;
+
+                main.classList.remove("nkch-css4--is-dragging");
+            }, false);
+
+            document.querySelector("html")!.addEventListener("mousemove", e => {
+                if (this.checks.editor.isHolding) {
+                    this.checks.editor.isDragging = true;
+                    main.style.top = main.offsetTop - (main_position.y - e.clientY) + "px";
+                    main.style.left = main.offsetLeft - (main_position.x - e.clientX) + "px";
+
+                    main.style.bottom = "auto";
+                    main.style.right = "auto";
+    
+                    main_position.x = e.clientX;
+                    main_position.y = e.clientY;
+
+                    main.classList.add("nkch-css4--is-dragging");
+                }
+            }, false);
     
     
             /* ~ main : container ~ */
@@ -408,6 +467,7 @@ class nkchCSS {
             /* ~ main : header button (beautify) ~ */
             const main_headerButton__beautify = document.createElement("button");
                 main_headerButton__beautify.classList.add("nkch-css4__header-button", "nkch-css4__header-button--beautify");
+                main_headerButton__beautify.setAttribute("type", "button");
 
             this.elements.main_headerButton__beautify = main_headerButton__beautify;
             main_headerButtonGroup.append(main_headerButton__beautify);
@@ -438,6 +498,7 @@ class nkchCSS {
             /* ~ main : header button (toggle) ~ */
             const main_headerButton__toggle = document.createElement("button");
                 main_headerButton__toggle.classList.add("nkch-css4__header-button", "nkch-css4__header-button--toggle", this.checks.editor.isEnabled ? "is-enabled" : "is-disabled");
+                main_headerButton__toggle.setAttribute("type", "button");
 
             this.elements.main_headerButton__toggle = main_headerButton__toggle;
             main_headerButtonGroup.append(main_headerButton__toggle);
@@ -468,6 +529,7 @@ class nkchCSS {
             /* ~ main : header button (close) ~ */
             const main_headerButton__close = document.createElement("button");
                 main_headerButton__close.classList.add("nkch-css4__header-button", "nkch-css4__header-button--close");
+                main_headerButton__close.setAttribute("type", "button");
 
             this.elements.main_headerButton__close = main_headerButton__close;
             main_headerButtonGroup.append(main_headerButton__close);
@@ -859,6 +921,8 @@ declare namespace nkch {
                 isInitialized: boolean;
                 isEnabled: boolean;
                 isOpen: boolean;
+                isHolding: boolean;
+                isDragging: boolean;
             }
             isCodeInvalid: boolean;
         }

@@ -48,6 +48,10 @@
     z-index: 99999;
 }
 
+.nkch-css4--is-dragging {
+    opacity: .8;
+}
+
 .nkch-css4.is-closed {
     visibility: hidden;
 }
