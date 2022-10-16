@@ -442,7 +442,7 @@ class nkchCSS {
             /* ~ main : header title ~ */
             const main_headerTitle = document.createElement("div");
                 main_headerTitle.classList.add("nkch-css4__header-title");
-                main_headerTitle.innerHTML = "nkchCSS 4<sup style='font-size: 10px; vertical-align: super;'>DEV</sup>";
+                main_headerTitle.innerHTML = "nkchCSS 4<sup style='font-size: 10px; vertical-align: super;'>OBT 6</sup>";
 
             this.elements.main_headerTitle = main_headerTitle;
             main_headerLeft.append(main_headerTitle);
@@ -862,7 +862,7 @@ class nkchCSS {
 jQuery(() => {
     let options: nkch.css.Options = {};
 
-    mw.loader.load("https://cdn.jsdelivr.net/gh/Vonavy/nkch-css@dev/css/index.css", "text/css");
+    mw.loader.load("https://cdn.jsdelivr.net/gh/Vonavy/nkch-css@latest/css/index.css", "text/css");
 
     if (window.nkch) {
         if (window.nkch.css4) return;
