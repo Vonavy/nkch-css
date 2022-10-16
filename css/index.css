@@ -44,8 +44,13 @@
     height: auto;
     right: 20px;
     transition: opacity .3s;
+    user-select: none;
     width: auto;
     z-index: 99999;
+}
+
+.nkch-css4--is-dragging {
+    opacity: .8;
 }
 
 .nkch-css4.is-closed {
@@ -237,11 +242,12 @@
 
 .nkch-css4__codearea {
     height: 280px;
-    width: 450px;
-}
-
-.nkch-css4__content .monaco-editor {
     margin-top: 10px;
+    min-height: 280px;
+    min-width: 450px;
+    overflow: auto;
+    resize: both;
+    width: 450px;
 }
 
 .nkch-css4__content .oo-ui-tabSelectWidget-framed {
