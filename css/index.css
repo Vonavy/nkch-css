@@ -245,9 +245,32 @@
     margin-top: 10px;
     min-height: 280px;
     min-width: 450px;
-    overflow: auto;
-    resize: both;
+    overflow: visible;
+    position: relative;
     width: 450px;
+}
+
+.nkch-css4__resizer {
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    cursor: se-resize
+}
+
+.nkch-css4__resizer:after {
+    background-color: transparent;
+    border-top: 5px solid transparent;
+    border-left: 5px solid transparent;
+    border-bottom: 5px solid gray;
+    border-right: 5px solid gray;
+    border-radius: 3px;
+    content: "";
+    display: block;
+    height: 10px;
+    width: 10px;
+    margin: -5px;
 }
 
 .nkch-css4__content .oo-ui-tabSelectWidget-framed {

@@ -19,11 +19,21 @@ class nkchCSS {
             editor: {
                 isInitialized: false,
                 isEnabled: true,
-                isOpen: false,
-                isHolding: false,
-                isDragging: false
+                isOpen: false
             },
-            isCodeInvalid: false
+            state: {
+                drag: {
+                    isHolding: false,
+                    isDragging: false,
+                },
+                resize: {
+                    isHolding: false,
+                    isResizing: false
+                }
+            },
+            code: {
+                isInvalid: false
+            }
         }
 
         this.elements = {};
@@ -138,7 +148,7 @@ class nkchCSS {
         switch (language) {
             default:
             case "css":
-                this.checks.isCodeInvalid = false;
+                this.checks.code.isInvalid = false;
 
                 this.elements.style.innerHTML = code;
 
@@ -147,13 +157,13 @@ class nkchCSS {
             case "less":
                 less.render(code)
                     .then(output => {
-                        this.checks.isCodeInvalid = false;
+                        this.checks.code.isInvalid = false;
                         (this.oojsElements.compileLessButtonWidget as OO.ui.ButtonWidget).setDisabled(false);
 
                         this.updateCode(output.css, "css", false);
                     })
-                    .catch(error => {
-                        this.checks.isCodeInvalid = true;
+                    .catch(() => {
+                        this.checks.code.isInvalid = true;
                         (this.oojsElements.compileLessButtonWidget as OO.ui.ButtonWidget).setDisabled(true);
                     });
 
@@ -200,7 +210,7 @@ class nkchCSS {
         
         less.render(code)
             .then(output => {
-                if (!this.checks.isCodeInvalid) {
+                if (!this.checks.code.isInvalid) {
                     this.setValue(output.css);
                     this.setLanguage("css");
     
@@ -368,7 +378,7 @@ class nkchCSS {
             this.elements.main = main;
             document.body.after(main);
 
-            let main_position = {
+            let main_position: nkch.css.Coordinates = {
                 x: 0,
                 y: 0
             };
@@ -385,22 +395,33 @@ class nkchCSS {
                     if (parents.includes(element)) return;
                 }
 
-                this.checks.editor.isHolding = true;
+                this.checks.state.drag.isHolding = true;
 
                 main_position.x = e.clientX;
                 main_position.y = e.clientY;
+
+                this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-drag:hold", {
+                    cancelable: true,
+                    detail: this
+                }));
             }, false);
 
             main.addEventListener("mouseup", () => {
-                this.checks.editor.isHolding = false;
-                this.checks.editor.isDragging = false;
+                this.checks.state.drag.isHolding = false;
+                this.checks.state.drag.isDragging = false;
 
                 main.classList.remove("nkch-css4--is-dragging");
+
+                this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-drag:release", {
+                    cancelable: true,
+                    detail: this
+                }));
             }, false);
 
-            document.querySelector("html")!.addEventListener("mousemove", e => {
-                if (this.checks.editor.isHolding) {
-                    this.checks.editor.isDragging = true;
+            window.addEventListener("mousemove", e => {
+                if (this.checks.state.drag.isHolding) {
+                    this.checks.state.drag.isDragging = true;
+
                     main.style.top = main.offsetTop - (main_position.y - e.clientY) + "px";
                     main.style.left = main.offsetLeft - (main_position.x - e.clientX) + "px";
 
@@ -411,6 +432,11 @@ class nkchCSS {
                     main_position.y = e.clientY;
 
                     main.classList.add("nkch-css4--is-dragging");
+
+                    this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-drag", {
+                        cancelable: true,
+                        detail: this
+                    }));
                 }
             }, false);
     
@@ -672,6 +698,61 @@ class nkchCSS {
                     break;
             }
 
+            
+            /* ~ main : resizer ~ */
+            const main_resizer = document.createElement("div");
+                main_resizer.classList.add("nkch-css4__resizer");
+
+            this.elements.main_resizer = main_resizer;
+            main_codearea.append(main_resizer);
+
+            let mouse_position: nkch.css.Coordinates = { x: 0, y: 0 },
+                codearea_size: nkch.css.Size = { width: 0, height: 0 },
+                codearea_clientRect: DOMRect;
+
+            main_resizer.addEventListener("mousedown", e => {
+                this.checks.state.resize.isHolding = true;
+
+                codearea_clientRect = main_codearea.getBoundingClientRect();
+
+                mouse_position = { x: e.clientX, y: e.clientY };
+                codearea_size = { width: codearea_clientRect.width, height: codearea_clientRect.height };
+
+                console.log(mouse_position);
+
+                this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-resize:hold", {
+                    cancelable: true,
+                    detail: this
+                }));
+            }, false);
+
+            window.addEventListener("mouseup", () => {
+                this.checks.state.resize.isHolding = false;
+                this.checks.state.resize.isResizing = false;
+
+                this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-resize:release", {
+                    cancelable: true,
+                    detail: this
+                }));
+            }, false);
+
+            window.addEventListener("mousemove", e => {
+                if (this.checks.state.resize.isHolding) {
+                    this.checks.state.resize.isResizing = true;
+
+                    let calculatedWidth = codearea_size.width + e.clientX - mouse_position.x,
+                        calculatedHeight = codearea_size.height + e.clientY - mouse_position.y;
+
+                    if (calculatedWidth >= 450) main_codearea.style.width = calculatedWidth + "px";
+                    if (calculatedHeight >= 280) main_codearea.style.height = calculatedHeight + "px";
+
+                    this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-resize", {
+                        cancelable: true,
+                        detail: this
+                    }));
+                }
+            }, false);
+
 
             /* ~ main : statusbar ~ */
             const main_statusbar = document.createElement("div");
@@ -902,41 +983,4 @@ enum SvgPath {
         "10 12.1669V4.41425L13.293 7.70725ZM16 17.0002C16.552 17.0002 17 16.5532 17 16.0002V13.0002C17 12.4473 16.552 12.0002 16 12.0002C15.448 12.0002 15 " +
         "12.4473 15 13.0002V15.0002H3V13.0002C3 12.4473 2.552 12.0002 2 12.0002C1.448 12.0002 1 12.4473 1 13.0002V16.0002C1 16.5532 1.448 17.0002 " +
         "2 17.0002H16Z"
-}
-
-declare interface Window {
-    nkch: nkch;
-}
-
-declare interface nkch {
-    css4: nkchCSS;
-}
-
-declare namespace nkch {
-    export namespace css {
-        export interface Options {}
-
-        export interface Checks {
-            editor: {
-                isInitialized: boolean;
-                isEnabled: boolean;
-                isOpen: boolean;
-                isHolding: boolean;
-                isDragging: boolean;
-            }
-            isCodeInvalid: boolean;
-        }
-
-        export interface Env {
-            skin: string;
-            lang: string;
-        }
-
-        export type LocalStorageObject = {
-            lang: SupportedLanguages;
-            value: string;
-        }
-
-        export type SupportedLanguages = "css" | "less";
-    }
 }

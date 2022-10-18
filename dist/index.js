@@ -15,11 +15,21 @@ class nkchCSS {
             editor: {
                 isInitialized: false,
                 isEnabled: true,
-                isOpen: false,
-                isHolding: false,
-                isDragging: false
+                isOpen: false
             },
-            isCodeInvalid: false
+            state: {
+                drag: {
+                    isHolding: false,
+                    isDragging: false,
+                },
+                resize: {
+                    isHolding: false,
+                    isResizing: false
+                }
+            },
+            code: {
+                isInvalid: false
+            }
         };
         this.elements = {};
         this.oojsElements = {};
@@ -114,18 +124,18 @@ class nkchCSS {
         switch (language) {
             default:
             case "css":
-                this.checks.isCodeInvalid = false;
+                this.checks.code.isInvalid = false;
                 this.elements.style.innerHTML = code;
                 break;
             case "less":
                 less.render(code)
                     .then(output => {
-                    this.checks.isCodeInvalid = false;
+                    this.checks.code.isInvalid = false;
                     this.oojsElements.compileLessButtonWidget.setDisabled(false);
                     this.updateCode(output.css, "css", false);
                 })
-                    .catch(error => {
-                    this.checks.isCodeInvalid = true;
+                    .catch(() => {
+                    this.checks.code.isInvalid = true;
                     this.oojsElements.compileLessButtonWidget.setDisabled(true);
                 });
                 break;
@@ -162,7 +172,7 @@ class nkchCSS {
             return;
         less.render(code)
             .then(output => {
-            if (!this.checks.isCodeInvalid) {
+            if (!this.checks.code.isInvalid) {
                 this.setValue(output.css);
                 this.setLanguage("css");
                 this.updateCode(output.css, "css");
@@ -294,18 +304,26 @@ class nkchCSS {
                     if (parents.includes(element))
                         return;
                 }
-                this.checks.editor.isHolding = true;
+                this.checks.state.drag.isHolding = true;
                 main_position.x = e.clientX;
                 main_position.y = e.clientY;
+                this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-drag:hold", {
+                    cancelable: true,
+                    detail: this
+                }));
             }, false);
             main.addEventListener("mouseup", () => {
-                this.checks.editor.isHolding = false;
-                this.checks.editor.isDragging = false;
+                this.checks.state.drag.isHolding = false;
+                this.checks.state.drag.isDragging = false;
                 main.classList.remove("nkch-css4--is-dragging");
+                this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-drag:release", {
+                    cancelable: true,
+                    detail: this
+                }));
             }, false);
-            document.querySelector("html").addEventListener("mousemove", e => {
-                if (this.checks.editor.isHolding) {
-                    this.checks.editor.isDragging = true;
+            window.addEventListener("mousemove", e => {
+                if (this.checks.state.drag.isHolding) {
+                    this.checks.state.drag.isDragging = true;
                     main.style.top = main.offsetTop - (main_position.y - e.clientY) + "px";
                     main.style.left = main.offsetLeft - (main_position.x - e.clientX) + "px";
                     main.style.bottom = "auto";
@@ -313,6 +331,10 @@ class nkchCSS {
                     main_position.x = e.clientX;
                     main_position.y = e.clientY;
                     main.classList.add("nkch-css4--is-dragging");
+                    this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-drag", {
+                        cancelable: true,
+                        detail: this
+                    }));
                 }
             }, false);
             /* ~ main : container ~ */
@@ -491,6 +513,45 @@ class nkchCSS {
                     compileLessButtonWidget.toggle(true);
                     break;
             }
+            /* ~ main : resizer ~ */
+            const main_resizer = document.createElement("div");
+            main_resizer.classList.add("nkch-css4__resizer");
+            this.elements.main_resizer = main_resizer;
+            main_codearea.append(main_resizer);
+            let mouse_position = { x: 0, y: 0 }, codearea_size = { width: 0, height: 0 }, codearea_clientRect;
+            main_resizer.addEventListener("mousedown", e => {
+                this.checks.state.resize.isHolding = true;
+                codearea_clientRect = main_codearea.getBoundingClientRect();
+                mouse_position = { x: e.clientX, y: e.clientY };
+                codearea_size = { width: codearea_clientRect.width, height: codearea_clientRect.height };
+                console.log(mouse_position);
+                this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-resize:hold", {
+                    cancelable: true,
+                    detail: this
+                }));
+            }, false);
+            window.addEventListener("mouseup", () => {
+                this.checks.state.resize.isHolding = false;
+                this.checks.state.resize.isResizing = false;
+                this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-resize:release", {
+                    cancelable: true,
+                    detail: this
+                }));
+            }, false);
+            window.addEventListener("mousemove", e => {
+                if (this.checks.state.resize.isHolding) {
+                    this.checks.state.resize.isResizing = true;
+                    let calculatedWidth = codearea_size.width + e.clientX - mouse_position.x, calculatedHeight = codearea_size.height + e.clientY - mouse_position.y;
+                    if (calculatedWidth >= 450)
+                        main_codearea.style.width = calculatedWidth + "px";
+                    if (calculatedHeight >= 280)
+                        main_codearea.style.height = calculatedHeight + "px";
+                    this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-resize", {
+                        cancelable: true,
+                        detail: this
+                    }));
+                }
+            }, false);
             /* ~ main : statusbar ~ */
             const main_statusbar = document.createElement("div");
             main_statusbar.classList.add("nkch-css4__statusbar");
