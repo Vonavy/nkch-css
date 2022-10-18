@@ -38,11 +38,8 @@ class nkchCSS {
             lang: mw.config.get("wgScriptPath").replace("/", "")
         };
         this.versions = new Map([
-            ["jquery", "3.6.1"],
-            ["jquery-ui", "1.13.2"],
-            ["require.js", "2.3.6"],
-            ["less", "4.1.3"],
-            ["monaco-editor", "0.34.0"]
+            ["monaco-editor", "0.34.1"],
+            ["less", "4.1.3"]
         ]);
         this.initialize();
     }
