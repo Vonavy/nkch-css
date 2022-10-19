@@ -15,6 +15,7 @@ declare namespace nkch {
                 isInitialized: boolean;
                 isEnabled: boolean;
                 isOpen: boolean;
+                isMarkersPanelOpen: boolean;
             },
             state: {
                 drag: {

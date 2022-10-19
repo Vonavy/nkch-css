@@ -15,7 +15,8 @@ class nkchCSS {
             editor: {
                 isInitialized: false,
                 isEnabled: true,
-                isOpen: false
+                isOpen: false,
+                isMarkersPanelOpen: false
             },
             state: {
                 drag: {
@@ -466,11 +467,19 @@ class nkchCSS {
             this.oojsElements.tabs = tabsIndexLayout;
             tabsIndexLayout.addTabPanels([cssPanelLayout, lessPanelLayout], 0);
             $(main_content).append(tabsIndexLayout.$element);
+            /* ~ main : split view ~ */
+            const main_splitView = document.createElement("div");
+            main_splitView.classList.add("nkch-css4__split-view");
+            this.elements.main_codearea = main_splitView;
+            main_content.append(main_splitView);
+            let splitViewRect = main_splitView.getBoundingClientRect();
+            main_splitView.style.width = `${splitViewRect.width}px`;
+            main_splitView.style.height = `${splitViewRect.height}px`;
             /* ~ main : codearea ~ */
             const main_codearea = document.createElement("div");
             main_codearea.classList.add("nkch-css4__codearea");
             this.elements.main_codearea = main_codearea;
-            main_content.append(main_codearea);
+            main_splitView.append(main_codearea);
             this.editor = monaco.editor.create(main_codearea, {
                 language: "css",
                 theme: "vs-dark",
@@ -498,7 +507,7 @@ class nkchCSS {
                 this.updateCode(this.editor.getValue(), this.getLanguage());
             });
             let storageValue = mw.storage.getObject("mw-nkch-css");
-            if (storageValue && typeof storageValue !== "boolean") {
+            if (storageValue && "boolean" !== typeof storageValue) {
                 this.setValue(storageValue.value);
                 this.setLanguage(storageValue.lang);
             }
@@ -510,18 +519,114 @@ class nkchCSS {
                     compileLessButtonWidget.toggle(true);
                     break;
             }
+            /* ~ main : markers ~ */
+            const main_markers = document.createElement("div");
+            main_markers.classList.add("nkch-css4__markers", "nkch-css4__markers--is-hidden");
+            this.elements.main_markers = main_markers;
+            main_splitView.append(main_markers);
+            /* ~ main : markers header ~ */
+            const main_markersHeader = document.createElement("div");
+            main_markersHeader.classList.add("nkch-css4__markers-header");
+            this.elements.main_markersHeader = main_markersHeader;
+            main_markers.append(main_markersHeader);
+            /* ~ main : markers close button ~ */
+            const main_markersCloseButton = document.createElement("button");
+            main_markersCloseButton.classList.add("nkch-css4__markers-close-button");
+            this.elements.main_markersCloseButton = main_markersCloseButton;
+            main_markersHeader.append(main_markersCloseButton);
+            /* ~ [svg] main : markers close button icon ~ */
+            const main_markersCloseButtonIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            main_markersCloseButtonIcon.classList.add("nkch-css4__header-icon");
+            main_markersCloseButtonIcon.setAttribute("viewBox", "0 0 18 18");
+            main_markersCloseButtonIcon.setAttribute("aria-hidden", "true");
+            this.elements.main_markersCloseButtonIcon = main_markersCloseButtonIcon;
+            main_markersCloseButton.append(main_markersCloseButtonIcon);
+            /* ~ [svg] main : markers close button icon path  ~ */
+            const main_markersCloseButtonIconPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            main_markersCloseButtonIconPath.setAttribute("d", SvgPath.Close);
+            main_markersCloseButtonIconPath.setAttribute("fill-rule", "evenodd");
+            main_markersCloseButtonIconPath.setAttribute("clip-rule", "evenodd");
+            this.elements.main_markersCloseButtonIconPath = main_markersCloseButtonIconPath;
+            main_markersCloseButtonIcon.append(main_markersCloseButtonIconPath);
+            /* ~ main : markers list ~ */
+            const main_markersList = document.createElement("div");
+            main_markersList.classList.add("nkch-css4__markers-list");
+            this.elements.main_markersList = main_markersList;
+            main_markers.append(main_markersList);
+            monaco.editor.onDidChangeMarkers(([uri]) => {
+                const markers = monaco.editor.getModelMarkers({ resource: uri });
+                let markersError = markers.filter(element => element.severity === monaco.MarkerSeverity.Error);
+                let markersWarning = markers.filter(element => element.severity === monaco.MarkerSeverity.Warning);
+                main_statusbarItemValue__markers__error.innerText = markersError.length.toString();
+                main_statusbarItemValue__markers__warning.innerText = markersWarning.length.toString();
+                main_markersList.innerHTML = "";
+                for (let marker of markers) {
+                    addMarkerItem(marker);
+                }
+            });
+            let addMarkerItem = (markerData) => {
+                let markerItem = document.createElement("div");
+                markerItem.classList.add("nkch-css4__marker-item", "nkch-css4-marker-item");
+                markerItem.title = markerData.message;
+                main_markersList.append(markerItem);
+                let markerItem_icon = document.createElement("span");
+                markerItem_icon.classList.add("nkch-css4-marker-item__icon");
+                markerItem.append(markerItem_icon);
+                switch (markerData.severity) {
+                    case monaco.MarkerSeverity.Error:
+                        markerItem_icon.classList.add("nkch-css4-marker-item__icon--error");
+                        break;
+                    case monaco.MarkerSeverity.Warning:
+                        markerItem_icon.classList.add("nkch-css4-marker-item__icon--warning");
+                        break;
+                    case monaco.MarkerSeverity.Info:
+                        markerItem_icon.classList.add("nkch-css4-marker-item__icon--info");
+                        break;
+                    case monaco.MarkerSeverity.Hint:
+                        markerItem_icon.classList.add("nkch-css4-marker-item__icon--hint");
+                        break;
+                }
+                let markerItem_label = document.createElement("span");
+                markerItem_label.classList.add("nkch-css4-marker-item__label");
+                markerItem_label.innerText = markerData.message;
+                markerItem.append(markerItem_label);
+                if ("string" === typeof markerData.source) {
+                    let markerItem_source = document.createElement("span");
+                    markerItem_source.classList.add("nkch-css4-marker-item__source");
+                    markerItem_source.innerText = markerData.source;
+                    markerItem.append(markerItem_source);
+                }
+                if ("string" === typeof markerData.code) {
+                    let markerItem_code = document.createElement("span");
+                    markerItem_code.classList.add("nkch-css4-marker-item__code");
+                    markerItem_code.innerText = markerData.code;
+                    markerItem.append(markerItem_code);
+                }
+                let markerItem_position = document.createElement("span");
+                markerItem_position.classList.add("nkch-css4-marker-item__position");
+                markerItem_position.innerText = `${markerData.startLineNumber}:${markerData.startColumn}`;
+                markerItem.append(markerItem_position);
+                markerItem.addEventListener("click", () => {
+                    this.editor.setSelection({
+                        startLineNumber: markerData.startLineNumber,
+                        startColumn: markerData.startColumn,
+                        endLineNumber: markerData.endLineNumber,
+                        endColumn: markerData.endColumn
+                    });
+                    this.editor.revealLineInCenter(markerData.startLineNumber, monaco.editor.ScrollType.Smooth);
+                }, false);
+            };
             /* ~ main : resizer ~ */
             const main_resizer = document.createElement("div");
             main_resizer.classList.add("nkch-css4__resizer");
             this.elements.main_resizer = main_resizer;
-            main_codearea.append(main_resizer);
+            main_splitView.append(main_resizer);
             let mouse_position = { x: 0, y: 0 }, codearea_size = { width: 0, height: 0 }, codearea_clientRect;
             main_resizer.addEventListener("mousedown", e => {
                 this.checks.state.resize.isHolding = true;
-                codearea_clientRect = main_codearea.getBoundingClientRect();
+                codearea_clientRect = main_splitView.getBoundingClientRect();
                 mouse_position = { x: e.clientX, y: e.clientY };
                 codearea_size = { width: codearea_clientRect.width, height: codearea_clientRect.height };
-                console.log(mouse_position);
                 this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-resize:hold", {
                     cancelable: true,
                     detail: this
@@ -540,9 +645,9 @@ class nkchCSS {
                     this.checks.state.resize.isResizing = true;
                     let calculatedWidth = codearea_size.width + e.clientX - mouse_position.x, calculatedHeight = codearea_size.height + e.clientY - mouse_position.y;
                     if (calculatedWidth >= 450)
-                        main_codearea.style.width = calculatedWidth + "px";
+                        main_splitView.style.width = calculatedWidth + "px";
                     if (calculatedHeight >= 280)
-                        main_codearea.style.height = calculatedHeight + "px";
+                        main_splitView.style.height = calculatedHeight + "px";
                     this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-resize", {
                         cancelable: true,
                         detail: this
@@ -591,7 +696,7 @@ class nkchCSS {
             main_statusbarItemIcon__fileDownload.setAttribute("aria-hidden", "true");
             this.elements.main_statusbarItemIcon__fileDownload = main_statusbarItemIcon__fileDownload;
             main_statusbarItem__fileDownload.append(main_statusbarItemIcon__fileDownload);
-            /* ~ [svg] main : header button icon path (file download) ~ */
+            /* ~ [svg] main : statusbar item icon path (file download) ~ */
             const main_statusbarItemIconPath__fileDownload = document.createElementNS("http://www.w3.org/2000/svg", "path");
             main_statusbarItemIconPath__fileDownload.setAttribute("d", SvgPath.Download);
             main_statusbarItemIconPath__fileDownload.setAttribute("fill-rule", "evenodd");
@@ -636,13 +741,50 @@ class nkchCSS {
             main_statusbarItemIcon__fileUpload.setAttribute("aria-hidden", "true");
             this.elements.main_statusbarItemIcon__fileUpload = main_statusbarItemIcon__fileUpload;
             main_statusbarItem__fileUpload.append(main_statusbarItemIcon__fileUpload);
-            /* ~ [svg] main : header button icon path (file upload) ~ */
+            /* ~ [svg] main : statusbar item icon path (file upload) ~ */
             const main_statusbarItemIconPath__fileUpload = document.createElementNS("http://www.w3.org/2000/svg", "path");
             main_statusbarItemIconPath__fileUpload.setAttribute("d", SvgPath.Upload);
             main_statusbarItemIconPath__fileUpload.setAttribute("fill-rule", "evenodd");
             main_statusbarItemIconPath__fileUpload.setAttribute("clip-rule", "evenodd");
             this.elements.main_statusbarItemIconPath__fileUpload = main_statusbarItemIconPath__fileUpload;
             main_statusbarItemIcon__fileUpload.append(main_statusbarItemIconPath__fileUpload);
+            /* ~ main : statusbar item (markers) ~ */
+            const main_statusbarItem__markers = document.createElement("a");
+            main_statusbarItem__markers.classList.add("nkch-css4__statusbar-item", "nkch-css4__statusbar-item--markers");
+            this.elements.main_statusbarItem__markers = main_statusbarItem__markers;
+            main_statusbarContainer__left.append(main_statusbarItem__markers);
+            let toggleMarkersPanel = () => {
+                if (this.checks.editor.isMarkersPanelOpen) {
+                    this.elements.main_markers.classList.add("nkch-css4__markers--is-hidden");
+                    this.checks.editor.isMarkersPanelOpen = false;
+                }
+                else {
+                    this.elements.main_markers.classList.remove("nkch-css4__markers--is-hidden");
+                    this.checks.editor.isMarkersPanelOpen = true;
+                }
+            };
+            main_markersCloseButton.addEventListener("click", toggleMarkersPanel, false);
+            main_statusbarItem__markers.addEventListener("click", toggleMarkersPanel, false);
+            /* ~ main : statusbar item icon (markers) (error) ~ */
+            const main_statusbarItemIcon__markers__error = document.createElement("span");
+            main_statusbarItemIcon__markers__error.classList.add("nkch-css4__statusbar-item-icon", "nkch-css4__statusbar-item-icon--marker", "nkch-css4__statusbar-item-icon--marker-error");
+            this.elements.main_statusbarItemIcon__markers__error = main_statusbarItemIcon__markers__error;
+            main_statusbarItem__markers.append(main_statusbarItemIcon__markers__error);
+            /* ~ main : statusbar item value (markers) (error) ~ */
+            const main_statusbarItemValue__markers__error = document.createElement("span");
+            main_statusbarItemValue__markers__error.innerText = "0";
+            this.elements.main_statusbarItemValue__markers__error = main_statusbarItemValue__markers__error;
+            main_statusbarItem__markers.append(main_statusbarItemValue__markers__error);
+            /* ~ main : statusbar item icon (markers) (warning) ~ */
+            const main_statusbarItemIcon__markers__warning = document.createElement("span");
+            main_statusbarItemIcon__markers__warning.classList.add("nkch-css4__statusbar-item-icon", "nkch-css4__statusbar-item-icon--marker", "nkch-css4__statusbar-item-icon--marker-warning");
+            this.elements.main_statusbarItemIcon__markers__warning = main_statusbarItemIcon__markers__warning;
+            main_statusbarItem__markers.append(main_statusbarItemIcon__markers__warning);
+            /* ~ main : statusbar item value (markers) (warning) ~ */
+            const main_statusbarItemValue__markers__warning = document.createElement("span");
+            main_statusbarItemValue__markers__warning.innerText = "0";
+            this.elements.main_statusbarItemValue__markers__warning = main_statusbarItemValue__markers__warning;
+            main_statusbarItem__markers.append(main_statusbarItemValue__markers__warning);
             /* ~ main : statusbar container (right) ~ */
             const main_statusbarContainer__right = document.createElement("div");
             main_statusbarContainer__right.classList.add("nkch-css4__statusbar-container", "nkch-css4__statusbar-container--right");
@@ -679,7 +821,7 @@ class nkchCSS {
         });
     }
 }
-jQuery(() => {
+function onPageLoad() {
     let options = {};
     mw.loader.load("https://cdn.jsdelivr.net/gh/Vonavy/nkch-css@dev/css/index.css", "text/css");
     if (window.nkch) {
@@ -690,7 +832,19 @@ jQuery(() => {
     }
     else
         window.nkch = { css4: new nkchCSS(options) };
-});
+}
+;
+(() => {
+    switch (document.readyState) {
+        case "complete":
+        case "interactive":
+            onPageLoad();
+            return;
+        case "loading":
+            window.addEventListener("load", onPageLoad, false);
+            return;
+    }
+})();
 var SvgPath;
 (function (SvgPath) {
     SvgPath["Star"] = "M6.15008 5.30832C6.06799 5.48263 5.90933 5.60345 5.72578 5.63141L0.4831 6.42984C0.0208923 6.50023 -0.163665 7.09555 0.170791 7.43724L3.96443 11.3129C4.09725 11.4486 4.15785 11.6441 4.1265 11.8357L3.23094 17.3082C3.15199 17.7907 3.63516 18.1586 4.04857 17.9308L8.73777 15.3471C8.90194 15.2566 9.09806 15.2566 9.26223 15.3471L13.9514 17.9308C14.3648 18.1586 14.848 17.7907 14.7691 17.3082L13.8735 11.8357C13.8421 11.6441 13.9028 11.4486 14.0356 11.3129L17.8292 7.43724C18.1637 7.09555 17.9791 6.50023 17.5169 6.42984L12.2742 5.63141C12.0907 5.60345 11.932 5.48263 11.8499 5.30832L9.50532 0.329227C9.29862 -0.109742 8.70138 -0.109742 8.49467 0.329226L6.15008 5.30832ZM9 2.99274L7.56499 6.04019C7.25307 6.70259 6.65014 7.16171 5.95267 7.26793L2.74389 7.75661L5.06579 10.1287C5.57048 10.6443 5.80078 11.3872 5.68164 12.1152L5.13351 15.4647L8.00354 13.8833C8.62737 13.5396 9.37263 13.5396 9.99646 13.8833L12.8665 15.4647L12.3184 12.1152C12.1992 11.3872 12.4295 10.6443 12.9342 10.1287L15.2561 7.75661L12.0473 7.26793C11.3499 7.16171 10.7469 6.70259 10.435 6.04019L9 2.99274Z";
