@@ -240,14 +240,175 @@
     position: relative;
 }
 
-.nkch-css4__codearea {
-    height: 280px;
-    margin-top: 10px;
+.nkch-css4__split-view {
+    display: flex;
+    flex-direction: column;
     min-height: 280px;
     min-width: 450px;
-    overflow: auto;
-    resize: both;
-    width: 450px;
+    position: relative;
+}
+
+.nkch-css4__codearea {
+    flex: 1;
+    height: 0;
+    margin-top: 10px;
+    overflow: visible;
+    position: relative;
+    width: 100%;
+}
+
+.nkch-css4__markers {
+    background-color: var(
+        --theme-page-background-color,
+        var(--theme-nkch-css-page-background-color)
+    );
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    height: 150px;
+    overflow: hidden;
+    width: 100%;
+    z-index: 0;
+    transition: height .2s ease-in-out;
+}
+
+.nkch-css4__markers--is-hidden {
+    height: 0;
+}
+
+.nkch-css4__markers-header {
+    border-block: 1px solid var(
+        --theme-border-color,
+        var(--theme-nkch-css-border-color)
+    );
+    display: flex;
+    justify-content: flex-end;
+    height: 34px;
+}
+
+.nkch-css4__markers-close-button {
+    align-items: center;
+    background-color: transparent;
+    border: none;
+    color: var(
+        --theme-page-text-color,
+        var(--theme-nkch-css-page-text-color)
+    );
+    cursor: pointer;
+    display: inline-flex;
+    min-height: 18px;
+    padding: 5px 6px;
+    transition: background-color .3s;
+}
+
+.nkch-css4__markers-close-button:hover {
+    background-color: var(
+        --theme-page-background-color--secondary,
+        var(--theme-nkch-css-page-background-color--secondary)
+    );
+}
+
+.nkch-css4__markers-list {
+    height: 0;
+    flex: 1;
+    overflow-y: scroll;
+    padding: 10px;
+}
+
+.nkch-css4__marker-item {
+    border-radius: 3px;
+    font-size: 14px;
+    padding: 4px;
+    transition: background-color .3s;
+}
+
+.nkch-css4__marker-item:hover {
+    background-color: var(
+        --theme-page-background-color--secondary,
+        var(--theme-nkch-css-page-background-color--secondary)
+    );
+}
+
+.nkch-css4-marker-item {
+    align-items: center;
+    color: var(
+        --theme-page-text-color,
+        var(--theme-nkch-css-page-text-color)
+    );
+    cursor: pointer;
+    display: flex;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.nkch-css4-marker-item__icon {
+    display: inline-block;
+    font-family: codicon;
+}
+
+.nkch-css4-marker-item__icon--error::before {
+    color: #f14c4c;
+    content: "\ea87";
+}
+
+.nkch-css4-marker-item__icon--warning::before {
+    color: #cca700;
+    content: "\ea6c";
+}
+
+.nkch-css4-marker-item__icon--info::before {
+    color: #3794ff;
+    content: "\ea74";
+}
+
+.nkch-css4-marker-item__label {
+    margin-left: 5px;
+}
+
+.nkch-css4-marker-item__source {
+    margin-left: 8px;
+    opacity: .7;
+}
+
+.nkch-css4-marker-item__code {
+    opacity: .7;
+}
+
+.nkch-css4-marker-item__code::before {
+    content: "(";
+}
+
+.nkch-css4-marker-item__code::after {
+    content: ")";
+}
+
+.nkch-css4-marker-item__position {
+    margin-left: 8px;
+    opacity: .7;
+}
+
+.nkch-css4__resizer {
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    cursor: se-resize
+}
+
+.nkch-css4__resizer:after {
+    background-color: transparent;
+    border-top: 5px solid transparent;
+    border-left: 5px solid transparent;
+    border-bottom: 5px solid gray;
+    border-right: 5px solid gray;
+    border-radius: 3px;
+    content: "";
+    display: block;
+    height: 10px;
+    width: 10px;
+    margin: -5px;
 }
 
 .nkch-css4__content .oo-ui-tabSelectWidget-framed {
@@ -340,6 +501,24 @@
     fill: currentColor;
     height: 12px;
     width: 12px;
+}
+
+.nkch-css4__statusbar-item--markers {
+    align-items: center;
+    display: flex;
+    gap: 4px;
+}
+
+.nkch-css4__statusbar-item-icon--marker {
+    font-family: codicon;
+}
+
+.nkch-css4__statusbar-item-icon--marker-error::before {
+    content: "\ea87";
+}
+
+.nkch-css4__statusbar-item-icon--marker-warning::before {
+    content: "\ea6c";
 }
 
 .nkch-css4__error.is-visible {

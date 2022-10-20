@@ -20,10 +20,21 @@ class nkchCSS {
                 isInitialized: false,
                 isEnabled: true,
                 isOpen: false,
-                isHolding: false,
-                isDragging: false
+                isMarkersPanelOpen: false
             },
-            isCodeInvalid: false
+            state: {
+                drag: {
+                    isHolding: false,
+                    isDragging: false,
+                },
+                resize: {
+                    isHolding: false,
+                    isResizing: false
+                }
+            },
+            code: {
+                isInvalid: false
+            }
         }
 
         this.elements = {};
@@ -31,15 +42,13 @@ class nkchCSS {
 
         this.env = {
             skin: mw.config.get("skin"),
-            lang: mw.config.get("wgScriptPath").replace("/", "")
+            lang: mw.config.get("wgScriptPath").replace("/", ""),
+            theme: mw.config.get("isDarkTheme") ? "dark" : "light"
         }
         
         this.versions = new Map([
-            [ "jquery" , "3.6.1" ],
-            [ "jquery-ui" , "1.13.2" ],
-            [ "require.js", "2.3.6" ],
-            [ "less", "4.1.3" ],
-            [ "monaco-editor", "0.34.0" ]
+            [ "monaco-editor", "0.34.1" ],
+            [ "less", "4.1.3" ]
         ]);
 
         this.initialize();
@@ -109,7 +118,6 @@ class nkchCSS {
                 this.checks.editor.isEnabled = true;
                 
                 this.updateCode(this.editor.getValue(), this.getLanguage());
-
                 break;
 
             case false:
@@ -120,7 +128,6 @@ class nkchCSS {
                 this.checks.editor.isEnabled = false;
 
                 this.elements.style.innerHTML = "";
-
                 break;
         }
     }
@@ -138,25 +145,23 @@ class nkchCSS {
         switch (language) {
             default:
             case "css":
-                this.checks.isCodeInvalid = false;
+                this.checks.code.isInvalid = false;
 
                 this.elements.style.innerHTML = code;
-
                 break;
 
             case "less":
                 less.render(code)
                     .then(output => {
-                        this.checks.isCodeInvalid = false;
+                        this.checks.code.isInvalid = false;
                         (this.oojsElements.compileLessButtonWidget as OO.ui.ButtonWidget).setDisabled(false);
 
                         this.updateCode(output.css, "css", false);
                     })
-                    .catch(error => {
-                        this.checks.isCodeInvalid = true;
+                    .catch(() => {
+                        this.checks.code.isInvalid = true;
                         (this.oojsElements.compileLessButtonWidget as OO.ui.ButtonWidget).setDisabled(true);
                     });
-
                 break;
         }
 
@@ -200,7 +205,7 @@ class nkchCSS {
         
         less.render(code)
             .then(output => {
-                if (!this.checks.isCodeInvalid) {
+                if (!this.checks.code.isInvalid) {
                     this.setValue(output.css);
                     this.setLanguage("css");
     
@@ -259,7 +264,6 @@ class nkchCSS {
 
 
                 document.querySelector("#WikiaBar .toolbar .tools")!.append(quickbarItem);
-
                 break;
             
             default:
@@ -292,7 +296,6 @@ class nkchCSS {
                 sidebarItem.append(sidebarItem_link);
 
                 sidebarItem_link.addEventListener("click", () => this.open(), false);
-
                 break;
         }
     }
@@ -303,14 +306,12 @@ class nkchCSS {
         switch (this.env.skin) {
             case "fandomdesktop":
                 targetSpinner = this.elements.quickbarItem_spinner;
-
                 break;
 
             default:
             case "vector":
             case "vector-2022":
                 targetSpinner = this.elements.sidebarItem_spinner;
-
                 break;
         }
         
@@ -368,7 +369,7 @@ class nkchCSS {
             this.elements.main = main;
             document.body.after(main);
 
-            let main_position = {
+            let main_position: nkch.css.Coordinates = {
                 x: 0,
                 y: 0
             };
@@ -385,22 +386,33 @@ class nkchCSS {
                     if (parents.includes(element)) return;
                 }
 
-                this.checks.editor.isHolding = true;
+                this.checks.state.drag.isHolding = true;
 
                 main_position.x = e.clientX;
                 main_position.y = e.clientY;
+
+                this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-drag:hold", {
+                    cancelable: true,
+                    detail: this
+                }));
             }, false);
 
             main.addEventListener("mouseup", () => {
-                this.checks.editor.isHolding = false;
-                this.checks.editor.isDragging = false;
+                this.checks.state.drag.isHolding = false;
+                this.checks.state.drag.isDragging = false;
 
                 main.classList.remove("nkch-css4--is-dragging");
+
+                this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-drag:release", {
+                    cancelable: true,
+                    detail: this
+                }));
             }, false);
 
-            document.querySelector("html")!.addEventListener("mousemove", e => {
-                if (this.checks.editor.isHolding) {
-                    this.checks.editor.isDragging = true;
+            window.addEventListener("mousemove", e => {
+                if (this.checks.state.drag.isHolding) {
+                    this.checks.state.drag.isDragging = true;
+
                     main.style.top = main.offsetTop - (main_position.y - e.clientY) + "px";
                     main.style.left = main.offsetLeft - (main_position.x - e.clientX) + "px";
 
@@ -411,6 +423,11 @@ class nkchCSS {
                     main_position.y = e.clientY;
 
                     main.classList.add("nkch-css4--is-dragging");
+
+                    this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-drag", {
+                        cancelable: true,
+                        detail: this
+                    }));
                 }
             }, false);
     
@@ -442,7 +459,7 @@ class nkchCSS {
             /* ~ main : header title ~ */
             const main_headerTitle = document.createElement("div");
                 main_headerTitle.classList.add("nkch-css4__header-title");
-                main_headerTitle.innerHTML = "nkchCSS 4<sup style='font-size: 10px; vertical-align: super;'>OBT 6</sup>";
+                main_headerTitle.innerHTML = "nkchCSS 4<sup style='font-size: 10px; vertical-align: super;'>OBT 7</sup>";
 
             this.elements.main_headerTitle = main_headerTitle;
             main_headerLeft.append(main_headerTitle);
@@ -613,23 +630,56 @@ class nkchCSS {
             $(main_content).append(tabsIndexLayout.$element);
 
 
+            /* ~ main : split view ~ */
+            const main_splitView = document.createElement("div");
+                main_splitView.classList.add("nkch-css4__split-view");
+
+            this.elements.main_codearea = main_splitView;
+            main_content.append(main_splitView);
+                
+            let splitViewRect = main_splitView.getBoundingClientRect();
+
+            main_splitView.style.width = `${splitViewRect.width}px`;
+            main_splitView.style.height = `${splitViewRect.height}px`;
+
+
             /* ~ main : codearea ~ */
             const main_codearea = document.createElement("div");
                 main_codearea.classList.add("nkch-css4__codearea");
 
             this.elements.main_codearea = main_codearea;
-            main_content.append(main_codearea);
+            main_splitView.append(main_codearea);
+
+            let editorThemes: Map<string, string> = new Map<string, string>([
+                [ "light", "vs" ],
+                [ "dark", "vs-dark" ]
+            ]);
 
             this.editor = monaco.editor.create(main_codearea, {
                 language: "css",
-                theme: "vs-dark",
+                theme: editorThemes.get(this.env.theme),
                 fontSize: 13,
                 automaticLayout: true,
                 scrollBeyondLastLine: false,
+                cursorBlinking: "smooth",
+                cursorSmoothCaretAnimation: true,
+                autoIndent: "full",
+                scrollbar: {
+                    useShadows: false
+                },
                 minimap: {
                     enabled: false
                 }
             });
+
+            setInterval(() => {
+                let targetTheme: nkch.css.Themes = mw.config.get("isDarkTheme") as boolean ? "dark" : "light";
+
+                if (this.env.theme !== targetTheme) {
+                    monaco.editor.setTheme(editorThemes.get(targetTheme)!);
+                    this.env.theme = targetTheme;
+                }
+            }, 100);
     
             this.editor.onDidChangeModelContent(() => {
                 this.updateCode(this.editor.getValue(), this.getLanguage());
@@ -640,13 +690,11 @@ class nkchCSS {
                     case "css":
                         this.setLanguage("css", false);
                         compileLessButtonWidget.toggle(false);
-
                         break;
 
                     case "less":
                         this.setLanguage("less", false);
                         compileLessButtonWidget.toggle(true);
-
                         break;
                 }
 
@@ -655,7 +703,7 @@ class nkchCSS {
 
             let storageValue: nkch.css.LocalStorageObject | null | boolean = mw.storage.getObject("mw-nkch-css");
 
-            if (storageValue && typeof storageValue !== "boolean") {
+            if (storageValue && "boolean" !== typeof storageValue) {
                 this.setValue(storageValue.value);
                 this.setLanguage(storageValue.lang);
             }
@@ -663,14 +711,207 @@ class nkchCSS {
             switch (this.getLanguage()) {
                 case "css":
                     compileLessButtonWidget.toggle(false);
-
                     break;
 
                 case "less":
                     compileLessButtonWidget.toggle(true);
-
                     break;
             }
+
+
+            /* ~ main : markers ~ */
+            const main_markers = document.createElement("div");
+                main_markers.classList.add("nkch-css4__markers", "nkch-css4__markers--is-hidden");
+
+            this.elements.main_markers = main_markers;
+            main_splitView.append(main_markers);
+
+
+            /* ~ main : markers header ~ */
+            const main_markersHeader = document.createElement("div");
+                main_markersHeader.classList.add("nkch-css4__markers-header");
+
+            this.elements.main_markersHeader = main_markersHeader;
+            main_markers.append(main_markersHeader);
+
+
+            /* ~ main : markers close button ~ */
+            const main_markersCloseButton = document.createElement("button");
+                main_markersCloseButton.classList.add("nkch-css4__markers-close-button");
+
+            this.elements.main_markersCloseButton = main_markersCloseButton;
+            main_markersHeader.append(main_markersCloseButton);
+
+
+            /* ~ [svg] main : markers close button icon ~ */
+            const main_markersCloseButtonIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                main_markersCloseButtonIcon.classList.add("nkch-css4__header-icon");
+                main_markersCloseButtonIcon.setAttribute("viewBox", "0 0 18 18");
+                main_markersCloseButtonIcon.setAttribute("aria-hidden", "true");
+
+                this.elements.main_markersCloseButtonIcon = main_markersCloseButtonIcon;
+            main_markersCloseButton.append(main_markersCloseButtonIcon);
+
+
+            /* ~ [svg] main : markers close button icon path  ~ */
+            const main_markersCloseButtonIconPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                main_markersCloseButtonIconPath.setAttribute("d", SvgPath.Close);
+                main_markersCloseButtonIconPath.setAttribute("fill-rule", "evenodd");
+                main_markersCloseButtonIconPath.setAttribute("clip-rule", "evenodd");
+
+            this.elements.main_markersCloseButtonIconPath = main_markersCloseButtonIconPath;
+            main_markersCloseButtonIcon.append(main_markersCloseButtonIconPath);
+
+
+            /* ~ main : markers list ~ */
+            const main_markersList = document.createElement("div");
+                main_markersList.classList.add("nkch-css4__markers-list");
+
+            this.elements.main_markersList = main_markersList;
+            main_markers.append(main_markersList);
+
+            monaco.editor.onDidChangeMarkers(([uri]) => {
+                const markers = monaco.editor.getModelMarkers({resource: uri});
+
+                let markersError = markers.filter(element => element.severity === monaco.MarkerSeverity.Error);
+                let markersWarning = markers.filter(element => element.severity === monaco.MarkerSeverity.Warning);
+
+                main_statusbarItemValue__markers__error.innerText = markersError.length.toString();
+                main_statusbarItemValue__markers__warning.innerText = markersWarning.length.toString();
+
+                main_markersList.innerHTML = "";
+
+                for (let marker of markers) {
+                    addMarkerItem(marker);
+                }
+            });
+
+            let addMarkerItem = (markerData: monaco.editor.IMarker) => {
+                let markerItem = document.createElement("div");
+                    markerItem.classList.add("nkch-css4__marker-item", "nkch-css4-marker-item");
+                    markerItem.title = markerData.message;
+    
+                main_markersList.append(markerItem);
+
+
+                let markerItem_icon = document.createElement("span");
+                    markerItem_icon.classList.add("nkch-css4-marker-item__icon");
+    
+                markerItem.append(markerItem_icon);
+
+                switch (markerData.severity) {
+                    case monaco.MarkerSeverity.Error:
+                        markerItem_icon.classList.add("nkch-css4-marker-item__icon--error");
+                        break;
+
+                    case monaco.MarkerSeverity.Warning:
+                        markerItem_icon.classList.add("nkch-css4-marker-item__icon--warning");
+                        break;
+
+                    case monaco.MarkerSeverity.Info:
+                        markerItem_icon.classList.add("nkch-css4-marker-item__icon--info");
+                        break;
+
+                    case monaco.MarkerSeverity.Hint:
+                        markerItem_icon.classList.add("nkch-css4-marker-item__icon--hint");
+                        break;
+                }
+
+
+                let markerItem_label = document.createElement("span");
+                    markerItem_label.classList.add("nkch-css4-marker-item__label");
+                    markerItem_label.innerText = markerData.message;
+    
+                markerItem.append(markerItem_label);
+
+
+                if ("string" === typeof markerData.source) {
+                    let markerItem_source = document.createElement("span");
+                        markerItem_source.classList.add("nkch-css4-marker-item__source");
+                        markerItem_source.innerText = markerData.source;
+        
+                    markerItem.append(markerItem_source);
+                }
+
+
+                if ("string" === typeof markerData.code) {
+                    let markerItem_code = document.createElement("span");
+                        markerItem_code.classList.add("nkch-css4-marker-item__code");
+                        markerItem_code.innerText = markerData.code;
+        
+                    markerItem.append(markerItem_code);
+                }
+
+                let markerItem_position = document.createElement("span");
+                    markerItem_position.classList.add("nkch-css4-marker-item__position");
+                    markerItem_position.innerText = `${markerData.startLineNumber}:${markerData.startColumn}`;
+    
+                markerItem.append(markerItem_position);
+
+                markerItem.addEventListener("click", () => {
+                    this.editor.setSelection({
+                        startLineNumber: markerData.startLineNumber,
+                        startColumn: markerData.startColumn,
+                        endLineNumber: markerData.endLineNumber,
+                        endColumn: markerData.endColumn
+                    });
+
+                    this.editor.revealLineInCenter(markerData.startLineNumber, monaco.editor.ScrollType.Smooth);
+                }, false);
+            }
+
+            
+            /* ~ main : resizer ~ */
+            const main_resizer = document.createElement("div");
+                main_resizer.classList.add("nkch-css4__resizer");
+
+            this.elements.main_resizer = main_resizer;
+            main_splitView.append(main_resizer);
+
+            let mouse_position: nkch.css.Coordinates = { x: 0, y: 0 },
+                codearea_size: nkch.css.Size = { width: 0, height: 0 },
+                codearea_clientRect: DOMRect;
+
+            main_resizer.addEventListener("mousedown", e => {
+                this.checks.state.resize.isHolding = true;
+
+                codearea_clientRect = main_splitView.getBoundingClientRect();
+
+                mouse_position = { x: e.clientX, y: e.clientY };
+                codearea_size = { width: codearea_clientRect.width, height: codearea_clientRect.height };
+
+                this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-resize:hold", {
+                    cancelable: true,
+                    detail: this
+                }));
+            }, false);
+
+            window.addEventListener("mouseup", () => {
+                this.checks.state.resize.isHolding = false;
+                this.checks.state.resize.isResizing = false;
+
+                this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-resize:release", {
+                    cancelable: true,
+                    detail: this
+                }));
+            }, false);
+
+            window.addEventListener("mousemove", e => {
+                if (this.checks.state.resize.isHolding) {
+                    this.checks.state.resize.isResizing = true;
+
+                    let calculatedWidth = codearea_size.width + e.clientX - mouse_position.x,
+                        calculatedHeight = codearea_size.height + e.clientY - mouse_position.y;
+
+                    if (calculatedWidth >= 450) main_splitView.style.width = calculatedWidth + "px";
+                    if (calculatedHeight >= 280) main_splitView.style.height = calculatedHeight + "px";
+
+                    this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-resize", {
+                        cancelable: true,
+                        detail: this
+                    }));
+                }
+            }, false);
 
 
             /* ~ main : statusbar ~ */
@@ -692,7 +933,7 @@ class nkchCSS {
             /* ~ main : statusbar item (file download) ~ */
             const main_statusbarItem__fileDownload = document.createElement("a");
                 main_statusbarItem__fileDownload.classList.add("nkch-css4__statusbar-item", "nkch-css4__statusbar-item--file-download");
-                main_statusbarItem__fileDownload.setAttribute("role", "button")
+                main_statusbarItem__fileDownload.setAttribute("role", "button");
 
             this.elements.main_statusbarItem__fileDownload = main_statusbarItem__fileDownload;
             main_statusbarContainer__left.append(main_statusbarItem__fileDownload);
@@ -735,7 +976,7 @@ class nkchCSS {
             main_statusbarItem__fileDownload.append(main_statusbarItemIcon__fileDownload);
 
 
-            /* ~ [svg] main : header button icon path (file download) ~ */
+            /* ~ [svg] main : statusbar item icon path (file download) ~ */
             const main_statusbarItemIconPath__fileDownload = document.createElementNS("http://www.w3.org/2000/svg", "path");
                 main_statusbarItemIconPath__fileDownload.setAttribute("d", SvgPath.Download);
                 main_statusbarItemIconPath__fileDownload.setAttribute("fill-rule", "evenodd");
@@ -780,7 +1021,7 @@ class nkchCSS {
             /* ~ main : statusbar item (file upload) ~ */
             const main_statusbarItem__fileUpload = document.createElement("a");
                 main_statusbarItem__fileUpload.classList.add("nkch-css4__statusbar-item", "nkch-css4__statusbar-item--file-upload");
-                main_statusbarItem__fileUpload.setAttribute("role", "button")
+                main_statusbarItem__fileUpload.setAttribute("role", "button");
 
             this.elements.main_statusbarItem__fileUpload = main_statusbarItem__fileUpload;
             main_statusbarContainer__left.append(main_statusbarItem__fileUpload);
@@ -798,7 +1039,7 @@ class nkchCSS {
             main_statusbarItem__fileUpload.append(main_statusbarItemIcon__fileUpload);
 
 
-            /* ~ [svg] main : header button icon path (file upload) ~ */
+            /* ~ [svg] main : statusbar item icon path (file upload) ~ */
             const main_statusbarItemIconPath__fileUpload = document.createElementNS("http://www.w3.org/2000/svg", "path");
                 main_statusbarItemIconPath__fileUpload.setAttribute("d", SvgPath.Upload);
                 main_statusbarItemIconPath__fileUpload.setAttribute("fill-rule", "evenodd");
@@ -806,6 +1047,59 @@ class nkchCSS {
 
             this.elements.main_statusbarItemIconPath__fileUpload = main_statusbarItemIconPath__fileUpload;
             main_statusbarItemIcon__fileUpload.append(main_statusbarItemIconPath__fileUpload);
+
+
+            /* ~ main : statusbar item (markers) ~ */
+            const main_statusbarItem__markers = document.createElement("a");
+                main_statusbarItem__markers.classList.add("nkch-css4__statusbar-item", "nkch-css4__statusbar-item--markers");
+
+            this.elements.main_statusbarItem__markers = main_statusbarItem__markers;
+            main_statusbarContainer__left.append(main_statusbarItem__markers);
+
+            let toggleMarkersPanel = (): void => {
+                if (this.checks.editor.isMarkersPanelOpen) {
+                    this.elements.main_markers.classList.add("nkch-css4__markers--is-hidden");
+                    this.checks.editor.isMarkersPanelOpen = false;
+                } else {
+                    this.elements.main_markers.classList.remove("nkch-css4__markers--is-hidden");
+                    this.checks.editor.isMarkersPanelOpen = true;
+                }
+            }
+
+            main_markersCloseButton.addEventListener("click", toggleMarkersPanel, false);
+            main_statusbarItem__markers.addEventListener("click", toggleMarkersPanel, false);
+
+
+            /* ~ main : statusbar item icon (markers) (error) ~ */
+            const main_statusbarItemIcon__markers__error = document.createElement("span");
+                main_statusbarItemIcon__markers__error.classList.add("nkch-css4__statusbar-item-icon", "nkch-css4__statusbar-item-icon--marker", "nkch-css4__statusbar-item-icon--marker-error");
+
+            this.elements.main_statusbarItemIcon__markers__error = main_statusbarItemIcon__markers__error;
+            main_statusbarItem__markers.append(main_statusbarItemIcon__markers__error);
+
+
+            /* ~ main : statusbar item value (markers) (error) ~ */
+            const main_statusbarItemValue__markers__error = document.createElement("span");
+                main_statusbarItemValue__markers__error.innerText = "0";
+
+            this.elements.main_statusbarItemValue__markers__error = main_statusbarItemValue__markers__error;
+            main_statusbarItem__markers.append(main_statusbarItemValue__markers__error);
+
+
+            /* ~ main : statusbar item icon (markers) (warning) ~ */
+            const main_statusbarItemIcon__markers__warning = document.createElement("span");
+                main_statusbarItemIcon__markers__warning.classList.add("nkch-css4__statusbar-item-icon", "nkch-css4__statusbar-item-icon--marker", "nkch-css4__statusbar-item-icon--marker-warning");
+
+            this.elements.main_statusbarItemIcon__markers__warning = main_statusbarItemIcon__markers__warning;
+            main_statusbarItem__markers.append(main_statusbarItemIcon__markers__warning);
+
+
+            /* ~ main : statusbar item value (markers) (warning) ~ */
+            const main_statusbarItemValue__markers__warning = document.createElement("span");
+                main_statusbarItemValue__markers__warning.innerText = "0";
+
+            this.elements.main_statusbarItemValue__markers__warning = main_statusbarItemValue__markers__warning;
+            main_statusbarItem__markers.append(main_statusbarItemValue__markers__warning);
 
 
             /* ~ main : statusbar container (right) ~ */
@@ -819,7 +1113,7 @@ class nkchCSS {
             /* ~ main : statusbar item (selection) ~ */
             const main_statusbarItem__selection = document.createElement("a");
                 main_statusbarItem__selection.classList.add("nkch-css4__statusbar-item", "nkch-css4__statusbar-item--file-upload");
-                main_statusbarItem__selection.setAttribute("role", "button")
+                main_statusbarItem__selection.setAttribute("role", "button");
                 main_statusbarItem__selection.innerText = "L: 1 • C: 1";
 
             this.elements.main_statusbarItem__selection = main_statusbarItem__selection;
@@ -829,7 +1123,7 @@ class nkchCSS {
                 main_statusbarItem__selection.innerText = `L: ${event.position.lineNumber} • C: ${event.position.column}`;
 
                 let selection = this.editor.getSelection(),
-                    model = this.editor.getModel();
+                    model = this.editor.getModel(); 
 
                 if (!selection?.isEmpty() && model)
                     main_statusbarItem__selection.innerText += ` • S: ${model.getValueInRange(selection!.toJSON()).length}`;
@@ -843,13 +1137,11 @@ class nkchCSS {
             switch (this.env.skin) {
                 case "fandomdesktop":
                     this.elements.quickbarItem_spinner.classList.add("is-hidden");
-
                     break;
 
                 case "vector":
                 case "vector-2022":
                     this.elements.sidebarItem_spinner.classList.add("is-hidden");
-
                     break;
             }
 
@@ -859,7 +1151,7 @@ class nkchCSS {
     }
 }
 
-jQuery(() => {
+function onPageLoad() {
     let options: nkch.css.Options = {};
 
     mw.loader.load("https://cdn.jsdelivr.net/gh/Vonavy/nkch-css@latest/css/index.css", "text/css");
@@ -868,7 +1160,19 @@ jQuery(() => {
         if (window.nkch.css4) return;
         else window.nkch.css4 = new nkchCSS(options);
     } else window.nkch = { css4: new nkchCSS(options) };
-});
+};
+
+(() => {
+    switch (document.readyState) {
+        case "complete":
+        case "interactive":
+            onPageLoad();
+            return;
+        case "loading":
+            window.addEventListener("load", onPageLoad, false);
+            return;
+    }
+})();
 
 
 enum SvgPath {
@@ -902,41 +1206,4 @@ enum SvgPath {
         "10 12.1669V4.41425L13.293 7.70725ZM16 17.0002C16.552 17.0002 17 16.5532 17 16.0002V13.0002C17 12.4473 16.552 12.0002 16 12.0002C15.448 12.0002 15 " +
         "12.4473 15 13.0002V15.0002H3V13.0002C3 12.4473 2.552 12.0002 2 12.0002C1.448 12.0002 1 12.4473 1 13.0002V16.0002C1 16.5532 1.448 17.0002 " +
         "2 17.0002H16Z"
-}
-
-declare interface Window {
-    nkch: nkch;
-}
-
-declare interface nkch {
-    css4: nkchCSS;
-}
-
-declare namespace nkch {
-    export namespace css {
-        export interface Options {}
-
-        export interface Checks {
-            editor: {
-                isInitialized: boolean;
-                isEnabled: boolean;
-                isOpen: boolean;
-                isHolding: boolean;
-                isDragging: boolean;
-            }
-            isCodeInvalid: boolean;
-        }
-
-        export interface Env {
-            skin: string;
-            lang: string;
-        }
-
-        export type LocalStorageObject = {
-            lang: SupportedLanguages;
-            value: string;
-        }
-
-        export type SupportedLanguages = "css" | "less";
-    }
 }
