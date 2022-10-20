@@ -35,6 +35,7 @@ declare namespace nkch {
         export interface Env {
             skin: string;
             lang: string;
+            theme: Themes;
         }
 
         export type LocalStorageObject = {
@@ -43,6 +44,7 @@ declare namespace nkch {
         }
 
         export type SupportedLanguages = "css" | "less";
+        export type Themes = "light" | "dark";
 
         export type Coordinates = { x: number, y: number }
         export type Size = { width: number, height: number }

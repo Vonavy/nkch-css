@@ -258,7 +258,10 @@
 }
 
 .nkch-css4__markers {
-    background-color: #202020;
+    background-color: var(
+        --theme-page-background-color,
+        var(--theme-nkch-css-page-background-color)
+    );
     bottom: 0;
     display: flex;
     flex-direction: column;
@@ -274,7 +277,10 @@
 }
 
 .nkch-css4__markers-header {
-    border-block: 1px solid #505050;
+    border-block: 1px solid var(
+        --theme-border-color,
+        var(--theme-nkch-css-border-color)
+    );
     display: flex;
     justify-content: flex-end;
     height: 34px;
@@ -284,6 +290,10 @@
     align-items: center;
     background-color: transparent;
     border: none;
+    color: var(
+        --theme-page-text-color,
+        var(--theme-nkch-css-page-text-color)
+    );
     cursor: pointer;
     display: inline-flex;
     min-height: 18px;
@@ -292,7 +302,10 @@
 }
 
 .nkch-css4__markers-close-button:hover {
-    background-color: #50505050;  
+    background-color: var(
+        --theme-page-background-color--secondary,
+        var(--theme-nkch-css-page-background-color--secondary)
+    );
 }
 
 .nkch-css4__markers-list {
@@ -310,15 +323,18 @@
 }
 
 .nkch-css4__marker-item:hover {
-    background-color: #303030;
-}
-
-.nkch-css4__marker-item:active {
-    background-color: #404040;
+    background-color: var(
+        --theme-page-background-color--secondary,
+        var(--theme-nkch-css-page-background-color--secondary)
+    );
 }
 
 .nkch-css4-marker-item {
     align-items: center;
+    color: var(
+        --theme-page-text-color,
+        var(--theme-nkch-css-page-text-color)
+    );
     cursor: pointer;
     display: flex;
     white-space: nowrap;

@@ -36,7 +36,8 @@ class nkchCSS {
         this.oojsElements = {};
         this.env = {
             skin: mw.config.get("skin"),
-            lang: mw.config.get("wgScriptPath").replace("/", "")
+            lang: mw.config.get("wgScriptPath").replace("/", ""),
+            theme: mw.config.get("isDarkTheme") ? "dark" : "light"
         };
         this.versions = new Map([
             ["monaco-editor", "0.34.1"],
@@ -480,16 +481,33 @@ class nkchCSS {
             main_codearea.classList.add("nkch-css4__codearea");
             this.elements.main_codearea = main_codearea;
             main_splitView.append(main_codearea);
+            let editorThemes = new Map([
+                ["light", "vs"],
+                ["dark", "vs-dark"]
+            ]);
             this.editor = monaco.editor.create(main_codearea, {
                 language: "css",
-                theme: "vs-dark",
+                theme: editorThemes.get(this.env.theme),
                 fontSize: 13,
                 automaticLayout: true,
                 scrollBeyondLastLine: false,
+                cursorBlinking: "smooth",
+                cursorSmoothCaretAnimation: true,
+                autoIndent: "full",
+                scrollbar: {
+                    useShadows: false
+                },
                 minimap: {
                     enabled: false
                 }
             });
+            setInterval(() => {
+                let targetTheme = mw.config.get("isDarkTheme") ? "dark" : "light";
+                if (this.env.theme !== targetTheme) {
+                    monaco.editor.setTheme(editorThemes.get(targetTheme));
+                    this.env.theme = targetTheme;
+                }
+            }, 100);
             this.editor.onDidChangeModelContent(() => {
                 this.updateCode(this.editor.getValue(), this.getLanguage());
             });
