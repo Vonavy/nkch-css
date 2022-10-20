@@ -354,7 +354,7 @@ class nkchCSS {
             /* ~ main : header title ~ */
             const main_headerTitle = document.createElement("div");
             main_headerTitle.classList.add("nkch-css4__header-title");
-            main_headerTitle.innerHTML = "nkchCSS 4<sup style='font-size: 10px; vertical-align: super;'>DEV</sup>";
+            main_headerTitle.innerHTML = "nkchCSS 4<sup style='font-size: 10px; vertical-align: super;'>OBT 7</sup>";
             this.elements.main_headerTitle = main_headerTitle;
             main_headerLeft.append(main_headerTitle);
             /* ~ main : header right ~ */
