@@ -60,7 +60,7 @@ class nkchCSS {
         if (!this.checks.editor.isInitialized) return this.initializeEditor();
         else if (this.checks.editor.isOpen) return;
 
-        this.elements.main.classList.remove("is-closed");
+        this.elements.main.classList.remove("nkch-css--is-closed");
 
         const showAnimation = this.elements.main.animate([{
             opacity: 0,
@@ -73,7 +73,7 @@ class nkchCSS {
             easing: "ease"
         });
 
-        this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-open", {
+        this.elements.main.dispatchEvent(new CustomEvent("nkch-css-open", {
             cancelable: true,
             detail: this
         }));
@@ -98,9 +98,9 @@ class nkchCSS {
             easing: "ease"
         });
 
-        hideAnimation.onfinish = () => this.elements.main.classList.add("is-closed");
+        hideAnimation.onfinish = () => this.elements.main.classList.add("nkch-css--is-closed");
 
-        this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-close", {
+        this.elements.main.dispatchEvent(new CustomEvent("nkch-css-close", {
             cancelable: true,
             detail: this
         }));
@@ -165,7 +165,7 @@ class nkchCSS {
                 break;
         }
 
-        this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-update", {
+        this.elements.main.dispatchEvent(new CustomEvent("nkch-css-update", {
             cancelable: true,
             detail: this
         }));
@@ -238,14 +238,14 @@ class nkchCSS {
             case "fandomdesktop":
                 /* ~ quickbar item ~ */
                 const quickbarItem = document.createElement("li");
-                    quickbarItem.classList.add("nkch-css4__quickbar-button");
+                    quickbarItem.classList.add("nkch-css__quickbar-button");
 
                 this.elements.quickbarItem = quickbarItem;
 
 
                 /* ~ quickbar item : spinner ~ */
                 const quickbarItem_spinner = document.createElement("span");
-                quickbarItem_spinner.classList.add("nkch-css4__quickbar-button-spinner", "is-hidden");
+                quickbarItem_spinner.classList.add("nkch-css__quickbar-button-spinner", "is-hidden");
 
                 this.elements.quickbarItem_spinner = quickbarItem_spinner;
                 quickbarItem.append(quickbarItem_spinner);
@@ -253,7 +253,7 @@ class nkchCSS {
 
                 /* ~ quickbar item : link ~ */
                 const quickbarItem_link = document.createElement("a");
-                    quickbarItem_link.classList.add("nkch-css4__quickbar-button-link");
+                    quickbarItem_link.classList.add("nkch-css__quickbar-button-link");
                     quickbarItem_link.setAttribute("href", "#");
                     quickbarItem_link.innerHTML = "nkchCSS 4"
 
@@ -271,7 +271,7 @@ class nkchCSS {
             case "vector-2022":
                 /* ~ sidebar item ~ */
                 const sidebarItem = document.createElement("li");
-                    sidebarItem.classList.add("nkch-css4__sidebar-button", "mw-list-item");
+                    sidebarItem.classList.add("nkch-css__sidebar-button", "mw-list-item");
                     sidebarItem.id = "n-nkchcss";
 
                 this.elements.sidebarItem = sidebarItem;
@@ -280,7 +280,7 @@ class nkchCSS {
 
                 /* ~ sidebar item : spinner ~ */
                 const sidebarItem_spinner = document.createElement("span");
-                    sidebarItem_spinner.classList.add("nkch-css4__sidebar-button-spinner", "is-hidden");
+                    sidebarItem_spinner.classList.add("nkch-css__sidebar-button-spinner", "is-hidden");
     
                 this.elements.sidebarItem_spinner = sidebarItem_spinner;
                 sidebarItem.append(sidebarItem_spinner);
@@ -288,7 +288,7 @@ class nkchCSS {
 
                 /* ~ sidebar item : link ~ */
                 const sidebarItem_link = document.createElement("a");
-                    sidebarItem_link.classList.add("nkch-css4__sidebar-button-link");
+                    sidebarItem_link.classList.add("nkch-css__sidebar-button-link");
                     sidebarItem_link.setAttribute("href", "#");
                     sidebarItem_link.innerText = "nkchCSS 4";
     
@@ -346,7 +346,7 @@ class nkchCSS {
         require(["less", "vs/editor/editor.main"], () => {
             /* ~ window manager ~ */
             const windowManager = new OO.ui.WindowManager({
-                classes: ["nkch-css4__window-manager"]
+                classes: ["nkch-css__window-manager"]
             });
     
             $(document.body).append(windowManager.$element);
@@ -356,7 +356,7 @@ class nkchCSS {
 
             /* ~ style ~ */
             const style = document.createElement("style");
-                style.classList.add("nkch-css4-style");
+                style.classList.add("nkch-css-style");
 
             this.elements.style = style;
             document.head.append(style);
@@ -364,7 +364,7 @@ class nkchCSS {
 
             /* ~ main ~ */
             const main = document.createElement("div");
-                main.classList.add("nkch-css4")
+                main.classList.add("nkch-css")
 
             this.elements.main = main;
             document.body.after(main);
@@ -391,7 +391,7 @@ class nkchCSS {
                 main_position.x = e.clientX;
                 main_position.y = e.clientY;
 
-                this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-drag:hold", {
+                this.elements.main.dispatchEvent(new CustomEvent("nkch-css-drag:hold", {
                     cancelable: true,
                     detail: this
                 }));
@@ -401,9 +401,9 @@ class nkchCSS {
                 this.checks.state.drag.isHolding = false;
                 this.checks.state.drag.isDragging = false;
 
-                main.classList.remove("nkch-css4--is-dragging");
+                main.classList.remove("nkch-css--is-dragging");
 
-                this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-drag:release", {
+                this.elements.main.dispatchEvent(new CustomEvent("nkch-css-drag:release", {
                     cancelable: true,
                     detail: this
                 }));
@@ -422,9 +422,9 @@ class nkchCSS {
                     main_position.x = e.clientX;
                     main_position.y = e.clientY;
 
-                    main.classList.add("nkch-css4--is-dragging");
+                    main.classList.add("nkch-css--is-dragging");
 
-                    this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-drag", {
+                    this.elements.main.dispatchEvent(new CustomEvent("nkch-css-drag", {
                         cancelable: true,
                         detail: this
                     }));
@@ -434,7 +434,7 @@ class nkchCSS {
     
             /* ~ main : container ~ */
             const main_container = document.createElement("div");
-                main_container.classList.add("nkch-css4__container");
+                main_container.classList.add("nkch-css__container");
     
             this.elements.main_container = main_container;
             main.append(main_container);
@@ -442,7 +442,7 @@ class nkchCSS {
 
             /* ~ main : header ~ */
             const main_header = document.createElement("div");
-                main_header.classList.add("nkch-css4__header");
+                main_header.classList.add("nkch-css__header");
     
             this.elements.main_header = main_header;
             main_container.append(main_header);
@@ -450,7 +450,7 @@ class nkchCSS {
 
             /* ~ main : header left ~ */
             const main_headerLeft = document.createElement("div");
-                main_headerLeft.classList.add("nkch-css4__header-left");
+                main_headerLeft.classList.add("nkch-css__header-left");
 
             this.elements.main_headerLeft = main_headerLeft;
             main_header.append(main_headerLeft);
@@ -458,8 +458,8 @@ class nkchCSS {
 
             /* ~ main : header title ~ */
             const main_headerTitle = document.createElement("div");
-                main_headerTitle.classList.add("nkch-css4__header-title");
-                main_headerTitle.innerHTML = "nkchCSS 4<sup style='font-size: 10px; vertical-align: super;'>DEV</sup>";
+                main_headerTitle.classList.add("nkch-css__header-title");
+                main_headerTitle.innerHTML = "nkchCSS";
 
             this.elements.main_headerTitle = main_headerTitle;
             main_headerLeft.append(main_headerTitle);
@@ -467,7 +467,7 @@ class nkchCSS {
 
             /* ~ main : header right ~ */
             const main_headerRight = document.createElement("div");
-                main_headerRight.classList.add("nkch-css4__header-right");
+                main_headerRight.classList.add("nkch-css__header-right");
 
             this.elements.main_headerRight = main_headerRight;
             main_header.append(main_headerRight);
@@ -475,7 +475,7 @@ class nkchCSS {
 
             /* ~ main : header button group ~ */
             const main_headerButtonGroup = document.createElement("div");
-                main_headerButtonGroup.classList.add("nkch-css4__header-button-group");
+                main_headerButtonGroup.classList.add("nkch-css__header-button-group");
 
             this.elements.main_headerButtonGroup = main_headerButtonGroup;
             main_headerRight.append(main_headerButtonGroup);
@@ -483,7 +483,7 @@ class nkchCSS {
 
             /* ~ main : header button (beautify) ~ */
             const main_headerButton__beautify = document.createElement("button");
-                main_headerButton__beautify.classList.add("nkch-css4__header-button", "nkch-css4__header-button--beautify");
+                main_headerButton__beautify.classList.add("nkch-css__header-button", "nkch-css__header-button--beautify");
                 main_headerButton__beautify.setAttribute("type", "button");
 
             this.elements.main_headerButton__beautify = main_headerButton__beautify;
@@ -494,7 +494,7 @@ class nkchCSS {
 
             /* ~ [svg] main : header button icon (beautify) ~ */
             const main_headerButtonIcon__beautify = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                main_headerButtonIcon__beautify.classList.add("nkch-css4__header-icon");
+                main_headerButtonIcon__beautify.classList.add("nkch-css__header-icon");
                 main_headerButtonIcon__beautify.setAttribute("viewBox", "0 0 18 18");
                 main_headerButtonIcon__beautify.setAttribute("aria-hidden", "true");
 
@@ -514,7 +514,7 @@ class nkchCSS {
 
             /* ~ main : header button (toggle) ~ */
             const main_headerButton__toggle = document.createElement("button");
-                main_headerButton__toggle.classList.add("nkch-css4__header-button", "nkch-css4__header-button--toggle", this.checks.editor.isEnabled ? "is-enabled" : "is-disabled");
+                main_headerButton__toggle.classList.add("nkch-css__header-button", "nkch-css__header-button--toggle", this.checks.editor.isEnabled ? "is-enabled" : "is-disabled");
                 main_headerButton__toggle.setAttribute("type", "button");
 
             this.elements.main_headerButton__toggle = main_headerButton__toggle;
@@ -525,7 +525,7 @@ class nkchCSS {
 
             /* ~ [svg] main : header button icon (toggle) ~ */
             const main_headerButtonIcon__toggle = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                main_headerButtonIcon__toggle.classList.add("nkch-css4__header-icon");
+                main_headerButtonIcon__toggle.classList.add("nkch-css__header-icon");
                 main_headerButtonIcon__toggle.setAttribute("viewBox", "0 0 18 18");
                 main_headerButtonIcon__toggle.setAttribute("aria-hidden", "true");
 
@@ -545,7 +545,7 @@ class nkchCSS {
 
             /* ~ main : header button (close) ~ */
             const main_headerButton__close = document.createElement("button");
-                main_headerButton__close.classList.add("nkch-css4__header-button", "nkch-css4__header-button--close");
+                main_headerButton__close.classList.add("nkch-css__header-button", "nkch-css__header-button--close");
                 main_headerButton__close.setAttribute("type", "button");
 
             this.elements.main_headerButton__close = main_headerButton__close;
@@ -556,7 +556,7 @@ class nkchCSS {
 
             /* ~ [svg] main : header button icon (close) ~ */
             const main_headerButtonIcon__close = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                main_headerButtonIcon__close.classList.add("nkch-css4__header-icon");
+                main_headerButtonIcon__close.classList.add("nkch-css__header-icon");
                 main_headerButtonIcon__close.setAttribute("viewBox", "0 0 18 18");
                 main_headerButtonIcon__close.setAttribute("aria-hidden", "true");
 
@@ -576,14 +576,14 @@ class nkchCSS {
 
             /* ~ main : compile ~ */
             const main_compile = document.createElement("div");
-            main_compile.classList.add("nkch-css4__compile");
+            main_compile.classList.add("nkch-css__compile");
 
             this.elements.main_compile = main_compile;
             main_container.append(main_compile);
 
             let compileLessButtonWidget = new OO.ui.ButtonWidget({
                 label: "Less → CSS",
-                classes: ["nkch-css4__compile-button", "nkch-css4__compile-button--less"],
+                classes: ["nkch-css__compile-button", "nkch-css__compile-button--less"],
                 framed: false
             });
 
@@ -604,7 +604,7 @@ class nkchCSS {
     
             /* ~ main : content ~ */
             const main_content = document.createElement("div");
-                main_content.classList.add("nkch-css4__content");
+                main_content.classList.add("nkch-css__content");
     
             this.elements.main_content = main_content;
             main_container.append(main_content);
@@ -632,7 +632,7 @@ class nkchCSS {
 
             /* ~ main : split view ~ */
             const main_splitView = document.createElement("div");
-                main_splitView.classList.add("nkch-css4__split-view");
+                main_splitView.classList.add("nkch-css__split-view");
 
             this.elements.main_codearea = main_splitView;
             main_content.append(main_splitView);
@@ -645,7 +645,7 @@ class nkchCSS {
 
             /* ~ main : codearea ~ */
             const main_codearea = document.createElement("div");
-                main_codearea.classList.add("nkch-css4__codearea");
+                main_codearea.classList.add("nkch-css__codearea");
 
             this.elements.main_codearea = main_codearea;
             main_splitView.append(main_codearea);
@@ -719,56 +719,56 @@ class nkchCSS {
             }
 
 
-            /* ~ main : markers ~ */
-            const main_markers = document.createElement("div");
-                main_markers.classList.add("nkch-css4__markers", "nkch-css4__markers--is-hidden");
+            /* ~ main : markers panel ~ */
+            const main_markersPanel = document.createElement("div");
+                main_markersPanel.classList.add("nkch-css__markers-panel", "nkch-css__markers-panel--is-hidden");
 
-            this.elements.main_markers = main_markers;
-            main_splitView.append(main_markers);
-
-
-            /* ~ main : markers header ~ */
-            const main_markersHeader = document.createElement("div");
-                main_markersHeader.classList.add("nkch-css4__markers-header");
-
-            this.elements.main_markersHeader = main_markersHeader;
-            main_markers.append(main_markersHeader);
+            this.elements.main_markersPanel = main_markersPanel;
+            main_splitView.append(main_markersPanel);
 
 
-            /* ~ main : markers close button ~ */
-            const main_markersCloseButton = document.createElement("button");
-                main_markersCloseButton.classList.add("nkch-css4__markers-close-button");
+            /* ~ main : markers panel header ~ */
+            const main_markersPanelHeader = document.createElement("div");
+                main_markersPanelHeader.classList.add("nkch-css__markers-panel-header");
 
-            this.elements.main_markersCloseButton = main_markersCloseButton;
-            main_markersHeader.append(main_markersCloseButton);
-
-
-            /* ~ [svg] main : markers close button icon ~ */
-            const main_markersCloseButtonIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                main_markersCloseButtonIcon.classList.add("nkch-css4__header-icon");
-                main_markersCloseButtonIcon.setAttribute("viewBox", "0 0 18 18");
-                main_markersCloseButtonIcon.setAttribute("aria-hidden", "true");
-
-                this.elements.main_markersCloseButtonIcon = main_markersCloseButtonIcon;
-            main_markersCloseButton.append(main_markersCloseButtonIcon);
+            this.elements.main_markersPanelHeader = main_markersPanelHeader;
+            main_markersPanel.append(main_markersPanelHeader);
 
 
-            /* ~ [svg] main : markers close button icon path  ~ */
-            const main_markersCloseButtonIconPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                main_markersCloseButtonIconPath.setAttribute("d", SvgPath.Close);
-                main_markersCloseButtonIconPath.setAttribute("fill-rule", "evenodd");
-                main_markersCloseButtonIconPath.setAttribute("clip-rule", "evenodd");
+            /* ~ main : markers panel close button ~ */
+            const main_markersPanelCloseButton = document.createElement("button");
+                main_markersPanelCloseButton.classList.add("nkch-css__markers-panel-close-button");
 
-            this.elements.main_markersCloseButtonIconPath = main_markersCloseButtonIconPath;
-            main_markersCloseButtonIcon.append(main_markersCloseButtonIconPath);
+            this.elements.main_markersPanelCloseButton = main_markersPanelCloseButton;
+            main_markersPanelHeader.append(main_markersPanelCloseButton);
+
+
+            /* ~ [svg] main : markers panel close button icon ~ */
+            const main_markersPanelCloseButtonIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                main_markersPanelCloseButtonIcon.classList.add("nkch-css__markers-panel-close-button-icon");
+                main_markersPanelCloseButtonIcon.setAttribute("viewBox", "0 0 18 18");
+                main_markersPanelCloseButtonIcon.setAttribute("aria-hidden", "true");
+
+                this.elements.main_markersPanelCloseButtonIcon = main_markersPanelCloseButtonIcon;
+            main_markersPanelCloseButton.append(main_markersPanelCloseButtonIcon);
+
+
+            /* ~ [svg] main : markers panel close button icon path  ~ */
+            const main_markersPanelCloseButtonIconPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                main_markersPanelCloseButtonIconPath.setAttribute("d", SvgPath.Close);
+                main_markersPanelCloseButtonIconPath.setAttribute("fill-rule", "evenodd");
+                main_markersPanelCloseButtonIconPath.setAttribute("clip-rule", "evenodd");
+
+            this.elements.main_markersPanelCloseButtonIconPath = main_markersPanelCloseButtonIconPath;
+            main_markersPanelCloseButtonIcon.append(main_markersPanelCloseButtonIconPath);
 
 
             /* ~ main : markers list ~ */
             const main_markersList = document.createElement("div");
-                main_markersList.classList.add("nkch-css4__markers-list");
+                main_markersList.classList.add("nkch-css__markers-list");
 
             this.elements.main_markersList = main_markersList;
-            main_markers.append(main_markersList);
+            main_markersPanel.append(main_markersList);
 
             monaco.editor.onDidChangeMarkers(([uri]) => {
                 const markers = monaco.editor.getModelMarkers({resource: uri});
@@ -787,39 +787,42 @@ class nkchCSS {
             });
 
             let addMarkerItem = (markerData: monaco.editor.IMarker) => {
+                /* ~ marker item ~ */
                 let markerItem = document.createElement("div");
-                    markerItem.classList.add("nkch-css4__marker-item", "nkch-css4-marker-item");
+                    markerItem.classList.add("nkch-css__marker-item", "nkch-css-marker-item");
                     markerItem.title = markerData.message;
     
                 main_markersList.append(markerItem);
 
 
+                /* ~ marker item : icon ~ */
                 let markerItem_icon = document.createElement("span");
-                    markerItem_icon.classList.add("nkch-css4-marker-item__icon");
+                    markerItem_icon.classList.add("nkch-css-marker-item__icon");
     
                 markerItem.append(markerItem_icon);
 
                 switch (markerData.severity) {
                     case monaco.MarkerSeverity.Error:
-                        markerItem_icon.classList.add("nkch-css4-marker-item__icon--error");
+                        markerItem_icon.classList.add("nkch-css-marker-item__icon--error");
                         break;
 
                     case monaco.MarkerSeverity.Warning:
-                        markerItem_icon.classList.add("nkch-css4-marker-item__icon--warning");
+                        markerItem_icon.classList.add("nkch-css-marker-item__icon--warning");
                         break;
 
                     case monaco.MarkerSeverity.Info:
-                        markerItem_icon.classList.add("nkch-css4-marker-item__icon--info");
+                        markerItem_icon.classList.add("nkch-css-marker-item__icon--info");
                         break;
 
                     case monaco.MarkerSeverity.Hint:
-                        markerItem_icon.classList.add("nkch-css4-marker-item__icon--hint");
+                        markerItem_icon.classList.add("nkch-css-marker-item__icon--hint");
                         break;
                 }
 
 
+                /* ~ marker item : label ~ */
                 let markerItem_label = document.createElement("span");
-                    markerItem_label.classList.add("nkch-css4-marker-item__label");
+                    markerItem_label.classList.add("nkch-css-marker-item__label");
                     markerItem_label.innerText = markerData.message;
     
                 markerItem.append(markerItem_label);
@@ -827,7 +830,7 @@ class nkchCSS {
 
                 if ("string" === typeof markerData.source) {
                     let markerItem_source = document.createElement("span");
-                        markerItem_source.classList.add("nkch-css4-marker-item__source");
+                        markerItem_source.classList.add("nkch-css-marker-item__source");
                         markerItem_source.innerText = markerData.source;
         
                     markerItem.append(markerItem_source);
@@ -836,14 +839,16 @@ class nkchCSS {
 
                 if ("string" === typeof markerData.code) {
                     let markerItem_code = document.createElement("span");
-                        markerItem_code.classList.add("nkch-css4-marker-item__code");
+                        markerItem_code.classList.add("nkch-css-marker-item__code");
                         markerItem_code.innerText = markerData.code;
         
                     markerItem.append(markerItem_code);
                 }
 
+
+                /* ~ marker item : position ~ */
                 let markerItem_position = document.createElement("span");
-                    markerItem_position.classList.add("nkch-css4-marker-item__position");
+                    markerItem_position.classList.add("nkch-css-marker-item__position");
                     markerItem_position.innerText = `${markerData.startLineNumber}:${markerData.startColumn}`;
     
                 markerItem.append(markerItem_position);
@@ -863,7 +868,7 @@ class nkchCSS {
             
             /* ~ main : resizer ~ */
             const main_resizer = document.createElement("div");
-                main_resizer.classList.add("nkch-css4__resizer");
+                main_resizer.classList.add("nkch-css__resizer");
 
             this.elements.main_resizer = main_resizer;
             main_splitView.append(main_resizer);
@@ -880,7 +885,7 @@ class nkchCSS {
                 mouse_position = { x: e.clientX, y: e.clientY };
                 codearea_size = { width: codearea_clientRect.width, height: codearea_clientRect.height };
 
-                this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-resize:hold", {
+                this.elements.main.dispatchEvent(new CustomEvent("nkch-css-resize:hold", {
                     cancelable: true,
                     detail: this
                 }));
@@ -890,7 +895,7 @@ class nkchCSS {
                 this.checks.state.resize.isHolding = false;
                 this.checks.state.resize.isResizing = false;
 
-                this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-resize:release", {
+                this.elements.main.dispatchEvent(new CustomEvent("nkch-css-resize:release", {
                     cancelable: true,
                     detail: this
                 }));
@@ -906,7 +911,7 @@ class nkchCSS {
                     if (calculatedWidth >= 450) main_splitView.style.width = calculatedWidth + "px";
                     if (calculatedHeight >= 280) main_splitView.style.height = calculatedHeight + "px";
 
-                    this.elements.main.dispatchEvent(new CustomEvent("nkch-css4-resize", {
+                    this.elements.main.dispatchEvent(new CustomEvent("nkch-css-resize", {
                         cancelable: true,
                         detail: this
                     }));
@@ -916,7 +921,7 @@ class nkchCSS {
 
             /* ~ main : statusbar ~ */
             const main_statusbar = document.createElement("div");
-                main_statusbar.classList.add("nkch-css4__statusbar");
+                main_statusbar.classList.add("nkch-css__statusbar");
 
             this.elements.main_statusbar = main_statusbar;
             main_content.append(main_statusbar);
@@ -924,7 +929,7 @@ class nkchCSS {
 
             /* ~ main : statusbar container (left) ~ */
             const main_statusbarContainer__left = document.createElement("div");
-                main_statusbarContainer__left.classList.add("nkch-css4__statusbar-container", "nkch-css4__statusbar-container--left");
+                main_statusbarContainer__left.classList.add("nkch-css__statusbar-container", "nkch-css__statusbar-container--left");
 
             this.elements.main_statusbarContainer__left = main_statusbarContainer__left;
             main_statusbar.append(main_statusbarContainer__left);
@@ -932,7 +937,7 @@ class nkchCSS {
 
             /* ~ main : statusbar item (file download) ~ */
             const main_statusbarItem__fileDownload = document.createElement("a");
-                main_statusbarItem__fileDownload.classList.add("nkch-css4__statusbar-item", "nkch-css4__statusbar-item--file-download");
+                main_statusbarItem__fileDownload.classList.add("nkch-css__statusbar-item", "nkch-css__statusbar-item--file-download");
                 main_statusbarItem__fileDownload.setAttribute("role", "button");
 
             this.elements.main_statusbarItem__fileDownload = main_statusbarItem__fileDownload;
@@ -968,7 +973,7 @@ class nkchCSS {
 
             /* ~ [svg] main : statusbar item icon (file download) ~ */
             const main_statusbarItemIcon__fileDownload = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                main_statusbarItemIcon__fileDownload.classList.add("nkch-css4__statusbar-item-icon", "nkch-css4__statusbar-item-icon--file-download");
+                main_statusbarItemIcon__fileDownload.classList.add("nkch-css__statusbar-item-icon", "nkch-css__statusbar-item-icon--file-download");
                 main_statusbarItemIcon__fileDownload.setAttribute("viewBox", "0 0 18 18");
                 main_statusbarItemIcon__fileDownload.setAttribute("aria-hidden", "true");
 
@@ -988,10 +993,10 @@ class nkchCSS {
 
             /* ~ main : statusbar item input (file upload) ~ */
             const main_statusbarItemInput__fileUpload = document.createElement("input");
-                main_statusbarItemInput__fileUpload.classList.add("nkch-css4__statusbar-item-input", "nkch-css4__statusbar-item-input--file-upload");
+                main_statusbarItemInput__fileUpload.classList.add("nkch-css__statusbar-item-input", "nkch-css__statusbar-item-input--file-upload");
                 main_statusbarItemInput__fileUpload.setAttribute("type", "file");
                 main_statusbarItemInput__fileUpload.setAttribute("accept", "text/css,.less");
-                main_statusbarItemInput__fileUpload.setAttribute("name", "nkch-css4__statusbar-item-input--file-upload");
+                main_statusbarItemInput__fileUpload.setAttribute("name", "nkch-css__statusbar-item-input--file-upload");
                 main_statusbarItemInput__fileUpload.style.display = "none";
 
             this.elements.main_statusbarItemInput__fileUpload = main_statusbarItemInput__fileUpload;
@@ -1020,7 +1025,7 @@ class nkchCSS {
 
             /* ~ main : statusbar item (file upload) ~ */
             const main_statusbarItem__fileUpload = document.createElement("a");
-                main_statusbarItem__fileUpload.classList.add("nkch-css4__statusbar-item", "nkch-css4__statusbar-item--file-upload");
+                main_statusbarItem__fileUpload.classList.add("nkch-css__statusbar-item", "nkch-css__statusbar-item--file-upload");
                 main_statusbarItem__fileUpload.setAttribute("role", "button");
 
             this.elements.main_statusbarItem__fileUpload = main_statusbarItem__fileUpload;
@@ -1031,7 +1036,7 @@ class nkchCSS {
 
             /* ~ [svg] main : statusbar item icon (file upload) ~ */
             const main_statusbarItemIcon__fileUpload = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                main_statusbarItemIcon__fileUpload.classList.add("nkch-css4__statusbar-item-icon", "nkch-css4__statusbar-item-icon--file-upload");
+                main_statusbarItemIcon__fileUpload.classList.add("nkch-css__statusbar-item-icon", "nkch-css__statusbar-item-icon--file-upload");
                 main_statusbarItemIcon__fileUpload.setAttribute("viewBox", "0 0 18 18");
                 main_statusbarItemIcon__fileUpload.setAttribute("aria-hidden", "true");
 
@@ -1051,28 +1056,28 @@ class nkchCSS {
 
             /* ~ main : statusbar item (markers) ~ */
             const main_statusbarItem__markers = document.createElement("a");
-                main_statusbarItem__markers.classList.add("nkch-css4__statusbar-item", "nkch-css4__statusbar-item--markers");
+                main_statusbarItem__markers.classList.add("nkch-css__statusbar-item", "nkch-css__statusbar-item--markers");
 
             this.elements.main_statusbarItem__markers = main_statusbarItem__markers;
             main_statusbarContainer__left.append(main_statusbarItem__markers);
 
             let toggleMarkersPanel = (): void => {
                 if (this.checks.editor.isMarkersPanelOpen) {
-                    this.elements.main_markers.classList.add("nkch-css4__markers--is-hidden");
+                    this.elements.main_markersPanel.classList.add("nkch-css__markers-panel--is-hidden");
                     this.checks.editor.isMarkersPanelOpen = false;
                 } else {
-                    this.elements.main_markers.classList.remove("nkch-css4__markers--is-hidden");
+                    this.elements.main_markersPanel.classList.remove("nkch-css__markers-panel--is-hidden");
                     this.checks.editor.isMarkersPanelOpen = true;
                 }
             }
 
-            main_markersCloseButton.addEventListener("click", toggleMarkersPanel, false);
+            main_markersPanelCloseButton.addEventListener("click", toggleMarkersPanel, false);
             main_statusbarItem__markers.addEventListener("click", toggleMarkersPanel, false);
 
 
             /* ~ main : statusbar item icon (markers) (error) ~ */
             const main_statusbarItemIcon__markers__error = document.createElement("span");
-                main_statusbarItemIcon__markers__error.classList.add("nkch-css4__statusbar-item-icon", "nkch-css4__statusbar-item-icon--marker", "nkch-css4__statusbar-item-icon--marker-error");
+                main_statusbarItemIcon__markers__error.classList.add("nkch-css__statusbar-item-icon", "nkch-css__statusbar-item-icon--marker", "nkch-css__statusbar-item-icon--marker-error");
 
             this.elements.main_statusbarItemIcon__markers__error = main_statusbarItemIcon__markers__error;
             main_statusbarItem__markers.append(main_statusbarItemIcon__markers__error);
@@ -1088,7 +1093,7 @@ class nkchCSS {
 
             /* ~ main : statusbar item icon (markers) (warning) ~ */
             const main_statusbarItemIcon__markers__warning = document.createElement("span");
-                main_statusbarItemIcon__markers__warning.classList.add("nkch-css4__statusbar-item-icon", "nkch-css4__statusbar-item-icon--marker", "nkch-css4__statusbar-item-icon--marker-warning");
+                main_statusbarItemIcon__markers__warning.classList.add("nkch-css__statusbar-item-icon", "nkch-css__statusbar-item-icon--marker", "nkch-css__statusbar-item-icon--marker-warning");
 
             this.elements.main_statusbarItemIcon__markers__warning = main_statusbarItemIcon__markers__warning;
             main_statusbarItem__markers.append(main_statusbarItemIcon__markers__warning);
@@ -1104,7 +1109,7 @@ class nkchCSS {
 
             /* ~ main : statusbar container (right) ~ */
             const main_statusbarContainer__right = document.createElement("div");
-                main_statusbarContainer__right.classList.add("nkch-css4__statusbar-container", "nkch-css4__statusbar-container--right");
+                main_statusbarContainer__right.classList.add("nkch-css__statusbar-container", "nkch-css__statusbar-container--right");
 
             this.elements.main_statusbarContainer__right = main_statusbarContainer__right;
             main_statusbar.append(main_statusbarContainer__right);
@@ -1112,7 +1117,7 @@ class nkchCSS {
 
             /* ~ main : statusbar item (selection) ~ */
             const main_statusbarItem__selection = document.createElement("a");
-                main_statusbarItem__selection.classList.add("nkch-css4__statusbar-item", "nkch-css4__statusbar-item--file-upload");
+                main_statusbarItem__selection.classList.add("nkch-css__statusbar-item", "nkch-css__statusbar-item--file-upload");
                 main_statusbarItem__selection.setAttribute("role", "button");
                 main_statusbarItem__selection.innerText = "L: 1 • C: 1";
 
