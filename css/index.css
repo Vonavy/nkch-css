@@ -404,6 +404,7 @@
     border-bottom: 5px solid gray;
     border-right: 5px solid gray;
     border-radius: 3px;
+    box-sizing: border-box;
     content: "";
     display: block;
     height: 10px;
