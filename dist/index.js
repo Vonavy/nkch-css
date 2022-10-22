@@ -493,7 +493,6 @@ class nkchCSS {
                 scrollBeyondLastLine: false,
                 cursorBlinking: "smooth",
                 cursorSmoothCaretAnimation: true,
-                autoIndent: "full",
                 scrollbar: {
                     useShadows: false
                 },
