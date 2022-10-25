@@ -308,6 +308,14 @@
     );
 }
 
+.nkch-css__markers-panel-close-button-icon {
+    fill: currentColor;
+    height: 18px;
+    min-width: 18px;
+    width: 18px;
+    pointer-events: none;
+}
+
 .nkch-css__markers-list {
     height: 0;
     flex: 1;
