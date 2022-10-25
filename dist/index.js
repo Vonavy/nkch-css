@@ -208,7 +208,7 @@ class nkchCSS {
                 const quickbarItem_link = document.createElement("a");
                 quickbarItem_link.classList.add("nkch-css__quickbar-button-link");
                 quickbarItem_link.setAttribute("href", "#");
-                quickbarItem_link.innerHTML = "nkchCSS 4";
+                quickbarItem_link.innerHTML = "nkchCSS";
                 this.elements.quickbarItem_link = quickbarItem_link;
                 quickbarItem.append(quickbarItem_link);
                 quickbarItem_link.addEventListener("click", () => this.open(), false);
@@ -232,7 +232,7 @@ class nkchCSS {
                 const sidebarItem_link = document.createElement("a");
                 sidebarItem_link.classList.add("nkch-css__sidebar-button-link");
                 sidebarItem_link.setAttribute("href", "#");
-                sidebarItem_link.innerText = "nkchCSS 4";
+                sidebarItem_link.innerText = "nkchCSS";
                 this.elements.sidebarItem_link = sidebarItem_link;
                 sidebarItem.append(sidebarItem_link);
                 sidebarItem_link.addEventListener("click", () => this.open(), false);
