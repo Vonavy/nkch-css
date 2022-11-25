@@ -255,7 +255,7 @@ class nkchCSS {
                 const quickbarItem_link = document.createElement("a");
                     quickbarItem_link.classList.add("nkch-css__quickbar-button-link");
                     quickbarItem_link.setAttribute("href", "#");
-                    quickbarItem_link.innerHTML = "nkchCSS 4"
+                    quickbarItem_link.innerHTML = "nkchCSS"
 
                 this.elements.quickbarItem_link = quickbarItem_link;
                 quickbarItem.append(quickbarItem_link);
