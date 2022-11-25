@@ -844,7 +844,7 @@ class nkchCSS {
 }
 function onPageLoad() {
     let options = {};
-    mw.loader.load("https://gitcdn.link/cdn/Vonavy/nkch-css/main/css/index.css", "text/css");
+    mw.loader.load("https://raw.githack.com/Vonavy/nkch-css/main/css/index.css", "text/css");
     if (window.nkch) {
         if (window.nkch.css4)
             return;
