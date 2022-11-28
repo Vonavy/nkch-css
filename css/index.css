@@ -228,6 +228,10 @@
 
 .nkch-css__tab {
     align-items: center;
+    color: var(
+        --theme-page-text-color,
+        var(--theme-nkch-css-page-text-color)
+    );
     display: flex;
     font-size: 14px;
     font-weight: 500;
