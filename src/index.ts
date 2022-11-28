@@ -7,7 +7,6 @@ class nkchCSS {
     options: nkch.css.Options;
     checks: nkch.css.Checks;
     elements: { [x: string]: Element };
-    oojsElements: { [x: string]: OO.ui.Element };
 
     readonly env: nkch.css.Env;
     readonly versions: Map<string, string>;
@@ -38,7 +37,6 @@ class nkchCSS {
         }
 
         this.elements = {};
-        this.oojsElements = {};
 
         this.env = {
             skin: mw.config.get("skin"),
@@ -154,13 +152,13 @@ class nkchCSS {
                 less.render(code)
                     .then(output => {
                         this.checks.code.isInvalid = false;
-                        (this.oojsElements.compileLessButtonWidget as OO.ui.ButtonWidget).setDisabled(false);
+                        this.elements.main_action__compileLess.classList.toggle("nkch-css__action--is-disabled", false);
 
                         this.updateCode(output.css, "css", false);
                     })
                     .catch(() => {
                         this.checks.code.isInvalid = true;
-                        (this.oojsElements.compileLessButtonWidget as OO.ui.ButtonWidget).setDisabled(true);
+                        this.elements.main_action__compileLess.classList.toggle("nkch-css__action--is-disabled", true);
                     });
                 break;
         }
@@ -197,7 +195,18 @@ class nkchCSS {
 
         if (model) monaco.editor.setModelLanguage(model, lang);
 
-        if (changeTab) (this.oojsElements.tabs as OO.ui.IndexLayout).setTabPanel(lang);
+        if (changeTab) {
+            switch (lang) {
+                case "css":
+                    this.elements.main_tab__css.classList.toggle("nkch-css__tab--is-selected", true);
+                    this.elements.main_tab__less.classList.toggle("nkch-css__tab--is-selected", false);
+                    break;
+                case "less":
+                    this.elements.main_tab__less.classList.toggle("nkch-css__tab--is-selected", true);
+                    this.elements.main_tab__css.classList.toggle("nkch-css__tab--is-selected", false);
+                    break;
+            }
+        }
     }
 
     public compileLess(code: string): void {
@@ -344,16 +353,6 @@ class nkchCSS {
         });
 
         require(["less", "vs/editor/editor.main"], () => {
-            /* ~ window manager ~ */
-            const windowManager = new OO.ui.WindowManager({
-                classes: ["nkch-css__window-manager"]
-            });
-    
-            $(document.body).append(windowManager.$element);
-    
-            this.oojsElements.windowManager = windowManager;
-
-
             /* ~ style ~ */
             const style = document.createElement("style");
                 style.classList.add("nkch-css-style");
@@ -379,7 +378,7 @@ class nkchCSS {
             main.addEventListener("mousedown", e => {
                 if (e.button !== 0) return;
 
-                let cancelElements: Element[] = [main_content, main_headerButtonGroup, main_compile, main_statusbar],
+                let cancelElements: Element[] = [main_splitView, main_statusbar, main_headerButtonGroup, main_actions, main_tabs, main_statusbar],
                     parents: Element[] = this.getParents(e.target as Element);
 
                 for (let element of cancelElements) {
@@ -572,34 +571,6 @@ class nkchCSS {
 
             this.elements.main_headerButtonIconPath__close = main_headerButtonIconPath__close;
             main_headerButtonIcon__close.append(main_headerButtonIconPath__close);
-    
-
-            /* ~ main : compile ~ */
-            const main_compile = document.createElement("div");
-            main_compile.classList.add("nkch-css__compile");
-
-            this.elements.main_compile = main_compile;
-            main_container.append(main_compile);
-
-            let compileLessButtonWidget = new OO.ui.ButtonWidget({
-                label: "Less → CSS",
-                classes: ["nkch-css__compile-button", "nkch-css__compile-button--less"],
-                framed: false
-            });
-
-            compileLessButtonWidget.on("click", () => {
-                if (!compileLessButtonWidget.isDisabled()) {
-                    this.compileLess(this.editor.getValue());
-                }
-            });
-            
-            this.oojsElements.compileLessButtonWidget = compileLessButtonWidget;
-
-            const compileLessHorizontalLayout = new OO.ui.HorizontalLayout({
-                items: [ compileLessButtonWidget ]
-            });
-
-            $(main_compile).append(compileLessHorizontalLayout.$element);
 
     
             /* ~ main : content ~ */
@@ -609,25 +580,65 @@ class nkchCSS {
             this.elements.main_content = main_content;
             main_container.append(main_content);
 
-            let cssPanelLayout = new OO.ui.TabPanelLayout("css", {
-                label: "CSS"
-            });
             
-            let lessPanelLayout = new OO.ui.TabPanelLayout("less", { label:
-                "Less"
-            });
-    
-            this.oojsElements.cssPanelLayout = cssPanelLayout;
-            this.oojsElements.lessPanelLayout = lessPanelLayout;
-    
-            const tabsIndexLayout = new OO.ui.IndexLayout({
-                expanded: false
-            });
+            /* ~ main : actions header ~ */
+            const main_actionsHeader = document.createElement("div");
+                main_actionsHeader.classList.add("nkch-css__actions-header");
 
-            this.oojsElements.tabs = tabsIndexLayout;
-    
-            tabsIndexLayout.addTabPanels([ cssPanelLayout, lessPanelLayout ], 0);
-            $(main_content).append(tabsIndexLayout.$element);
+            this.elements.main_actionsHeader = main_actionsHeader;
+            main_content.append(main_actionsHeader);
+
+            
+            /* ~ main : tabs ~ */
+            const main_tabs = document.createElement("div");
+                main_tabs.classList.add("nkch-css__tabs");
+
+            this.elements.main_tabs = main_tabs;
+            main_actionsHeader.append(main_tabs);
+
+            
+            /* ~ main : tab (css) ~ */
+            const main_tab__css = document.createElement("div");
+                main_tab__css.classList.add("nkch-css__tab", "nkch-css__tab--css");
+                main_tab__css.innerText = "CSS";
+
+            this.elements.main_tab__css = main_tab__css;
+            main_tabs.append(main_tab__css);
+
+            main_tab__css.addEventListener("click", () => this.setLanguage("css", true), false);
+
+            
+            /* ~ main : tab (less) ~ */
+            const main_tab__less = document.createElement("div");
+                main_tab__less.classList.add("nkch-css__tab", "nkch-css__tab--less");
+                main_tab__less.innerText = "Less";
+
+                this.elements.main_tab__less = main_tab__less;
+            main_tabs.append(main_tab__less);
+
+            main_tab__less.addEventListener("click", () => this.setLanguage("less", true), false);
+
+            
+            /* ~ main : actions ~ */
+            const main_actions = document.createElement("div");
+                main_actions.classList.add("nkch-css__actions");
+
+            this.elements.actions = main_actions;
+            main_actionsHeader.append(main_actions);
+
+            
+            /* ~ main : action (compile less) ~ */
+            const main_action__compileLess = document.createElement("button");
+                main_action__compileLess.classList.add("nkch-css__action", "nkch-css__action--compile-less");
+                main_action__compileLess.setAttribute("type", "button");
+                main_action__compileLess.innerText = "Less → CSS";
+
+            this.elements.main_action__compileLess = main_action__compileLess;
+            main_actions.append(main_action__compileLess);
+
+            main_action__compileLess.addEventListener("click", () => {
+                this.compileLess(this.editor.getValue());
+            });
 
 
             /* ~ main : split view ~ */
@@ -684,37 +695,11 @@ class nkchCSS {
                 this.updateCode(this.editor.getValue(), this.getLanguage());
             });
 
-            tabsIndexLayout.on("set", (tabPanel: OO.ui.TabPanelLayout) => {
-                switch (tabPanel.getName()) {
-                    case "css":
-                        this.setLanguage("css", false);
-                        compileLessButtonWidget.toggle(false);
-                        break;
-
-                    case "less":
-                        this.setLanguage("less", false);
-                        compileLessButtonWidget.toggle(true);
-                        break;
-                }
-
-                this.updateCode(this.editor.getValue(), this.getLanguage());
-            });
-
             let storageValue: nkch.css.LocalStorageObject | null | boolean = mw.storage.getObject("mw-nkch-css");
 
             if (storageValue && "boolean" !== typeof storageValue) {
                 this.setValue(storageValue.value);
                 this.setLanguage(storageValue.lang);
-            }
-
-            switch (this.getLanguage()) {
-                case "css":
-                    compileLessButtonWidget.toggle(false);
-                    break;
-
-                case "less":
-                    compileLessButtonWidget.toggle(true);
-                    break;
             }
 
 
@@ -1008,9 +993,9 @@ class nkchCSS {
 
                 file.text().then(text => {
                     if (file.name.endsWith(".css")) 
-                        tabsIndexLayout.setTabPanel("css");
+                        this.setLanguage("css", true);
                     else if (file.name.endsWith(".less"))
-                        tabsIndexLayout.setTabPanel("less");
+                        this.setLanguage("less", true);
 
                     this.setValue(text);
                     this.updateCode(this.editor.getValue(), this.getLanguage());
@@ -1158,7 +1143,7 @@ class nkchCSS {
 function onPageLoad() {
     let options: nkch.css.Options = {};
 
-    mw.loader.load("https://gitcdn.link/cdn/Vonavy/nkch-css/main/css/index.css", "text/css");
+    mw.loader.load("https://raw.githack.com/Vonavy/nkch-css/main/css/index.css", "text/css");
 
     if (window.nkch) {
         if (window.nkch.css4) return;

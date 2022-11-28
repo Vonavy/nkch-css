@@ -188,51 +188,136 @@
     pointer-events: none;
 }
 
-.nkch-css__compile {
-	height: 0;
+.nkch-css__actions-header {
+    display: flex;
+    height: 38px;
+    margin-top: 4px;
+}
+
+.nkch-css__tabs {
+    background-color: var(
+        --theme-page-background-color--secondary,
+        var(--theme-nkch-css-page-background-color--secondary)
+    );
+    border: 1px solid var(
+        --theme-border-color,
+        var(--theme-nkch-css-border-color)
+    );
+    border-radius: 20px;
+    display: flex;
+    isolation: isolate;
+    overflow: hidden;
     position: relative;
     width: auto;
-    z-index: 1
 }
 
-.nkch-css__compile .oo-ui-horizontalLayout {
+.nkch-css__tabs::before {
+    background-color: var(
+        --theme-link-color,
+        var(--theme-nkch-css-link-color)
+    );
+    border-radius: 15px;
+    content: "";
+    height: 30px;
+    margin: 3px;
     position: absolute;
-    right: 0;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 58px;
+    z-index: -1;
 }
 
-.nkch-css__compile .oo-ui-horizontalLayout > .oo-ui-widget {
-	margin: 0;
+.nkch-css__tab {
+    align-items: center;
+    display: flex;
+    font-size: 14px;
+    font-weight: 500;
+    height: 100%;
+    justify-content: center;
+    transition: color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 64px;
 }
 
-.nkch-css__compile .oo-ui-horizontalLayout > .nkch-css__compile-button {
-    margin-block: 5px;
-}
-
-.nkch-css__compile .oo-ui-horizontalLayout > .nkch-css__compile-button a {
+.nkch-css__tab--css:not(.nkch-css__tab--is-selected):hover,
+.nkch-css__tab--less:not(.nkch-css__tab--is-selected):hover {
     color: var(
-    	--theme-link-color,
-    	var(--theme-nkch-css-link-color)
-	);
-    padding: 5px 6px;
+        --theme-link-color,
+        var(--theme-nkch-css-link-color)
+    );
+    cursor: pointer;
 }
 
-.nkch-css__compile .oo-ui-horizontalLayout > .nkch-css__compile-button a:hover,
-.nkch-css__compile .oo-ui-horizontalLayout > .nkch-css__compile-button a:focus {
-    background-color: rgba(var(
-    	--theme-link-color--rgb,
-    	var(--theme-nkch-css-link-color--rgb)
-    ), .1);
+.nkch-css__tab--is-selected {
     color: var(
-    	--theme-link-color--hover,
-    	var(--theme-nkch-css-link-color--hover)
-	);
+        --theme-link-label-color,
+        var(--theme-nkch-css-link-label-color)
+    );
 }
 
-.nkch-css__compile .oo-ui-horizontalLayout > .nkch-css__compile-button a:active {
+.nkch-css__tabs:has(.nkch-css__tab--css.nkch-css__tab--is-selected)::before {
+    transform: translateX(0);
+}
+
+.nkch-css__tabs:has(.nkch-css__tab--less.nkch-css__tab--is-selected)::before {
+    transform: translateX(calc(100% + 6px));
+}
+
+.nkch-css__actions {
+    align-items: flex-end;
+    display: flex;
+    flex: 1;
+    gap: 5px;
+    justify-content: flex-end;
+}
+
+.nkch-css__action {
     background-color: rgba(var(
-    	--theme-link-color--rgb,
-    	var(--theme-nkch-css-link-color--rgb)
-	), .2);
+        --theme-link-color--rgb,
+        var(--theme-nkch-css-link-color--rgb)
+    ), 0.1);
+    border: none;
+    border-radius: 3px;
+    color: var(
+        --theme-link-color,
+        var(--theme-nkch-css-link-color)
+    );
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    height: 32px;
+    padding: 5px 9px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.nkch-css__action:hover:not(.nkch-css__action--is-disabled) {
+    background-color: rgba(var(
+        --theme-link-color--rgb,
+        var(--theme-nkch-css-link-color--rgb)
+    ), 0.3);
+    color: var(
+        --theme-link-color--hover,
+        var(--theme-nkch-css-link-color--hover)
+    );
+}
+
+.nkch-css__action:active:not(.nkch-css__action--is-disabled) {
+    background-color: rgba(var(
+        --theme-link-color--rgb,
+        var(--theme-nkch-css-link-color--rgb)
+    ), 0.2);
+    color: var(
+        --theme-link-color--hover,
+        var(--theme-nkch-css-link-color--hover)
+    );
+}
+
+.nkch-css__action--is-disabled {
+    cursor: default;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.nkch-css__actions-header:not(:has(.nkch-css__tab--less.nkch-css__tab--is-selected)) .nkch-css__action--compile-less {
+    display: none;
 }
 
 .nkch-css__content {
