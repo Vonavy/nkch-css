@@ -8,7 +8,6 @@
         "@types/less": "^3.0.3",
         "@types/requirejs": "^2.1.34",
         "monaco-editor": "^0.34.0",
-        "npm": "^8.19.2",
         "types-mediawiki": "^1.2.0",
         "typescript": "^4.8.4"
     }
