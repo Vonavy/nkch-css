@@ -34,6 +34,7 @@ declare namespace nkch {
 
         export interface Env {
             skin: string;
+            lang: string;
             theme: Themes;
         }
 

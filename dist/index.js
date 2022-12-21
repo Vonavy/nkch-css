@@ -3,11 +3,13 @@
 /// <reference types="../node_modules/monaco-editor/monaco" />
 class nkchCSS {
     editor;
+    options;
     checks;
     elements;
     env;
     versions;
-    constructor() {
+    constructor(options) {
+        this.options = options;
         this.checks = {
             editor: {
                 isInitialized: false,
@@ -31,8 +33,9 @@ class nkchCSS {
         };
         this.elements = {};
         this.env = {
-            skin: "undefined" !== typeof mw ? mw.config.get("skin") : "",
-            theme: "undefined" !== typeof mw ? mw.config.get("isDarkTheme") ? "dark" : "light" : "light"
+            skin: mw.config.get("skin"),
+            lang: mw.config.get("wgScriptPath").replace("/", ""),
+            theme: mw.config.get("isDarkTheme") ? "dark" : "light"
         };
         this.versions = new Map([
             ["monaco-editor", "0.34.1"],
@@ -110,7 +113,10 @@ class nkchCSS {
         if (!this.checks.editor.isEnabled)
             return;
         if (saveToStorage) {
-            localStorage.setItem("mw-nkch-css", JSON.stringify({ lang: language, value: code }));
+            mw.storage.setObject("mw-nkch-css", {
+                lang: language,
+                value: code
+            });
         }
         switch (language) {
             default:
@@ -194,82 +200,72 @@ class nkchCSS {
         }
         return parents;
     }
-    addStyle(url) {
-        let element = document.createElement("link");
-        element.href = url;
-        element.type = "text/css";
-        element.rel = "stylesheet";
-        document.head.append(element);
-    }
     initialize() {
-        // this.addStyle("https://raw.githack.com/Vonavy/nkch-css/main/css/index.css");
-        if ("undefined" !== typeof mw) {
-            switch (this.env.skin) {
-                case "fandomdesktop":
-                    /* ~ quickbar item ~ */
-                    const quickbarItem = document.createElement("li");
-                    quickbarItem.classList.add("nkch-css__quickbar-button");
-                    this.elements.quickbarItem = quickbarItem;
-                    /* ~ quickbar item : spinner ~ */
-                    const quickbarItem_spinner = document.createElement("span");
-                    quickbarItem_spinner.classList.add("nkch-css__quickbar-button-spinner", "is-hidden");
-                    this.elements.quickbarItem_spinner = quickbarItem_spinner;
-                    quickbarItem.append(quickbarItem_spinner);
-                    /* ~ quickbar item : link ~ */
-                    const quickbarItem_link = document.createElement("a");
-                    quickbarItem_link.classList.add("nkch-css__quickbar-button-link");
-                    quickbarItem_link.setAttribute("href", "#");
-                    quickbarItem_link.innerHTML = "nkchCSS";
-                    this.elements.quickbarItem_link = quickbarItem_link;
-                    quickbarItem.append(quickbarItem_link);
-                    quickbarItem_link.addEventListener("click", () => this.open(), false);
-                    document.querySelector("#WikiaBar .toolbar .tools").append(quickbarItem);
-                    break;
-                default:
-                case "vector":
-                case "vector-2022":
-                    /* ~ sidebar item ~ */
-                    const sidebarItem = document.createElement("li");
-                    sidebarItem.classList.add("nkch-css__sidebar-button", "mw-list-item");
-                    sidebarItem.id = "n-nkchcss";
-                    this.elements.sidebarItem = sidebarItem;
-                    document.querySelector("#mw-panel .vector-menu-content-list").append(sidebarItem);
-                    /* ~ sidebar item : spinner ~ */
-                    const sidebarItem_spinner = document.createElement("span");
-                    sidebarItem_spinner.classList.add("nkch-css__sidebar-button-spinner", "is-hidden");
-                    this.elements.sidebarItem_spinner = sidebarItem_spinner;
-                    sidebarItem.append(sidebarItem_spinner);
-                    /* ~ sidebar item : link ~ */
-                    const sidebarItem_link = document.createElement("a");
-                    sidebarItem_link.classList.add("nkch-css__sidebar-button-link");
-                    sidebarItem_link.setAttribute("href", "#");
-                    sidebarItem_link.innerText = "nkchCSS";
-                    this.elements.sidebarItem_link = sidebarItem_link;
-                    sidebarItem.append(sidebarItem_link);
-                    sidebarItem_link.addEventListener("click", () => this.open(), false);
-                    break;
-            }
+        switch (this.env.skin) {
+            case "fandomdesktop":
+                /* ~ quickbar item ~ */
+                const quickbarItem = document.createElement("li");
+                quickbarItem.classList.add("nkch-css__quickbar-button");
+                this.elements.quickbarItem = quickbarItem;
+                /* ~ quickbar item : spinner ~ */
+                const quickbarItem_spinner = document.createElement("span");
+                quickbarItem_spinner.classList.add("nkch-css__quickbar-button-spinner", "is-hidden");
+                this.elements.quickbarItem_spinner = quickbarItem_spinner;
+                quickbarItem.append(quickbarItem_spinner);
+                /* ~ quickbar item : link ~ */
+                const quickbarItem_link = document.createElement("a");
+                quickbarItem_link.classList.add("nkch-css__quickbar-button-link");
+                quickbarItem_link.setAttribute("href", "#");
+                quickbarItem_link.innerHTML = "nkchCSS";
+                this.elements.quickbarItem_link = quickbarItem_link;
+                quickbarItem.append(quickbarItem_link);
+                quickbarItem_link.addEventListener("click", () => this.open(), false);
+                document.querySelector("#WikiaBar .toolbar .tools").append(quickbarItem);
+                break;
+            default:
+            case "vector":
+            case "vector-2022":
+                /* ~ sidebar item ~ */
+                const sidebarItem = document.createElement("li");
+                sidebarItem.classList.add("nkch-css__sidebar-button", "mw-list-item");
+                sidebarItem.id = "n-nkchcss";
+                this.elements.sidebarItem = sidebarItem;
+                document.querySelector("#mw-panel .vector-menu-content-list").append(sidebarItem);
+                /* ~ sidebar item : spinner ~ */
+                const sidebarItem_spinner = document.createElement("span");
+                sidebarItem_spinner.classList.add("nkch-css__sidebar-button-spinner", "is-hidden");
+                this.elements.sidebarItem_spinner = sidebarItem_spinner;
+                sidebarItem.append(sidebarItem_spinner);
+                /* ~ sidebar item : link ~ */
+                const sidebarItem_link = document.createElement("a");
+                sidebarItem_link.classList.add("nkch-css__sidebar-button-link");
+                sidebarItem_link.setAttribute("href", "#");
+                sidebarItem_link.innerText = "nkchCSS";
+                this.elements.sidebarItem_link = sidebarItem_link;
+                sidebarItem.append(sidebarItem_link);
+                sidebarItem_link.addEventListener("click", () => this.open(), false);
+                break;
         }
     }
     async initializeEditor() {
         let targetSpinner;
-        if ("undefined" !== typeof mw) {
-            switch (this.env.skin) {
-                case "fandomdesktop":
-                    targetSpinner = this.elements.quickbarItem_spinner;
-                    break;
-                default:
-                case "vector":
-                case "vector-2022":
-                    targetSpinner = this.elements.sidebarItem_spinner;
-                    break;
-            }
-            targetSpinner.classList.remove("is-hidden");
+        switch (this.env.skin) {
+            case "fandomdesktop":
+                targetSpinner = this.elements.quickbarItem_spinner;
+                break;
+            default:
+            case "vector":
+            case "vector-2022":
+                targetSpinner = this.elements.sidebarItem_spinner;
+                break;
         }
-        let loader = document.createElement("script");
-        loader.src = `https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs/loader.min.js`;
-        loader.addEventListener("load", () => this.onModuleLoad());
-        document.head.append(loader);
+        targetSpinner.classList.remove("is-hidden");
+        mw.loader.load([
+            `https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs/editor/editor.main.min.css`,
+        ], "text/css");
+        await mw.loader.using(["oojs-ui"]);
+        await mw.loader.getScript(`https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs/loader.min.js`);
+        this.onModuleLoad();
     }
     onModuleLoad() {
         require.config({
@@ -512,23 +508,20 @@ class nkchCSS {
                     enabled: false
                 }
             });
-            if ("undefined" !== typeof mw) {
-                setInterval(() => {
-                    let targetTheme = mw.config.get("isDarkTheme") ? "dark" : "light";
-                    if (this.env.theme !== targetTheme) {
-                        monaco.editor.setTheme(editorThemes.get(targetTheme));
-                        this.env.theme = targetTheme;
-                    }
-                }, 100);
-            }
+            setInterval(() => {
+                let targetTheme = mw.config.get("isDarkTheme") ? "dark" : "light";
+                if (this.env.theme !== targetTheme) {
+                    monaco.editor.setTheme(editorThemes.get(targetTheme));
+                    this.env.theme = targetTheme;
+                }
+            }, 100);
             this.editor.onDidChangeModelContent(() => {
                 this.updateCode(this.editor.getValue(), this.getLanguage());
             });
-            let storageValue = localStorage.getItem("mw-nkch-css");
-            if (storageValue) {
-                let storageValueObject = JSON.parse(storageValue);
-                this.setValue(storageValueObject.value);
-                this.setLanguage(storageValueObject.lang);
+            let storageValue = mw.storage.getObject("mw-nkch-css");
+            if (storageValue && "boolean" !== typeof storageValue) {
+                this.setValue(storageValue.value);
+                this.setLanguage(storageValue.lang);
             }
             /* ~ main : markers panel ~ */
             const main_markersPanel = document.createElement("div");
@@ -695,16 +688,11 @@ class nkchCSS {
                     ["css", "text/css"],
                     ["less", "text/x-less"]
                 ]);
-                let now = new Date(), date = {
-                    year: now.getFullYear(),
-                    month: (now.getMonth() + 1).toString().padStart(2, "0"),
-                    day: now.getDate().toString().padStart(2, "0"),
-                    hours: now.getHours().toString().padStart(2, "0"),
-                    minutes: now.getMinutes().toString().padStart(2, "0"),
-                    seconds: now.getSeconds().toString().padStart(2, "0"),
-                };
+                let now = new Date();
                 let modelLanguage = this.getLanguage();
-                let fileName = `${window.location.host} ${date.year}-${date.month}-${date.day} ${date.hours}-${date.minutes}-${date.seconds}.${modelLanguage ?? "css"}`, fileType = modelLanguage ? fileTypes.get(modelLanguage) : "text/css";
+                let fileName = `${mw.config.get("wgWikiID")} ${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}-${now.getDate().toString().padStart(2, "0")} ` +
+                    `${now.getHours().toString().padStart(2, "0")}-${now.getMinutes().toString().padStart(2, "0")}-${now.getSeconds().toString().padStart(2, "0")}.${modelLanguage ?? "css"}`;
+                let fileType = modelLanguage ? fileTypes.get(modelLanguage) : "text/css";
                 main_statusbarItem__fileDownload.setAttribute("download", fileName);
                 main_statusbarItem__fileDownload.setAttribute("href", URL.createObjectURL(new Blob([this.editor.getValue()], { type: fileType })));
             };
@@ -842,14 +830,16 @@ class nkchCSS {
     }
 }
 function onPageLoad() {
+    let options = {};
+    mw.loader.load("https://raw.githack.com/Vonavy/nkch-css/main/css/index.css", "text/css");
     if (window.nkch) {
         if (window.nkch.css4)
             return;
         else
-            window.nkch.css4 = new nkchCSS();
+            window.nkch.css4 = new nkchCSS(options);
     }
     else
-        window.nkch = { css4: new nkchCSS() };
+        window.nkch = { css4: new nkchCSS(options) };
 }
 ;
 (() => {
