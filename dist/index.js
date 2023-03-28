@@ -113,10 +113,7 @@ class nkchCSS {
         if (!this.checks.editor.isEnabled)
             return;
         if (saveToStorage) {
-            mw.storage.setObject("mw-nkch-css", {
-                lang: language,
-                value: code
-            });
+            localStorage.setItem("mw-nkch-css", JSON.stringify({ lang: language, value: code }));
         }
         switch (language) {
             default:
@@ -500,7 +497,7 @@ class nkchCSS {
                 automaticLayout: true,
                 scrollBeyondLastLine: false,
                 cursorBlinking: "smooth",
-                cursorSmoothCaretAnimation: true,
+                cursorSmoothCaretAnimation: "on",
                 scrollbar: {
                     useShadows: false
                 },
@@ -518,10 +515,11 @@ class nkchCSS {
             this.editor.onDidChangeModelContent(() => {
                 this.updateCode(this.editor.getValue(), this.getLanguage());
             });
-            let storageValue = mw.storage.getObject("mw-nkch-css");
-            if (storageValue && "boolean" !== typeof storageValue) {
-                this.setValue(storageValue.value);
-                this.setLanguage(storageValue.lang);
+            let storageValue = localStorage.getItem("mw-nkch-css");
+            if (storageValue != null) {
+                let storageObject = JSON.parse(storageValue);
+                this.setValue(storageObject.value);
+                this.setLanguage(storageObject.lang);
             }
             /* ~ main : markers panel ~ */
             const main_markersPanel = document.createElement("div");
@@ -688,11 +686,16 @@ class nkchCSS {
                     ["css", "text/css"],
                     ["less", "text/x-less"]
                 ]);
-                let now = new Date();
+                let now = new Date(), date = {
+                    year: now.getFullYear(),
+                    month: (now.getMonth() + 1).toString().padStart(2, "0"),
+                    day: now.getDate().toString().padStart(2, "0"),
+                    hours: now.getHours().toString().padStart(2, "0"),
+                    minutes: now.getMinutes().toString().padStart(2, "0"),
+                    seconds: now.getSeconds().toString().padStart(2, "0"),
+                };
                 let modelLanguage = this.getLanguage();
-                let fileName = `${mw.config.get("wgWikiID")} ${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}-${now.getDate().toString().padStart(2, "0")} ` +
-                    `${now.getHours().toString().padStart(2, "0")}-${now.getMinutes().toString().padStart(2, "0")}-${now.getSeconds().toString().padStart(2, "0")}.${modelLanguage ?? "css"}`;
-                let fileType = modelLanguage ? fileTypes.get(modelLanguage) : "text/css";
+                let fileName = `${window.location.host} ${date.year}-${date.month}-${date.day} ${date.hours}-${date.minutes}-${date.seconds}.${modelLanguage ?? "css"}`, fileType = modelLanguage ? fileTypes.get(modelLanguage) : "text/css";
                 main_statusbarItem__fileDownload.setAttribute("download", fileName);
                 main_statusbarItem__fileDownload.setAttribute("href", URL.createObjectURL(new Blob([this.editor.getValue()], { type: fileType })));
             };
