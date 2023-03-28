@@ -45,7 +45,7 @@ class nkchCSS {
         }
 
         this.versions = new Map([
-            ["monaco-editor", "0.34.1"],
+            ["monaco-editor", "0.36.1"],
             ["less", "4.1.3"]
         ]);
 
