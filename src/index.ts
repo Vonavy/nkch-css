@@ -485,7 +485,7 @@ class nkchCSS {
             this.elements.main_headerButton__beautify = main_headerButton__beautify;
             main_headerButtonGroup.append(main_headerButton__beautify);
 
-            main_headerButton__beautify.addEventListener("click", () => this.editor.getAction("editor.action.formatDocument")!.run(), false);
+            main_headerButton__beautify.addEventListener("click", () => this.editor.getAction("editor.action.formatDocument")?.run(), false);
 
 
             /* ~ [svg] main : header button icon (beautify) ~ */
@@ -1126,7 +1126,7 @@ class nkchCSS {
 
             main_statusbarItem__selection.addEventListener("click", () => {
                 this.editor.focus();
-                this.editor.getAction("editor.action.gotoLine")!.run();
+                this.editor.getAction("editor.action.gotoLine")?.run();
             }, false);
 
             switch (this.env.skin) {

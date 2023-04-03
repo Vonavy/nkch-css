@@ -372,7 +372,7 @@ class nkchCSS {
             main_headerButton__beautify.setAttribute("type", "button");
             this.elements.main_headerButton__beautify = main_headerButton__beautify;
             main_headerButtonGroup.append(main_headerButton__beautify);
-            main_headerButton__beautify.addEventListener("click", () => this.editor.getAction("editor.action.formatDocument").run(), false);
+            main_headerButton__beautify.addEventListener("click", () => this.editor.getAction("editor.action.formatDocument")?.run(), false);
             /* ~ [svg] main : header button icon (beautify) ~ */
             const main_headerButtonIcon__beautify = document.createElementNS("http://www.w3.org/2000/svg", "svg");
             main_headerButtonIcon__beautify.classList.add("nkch-css__header-icon");
@@ -816,7 +816,7 @@ class nkchCSS {
             });
             main_statusbarItem__selection.addEventListener("click", () => {
                 this.editor.focus();
-                this.editor.getAction("editor.action.gotoLine").run();
+                this.editor.getAction("editor.action.gotoLine")?.run();
             }, false);
             switch (this.env.skin) {
                 case "fandomdesktop":
