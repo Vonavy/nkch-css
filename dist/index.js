@@ -38,7 +38,7 @@ class nkchCSS {
             theme: mw.config.get("isDarkTheme") ? "dark" : "light"
         };
         this.versions = new Map([
-            ["monaco-editor", "0.34.1"],
+            ["monaco-editor", "0.37.1"],
             ["less", "4.1.3"]
         ]);
         this.initialize();
@@ -113,10 +113,7 @@ class nkchCSS {
         if (!this.checks.editor.isEnabled)
             return;
         if (saveToStorage) {
-            mw.storage.setObject("mw-nkch-css", {
-                lang: language,
-                value: code
-            });
+            localStorage.setItem("mw-nkch-css", JSON.stringify({ lang: language, value: code }));
         }
         switch (language) {
             default:
@@ -375,7 +372,7 @@ class nkchCSS {
             main_headerButton__beautify.setAttribute("type", "button");
             this.elements.main_headerButton__beautify = main_headerButton__beautify;
             main_headerButtonGroup.append(main_headerButton__beautify);
-            main_headerButton__beautify.addEventListener("click", () => this.editor.getAction("editor.action.formatDocument").run(), false);
+            main_headerButton__beautify.addEventListener("click", () => this.editor.getAction("editor.action.formatDocument")?.run(), false);
             /* ~ [svg] main : header button icon (beautify) ~ */
             const main_headerButtonIcon__beautify = document.createElementNS("http://www.w3.org/2000/svg", "svg");
             main_headerButtonIcon__beautify.classList.add("nkch-css__header-icon");
@@ -500,7 +497,7 @@ class nkchCSS {
                 automaticLayout: true,
                 scrollBeyondLastLine: false,
                 cursorBlinking: "smooth",
-                cursorSmoothCaretAnimation: true,
+                cursorSmoothCaretAnimation: "on",
                 scrollbar: {
                     useShadows: false
                 },
@@ -518,11 +515,14 @@ class nkchCSS {
             this.editor.onDidChangeModelContent(() => {
                 this.updateCode(this.editor.getValue(), this.getLanguage());
             });
-            let storageValue = mw.storage.getObject("mw-nkch-css");
-            if (storageValue && "boolean" !== typeof storageValue) {
-                this.setValue(storageValue.value);
-                this.setLanguage(storageValue.lang);
+            let storageValue = localStorage.getItem("mw-nkch-css");
+            if (storageValue != null) {
+                let storageObject = JSON.parse(storageValue);
+                this.setValue(storageObject.value);
+                this.setLanguage(storageObject.lang);
             }
+            else
+                this.setLanguage("css");
             /* ~ main : markers panel ~ */
             const main_markersPanel = document.createElement("div");
             main_markersPanel.classList.add("nkch-css__markers-panel", "nkch-css__markers-panel--is-hidden");
@@ -688,11 +688,16 @@ class nkchCSS {
                     ["css", "text/css"],
                     ["less", "text/x-less"]
                 ]);
-                let now = new Date();
+                let now = new Date(), date = {
+                    year: now.getFullYear(),
+                    month: (now.getMonth() + 1).toString().padStart(2, "0"),
+                    day: now.getDate().toString().padStart(2, "0"),
+                    hours: now.getHours().toString().padStart(2, "0"),
+                    minutes: now.getMinutes().toString().padStart(2, "0"),
+                    seconds: now.getSeconds().toString().padStart(2, "0"),
+                };
                 let modelLanguage = this.getLanguage();
-                let fileName = `${mw.config.get("wgWikiID")} ${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}-${now.getDate().toString().padStart(2, "0")} ` +
-                    `${now.getHours().toString().padStart(2, "0")}-${now.getMinutes().toString().padStart(2, "0")}-${now.getSeconds().toString().padStart(2, "0")}.${modelLanguage ?? "css"}`;
-                let fileType = modelLanguage ? fileTypes.get(modelLanguage) : "text/css";
+                let fileName = `${window.location.host} ${date.year}-${date.month}-${date.day} ${date.hours}-${date.minutes}-${date.seconds}.${modelLanguage ?? "css"}`, fileType = modelLanguage ? fileTypes.get(modelLanguage) : "text/css";
                 main_statusbarItem__fileDownload.setAttribute("download", fileName);
                 main_statusbarItem__fileDownload.setAttribute("href", URL.createObjectURL(new Blob([this.editor.getValue()], { type: fileType })));
             };
@@ -813,7 +818,7 @@ class nkchCSS {
             });
             main_statusbarItem__selection.addEventListener("click", () => {
                 this.editor.focus();
-                this.editor.getAction("editor.action.gotoLine").run();
+                this.editor.getAction("editor.action.gotoLine")?.run();
             }, false);
             switch (this.env.skin) {
                 case "fandomdesktop":
