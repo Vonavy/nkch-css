@@ -700,7 +700,7 @@ class nkchCSS {
 
                 this.setValue(storageObject.value);
                 this.setLanguage(storageObject.lang);
-            }
+            } else this.setLanguage("css");
 
 
             /* ~ main : markers panel ~ */
