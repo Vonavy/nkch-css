@@ -1,41 +1,37 @@
 :root {
     --theme-nkch-css-page-background-color: #FFFFFF;
     --theme-nkch-css-page-background-color--rgb: 255, 255, 255;
-    
+
     --theme-nkch-css-page-background-color--secondary: #f8f9fa;
     --theme-nkch-css-page-background-color--secondary--rgb: 248, 249, 250;
-    
+
     --theme-nkch-css-border-color: lightgray;
-    
+
     --theme-nkch-css-link-color: #3366CC;
     --theme-nkch-css-link-color--rgb: 51, 102, 204;
     --theme-nkch-css-link-color--hover: #2A4B8D;
     --theme-nkch-css-link-color--hover--rgb: 42, 75, 141;
-    
+
     --theme-nkch-css-link-label-color: #FFFFFF;
-    
+
     --theme-nkch-css-accent-label-color: #FFFFFF;
-    
+
     --theme-nkch-css-text-color: #202122;
     --theme-nkch-css-text-color--hover: #54595d;
-    
+
     --theme-nkch-css-alert-color: #DD3333;
     --theme-nkch-css-alert-color--hover: #b32424;
-    
+
     --theme-nkch-css-success-color: #00af89;
     --theme-nkch-css-success-color--hover: #14866d;
 }
 
 .nkch-css {
     backdrop-filter: blur(10px);
-    background-color: rgba(var(
-        --theme-page-background-color--rgb,
-        var(--theme-nkch-css-page-background-color--rgb)
-    ), .7);
-    border-color: var(
-        --theme-border-color,
-        var(--theme-nkch-css-border-color)
-    );
+    background-color: rgba(var(--theme-page-background-color--rgb,
+                var(--theme-nkch-css-page-background-color--rgb)), .7);
+    border-color: var(--theme-border-color,
+            var(--theme-nkch-css-border-color));
     border-radius: 10px;
     border-style: solid;
     border-width: 1px;
@@ -55,6 +51,10 @@
 
 .nkch-css--is-closed {
     visibility: hidden;
+}
+
+.nkch-css--is-picker-enabled {
+    display: none !important;
 }
 
 .nkch-css__notice {
@@ -81,10 +81,8 @@
 }
 
 .nkch-css__header-title {
-    color: var(
-        --theme-page-text-color,
-        var(--theme-nkch-css-text-color)
-    );
+    color: var(--theme-page-text-color,
+            var(--theme-nkch-css-text-color));
     font-size: 18px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -104,17 +102,13 @@
 .nkch-css__header-button {
     align-items: center;
     background-color: transparent;
-    color: var(
-        --theme-page-text-color,
-        var(--theme-nkch-css-text-color)
-    );
+    color: var(--theme-page-text-color,
+            var(--theme-nkch-css-text-color));
     cursor: pointer;
     border-width: 1px;
     border-style: solid;
-    border-color: var(
-        --theme-page-text-color,
-        var(--theme-nkch-css-text-color)
-    );
+    border-color: var(--theme-page-text-color,
+            var(--theme-nkch-css-text-color));
     display: inline-flex;
     min-height: 18px;
     padding: 5px 6px;
@@ -122,14 +116,11 @@
 }
 
 .nkch-css__header-button:hover {
-    border-color: var(
-        --theme-page-text-color--hover,
-        var(--theme-nkch-css-text-color--hover)
-    );
-    color: var(
-        --theme-page-text-color--hover,
-        var(--theme-nkch-css-text-color--hover)
-    );;
+    border-color: var(--theme-page-text-color--hover,
+            var(--theme-nkch-css-text-color--hover));
+    color: var(--theme-page-text-color--hover,
+            var(--theme-nkch-css-text-color--hover));
+    ;
 }
 
 .nkch-css__header-button-group>.nkch-css__header-button:first-child {
@@ -145,39 +136,27 @@
 }
 
 .nkch-css__header-button--toggle.is-enabled {
-    color: var(
-        --theme-success-color,
-        var(--theme-nkch-css-success-color)
-    );
+    color: var(--theme-success-color,
+            var(--theme-nkch-css-success-color));
 }
 
 .nkch-css__header-button--toggle.is-disabled {
-    color: var(
-        --theme-alert-color,
-        var(--theme-nkch-css-alert-color)
-    );
+    color: var(--theme-alert-color,
+            var(--theme-nkch-css-alert-color));
 }
 
 .nkch-css__header-button--close {
-    border-color: var(
-        --theme-alert-color,
-        var(--theme-nkch-css-alert-color)
-    );
-    color: var(
-        --theme-alert-color,
-        var(--theme-nkch-css-alert-color)
-    );
+    border-color: var(--theme-alert-color,
+            var(--theme-nkch-css-alert-color));
+    color: var(--theme-alert-color,
+            var(--theme-nkch-css-alert-color));
 }
 
 .nkch-css__header-button--close:hover {
-    border-color: var(
-        --theme-alert-color--hover,
-        var(--theme-nkch-css-alert-color--hover)
-    );
-    color: var(
-        --theme-alert-color--hover,
-        var(--theme-nkch-css-alert-color--hover)
-    );
+    border-color: var(--theme-alert-color--hover,
+            var(--theme-nkch-css-alert-color--hover));
+    color: var(--theme-alert-color--hover,
+            var(--theme-nkch-css-alert-color--hover));
 }
 
 .nkch-css__header-icon {
@@ -195,14 +174,10 @@
 }
 
 .nkch-css__tabs {
-    background-color: var(
-        --theme-page-background-color--secondary,
-        var(--theme-nkch-css-page-background-color--secondary)
-    );
-    border: 1px solid var(
-        --theme-border-color,
-        var(--theme-nkch-css-border-color)
-    );
+    background-color: var(--theme-page-background-color--secondary,
+            var(--theme-nkch-css-page-background-color--secondary));
+    border: 1px solid var(--theme-border-color,
+            var(--theme-nkch-css-border-color));
     border-radius: 20px;
     display: flex;
     isolation: isolate;
@@ -212,10 +187,8 @@
 }
 
 .nkch-css__tabs::before {
-    background-color: var(
-        --theme-link-color,
-        var(--theme-nkch-css-link-color)
-    );
+    background-color: var(--theme-link-color,
+            var(--theme-nkch-css-link-color));
     border-radius: 15px;
     content: "";
     height: 30px;
@@ -228,10 +201,8 @@
 
 .nkch-css__tab {
     align-items: center;
-    color: var(
-        --theme-page-text-color,
-        var(--theme-nkch-css-page-text-color)
-    );
+    color: var(--theme-page-text-color,
+            var(--theme-nkch-css-page-text-color));
     display: flex;
     font-size: 14px;
     font-weight: 500;
@@ -243,18 +214,14 @@
 
 .nkch-css__tab--css:not(.nkch-css__tab--is-selected):hover,
 .nkch-css__tab--less:not(.nkch-css__tab--is-selected):hover {
-    color: var(
-        --theme-link-color,
-        var(--theme-nkch-css-link-color)
-    );
+    color: var(--theme-link-color,
+            var(--theme-nkch-css-link-color));
     cursor: pointer;
 }
 
 .nkch-css__tab--is-selected {
-    color: var(
-        --theme-link-label-color,
-        var(--theme-nkch-css-link-label-color)
-    );
+    color: var(--theme-link-label-color,
+            var(--theme-nkch-css-link-label-color));
 }
 
 .nkch-css__tabs:has(.nkch-css__tab--css.nkch-css__tab--is-selected)::before {
@@ -274,16 +241,12 @@
 }
 
 .nkch-css__action {
-    background-color: rgba(var(
-        --theme-link-color--rgb,
-        var(--theme-nkch-css-link-color--rgb)
-    ), 0.1);
+    background-color: rgba(var(--theme-link-color--rgb,
+                var(--theme-nkch-css-link-color--rgb)), 0.1);
     border: none;
     border-radius: 3px;
-    color: var(
-        --theme-link-color,
-        var(--theme-nkch-css-link-color)
-    );
+    color: var(--theme-link-color,
+            var(--theme-nkch-css-link-color));
     cursor: pointer;
     font-size: 12px;
     font-weight: 700;
@@ -293,25 +256,17 @@
 }
 
 .nkch-css__action:hover:not(.nkch-css__action--is-disabled) {
-    background-color: rgba(var(
-        --theme-link-color--rgb,
-        var(--theme-nkch-css-link-color--rgb)
-    ), 0.3);
-    color: var(
-        --theme-link-color--hover,
-        var(--theme-nkch-css-link-color--hover)
-    );
+    background-color: rgba(var(--theme-link-color--rgb,
+                var(--theme-nkch-css-link-color--rgb)), 0.3);
+    color: var(--theme-link-color--hover,
+            var(--theme-nkch-css-link-color--hover));
 }
 
 .nkch-css__action:active:not(.nkch-css__action--is-disabled) {
-    background-color: rgba(var(
-        --theme-link-color--rgb,
-        var(--theme-nkch-css-link-color--rgb)
-    ), 0.2);
-    color: var(
-        --theme-link-color--hover,
-        var(--theme-nkch-css-link-color--hover)
-    );
+    background-color: rgba(var(--theme-link-color--rgb,
+                var(--theme-nkch-css-link-color--rgb)), 0.2);
+    color: var(--theme-link-color--hover,
+            var(--theme-nkch-css-link-color--hover));
 }
 
 .nkch-css__action--is-disabled {
@@ -347,10 +302,8 @@
 }
 
 .nkch-css__markers-panel {
-    background-color: var(
-        --theme-page-background-color,
-        var(--theme-nkch-css-page-background-color)
-    );
+    background-color: var(--theme-page-background-color,
+            var(--theme-nkch-css-page-background-color));
     bottom: 0;
     display: flex;
     flex-direction: column;
@@ -366,10 +319,8 @@
 }
 
 .nkch-css__markers-panel-header {
-    border-block: 1px solid var(
-        --theme-border-color,
-        var(--theme-nkch-css-border-color)
-    );
+    border-block: 1px solid var(--theme-border-color,
+            var(--theme-nkch-css-border-color));
     display: flex;
     justify-content: flex-end;
     height: 34px;
@@ -379,10 +330,8 @@
     align-items: center;
     background-color: transparent;
     border: none;
-    color: var(
-        --theme-page-text-color,
-        var(--theme-nkch-css-page-text-color)
-    );
+    color: var(--theme-page-text-color,
+            var(--theme-nkch-css-page-text-color));
     cursor: pointer;
     display: inline-flex;
     min-height: 18px;
@@ -391,10 +340,8 @@
 }
 
 .nkch-css__markers-panel-close-button:hover {
-    background-color: var(
-        --theme-page-background-color--secondary,
-        var(--theme-nkch-css-page-background-color--secondary)
-    );
+    background-color: var(--theme-page-background-color--secondary,
+            var(--theme-nkch-css-page-background-color--secondary));
 }
 
 .nkch-css__markers-panel-close-button-icon {
@@ -420,18 +367,14 @@
 }
 
 .nkch-css__marker-item:hover {
-    background-color: var(
-        --theme-page-background-color--secondary,
-        var(--theme-nkch-css-page-background-color--secondary)
-    );
+    background-color: var(--theme-page-background-color--secondary,
+            var(--theme-nkch-css-page-background-color--secondary));
 }
 
 .nkch-css-marker-item {
     align-items: center;
-    color: var(
-        --theme-page-text-color,
-        var(--theme-nkch-css-page-text-color)
-    );
+    color: var(--theme-page-text-color,
+            var(--theme-nkch-css-page-text-color));
     cursor: pointer;
     display: flex;
     white-space: nowrap;
@@ -513,21 +456,17 @@
     background-color: transparent;
     border-bottom-width: 2px;
     border-bottom-style: solid;
-    border-bottom-color: var(
-        --theme-link-color,
-        var(--theme-nkch-css-link-color)
-    );
+    border-bottom-color: var(--theme-link-color,
+            var(--theme-nkch-css-link-color));
 }
 
 .oo-ui-tabSelectWidget-framed .oo-ui-tabOptionWidget {
-    background-color: var(
-        --theme-page-background-color--secondary,
-        var(--theme-nkch-css-page-background-color--secondary)
-    );
+    background-color: var(--theme-page-background-color--secondary,
+            var(--theme-nkch-css-page-background-color--secondary));
 }
 
 .nkch-css__content .oo-ui-tabSelectWidget-framed .oo-ui-tabOptionWidget.oo-ui-optionWidget-selected,
-.nkch-css__content .oo-ui-tabSelectWidget-framed .oo-ui-tabOptionWidget.oo-ui-widget-enabled.oo-ui-optionWidget-selected:hover{
+.nkch-css__content .oo-ui-tabSelectWidget-framed .oo-ui-tabOptionWidget.oo-ui-widget-enabled.oo-ui-optionWidget-selected:hover {
     background-color: var(--theme-link-color, var(--theme-nkch-css-link-color));
     color: var(--theme-link-label-color, var(--theme-nkch-css-link-label-color));
 }
@@ -541,10 +480,8 @@
 }
 
 .nkch-css__statusbar {
-    background-color: var(
-        --theme-page-background-color--secondary,
-        var(--theme-nkch-css-page-background-color--secondary)
-    );
+    background-color: var(--theme-page-background-color--secondary,
+            var(--theme-nkch-css-page-background-color--secondary));
     border-radius: 0 0 3px 3px;
     display: flex;
     font-size: 12px;
@@ -562,10 +499,8 @@
 }
 
 .nkch-css__statusbar-item {
-    color: var(
-        --theme-page-text-color,
-        var(--theme-nkch-css-text-color)
-    );
+    color: var(--theme-page-text-color,
+            var(--theme-nkch-css-text-color));
     cursor: pointer;
     max-height: 24px;
     padding: 5px 10px;
@@ -573,25 +508,17 @@
 }
 
 .nkch-css__statusbar-item:hover {
-    background-color: rgba(var(
-        --theme-link-color--rgb, var(--theme-nkch-css-link-color--rgb)
-    ), .1);
-    color: var(
-        --theme-page-text-color,
-        var(--theme-nkch-css-text-color)
-    );
+    background-color: rgba(var(--theme-link-color--rgb, var(--theme-nkch-css-link-color--rgb)), .1);
+    color: var(--theme-page-text-color,
+            var(--theme-nkch-css-text-color));
     text-decoration: none;
 }
 
 .nkch-css__statusbar-item:active {
-    background-color: rgba(var(
-        --theme-link-color--rgb,
-        var(--theme-nkch-css-link-color--rgb)
-    ), .2);
-    color: var(
-        --theme-page-text-color,
-        var(--theme-nkch-css-text-color)
-    );
+    background-color: rgba(var(--theme-link-color--rgb,
+                var(--theme-nkch-css-link-color--rgb)), .2);
+    color: var(--theme-page-text-color,
+            var(--theme-nkch-css-text-color));
     text-decoration: none;
 }
 
@@ -649,10 +576,8 @@
 .nkch-css__quickbar-button-spinner,
 .nkch-css__sidebar-button-spinner {
     animation: nkch-css-spinner--spin 1s infinite linear;
-    border: 3px solid var(
-        --theme-accent-label-color,
-        var(--theme-nkch-css-link-color)
-    );
+    border: 3px solid var(--theme-accent-label-color,
+            var(--theme-nkch-css-link-color));
     border-bottom-color: transparent;
     border-radius: 100%;
     display: inline-block;
@@ -666,8 +591,41 @@
     display: none;
 }
 
-.nkch-css__window-manager {
-    z-index: 100000;
+.nkch-css-html-picker-enabled {
+    user-select: none;
+}
+
+.nkch-css-picker-blocker {
+    background-color: transparent;
+    height: 100vh;
+    inset: 0;
+    position: fixed;
+    width: 100vw;
+    z-index: 999999999999999;
+}
+
+.nkch-css-picker-element {
+    background-color: #0094FF80 !important;
+    border-radius: 0 !important;
+    color: #000 !important;
+    fill: #000 !important;
+    outline: 1px dashed #0094FF !important;
+    transition: none !important;
+}
+
+.nkch-css-picker-tooltip {
+    background-color: #000000b3;
+    border-radius: 5px;
+    color: #fff;
+    display: none;
+    padding: 5px 10px;
+    pointer-events: none;
+    position: absolute;
+    z-index: 9999999;
+}
+
+.nkch-css-html-picker-enabled .nkch-css-picker-tooltip {
+    display: block;
 }
 
 @keyframes nkch-css-spinner--spin {
