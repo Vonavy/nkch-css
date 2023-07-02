@@ -19,7 +19,8 @@ class nkchCSS {
                 isInitialized: false,
                 isEnabled: true,
                 isOpen: false,
-                isMarkersPanelOpen: false
+                isMarkersPanelOpen: false,
+                isPickerEnabled: false
             },
             state: {
                 drag: {
@@ -220,6 +221,26 @@ class nkchCSS {
             });
     }
 
+    public enablePicker(): void {
+        document.querySelector<HTMLElement>("html")!.classList.add("nkch-css-html-picker-enabled");
+        this.elements.main.classList.add("nkch-css--is-picker-enabled");
+
+        this.checks.editor.isPickerEnabled = true;
+    }
+
+    public disablePicker(): void {
+        document.querySelector<HTMLElement>("html")!.classList.remove("nkch-css-html-picker-enabled");
+        this.elements.main.classList.remove("nkch-css--is-picker-enabled");
+
+        this.checks.editor.isPickerEnabled = false;
+        this.removePickerSelector();
+    }
+
+    private removePickerSelector(): void {
+        document.querySelectorAll(".nkch-css-picker-element")
+            .forEach(el => el.classList.remove("nkch-css-picker-element"));
+    }
+
     public getParents(element: Element): Element[] {
         let parents: Element[] = [],
             currentElement = element,
@@ -237,6 +258,27 @@ class nkchCSS {
         }
 
         return parents;
+    }
+
+    public getSelector(element: Element): string {
+        if (element.id)
+            return '#' + element.id;
+
+        if (element.tagName.toLowerCase() === "body")
+            return "body";
+
+        if (element.classList) {
+            let classList: Set<string> = new Set(Array.from(element.classList));
+            classList.delete("nkch-css-picker-element");
+
+            if (classList.size > 0)
+                return "." + Array.from(classList).join(".");
+        }
+
+        if (element.parentElement)
+            return `${this.getSelector(element.parentElement)} > ${element.tagName.toLowerCase()}`
+        else
+            return element.tagName.toLowerCase();
     }
 
     private initialize(): void {
@@ -638,6 +680,86 @@ class nkchCSS {
             });
 
 
+            /* ~ main : action (picker) ~ */
+            const main_action__picker = document.createElement("button");
+            main_action__picker.classList.add("nkch-css__action", "nkch-css__action--pointer");
+            main_action__picker.setAttribute("type", "button");
+            main_action__picker.innerText = "🎯";
+
+            this.elements.main_action__picker = main_action__picker;
+            main_actions.append(main_action__picker);
+
+            main_action__picker.addEventListener("click", () => {
+                this.enablePicker();
+            });
+
+
+            let pickerTarget: Element;
+
+            document.addEventListener("mousemove", e => {
+                if (!this.checks.editor.isPickerEnabled) return;
+
+                if (pickerTarget && pickerTarget !== e.target) this.removePickerSelector();
+
+                pickerTarget = e.target as Element;
+                pickerTarget.classList.add("nkch-css-picker-element");
+            }, false);
+
+            document.addEventListener("mousedown", e => {
+                if (!this.checks.editor.isPickerEnabled) return;
+
+                let element: Element = e.target as Element;
+
+                let pickerBlocker = document.createElement("div");
+                pickerBlocker.classList.add("nkch-css-picker-blocker");
+
+                document.body.append(pickerBlocker);
+
+                pickerBlocker.addEventListener("mouseup", () => {
+                    pickerBlocker.remove();
+                    this.disablePicker();
+
+                    var selection = this.editor.getSelection()!;
+                    this.editor.executeEdits("nkch-css-picker", [{
+                        range: selection,
+                        text: this.getSelector(element),
+                        forceMoveMarkers: true
+                    }]);
+                }, false);
+            }, false);
+
+            document.addEventListener("keydown", e => {
+                if (e.key === "Escape") this.disablePicker();
+            }, false);
+
+            const pickerTooltip = document.createElement("div");
+            pickerTooltip.classList.add("nkch-css-picker-tooltip");
+
+            document.body.append(pickerTooltip);
+
+            document.addEventListener("mousemove", e => {
+                let target = e.target;
+
+                let tooltipWidth = pickerTooltip.offsetWidth,
+                    tooltipHeight = pickerTooltip.offsetHeight,
+                    pageWidth = window.innerWidth,
+                    pageHeight = window.innerHeight;
+
+                let leftPosition = e.pageX + 10;
+                if (leftPosition + tooltipWidth > pageWidth)
+                    leftPosition = e.pageX - tooltipWidth - 10;
+
+                let topPosition = e.pageY + 10;
+                if (topPosition + tooltipHeight > pageHeight)
+                    topPosition = e.pageY - tooltipHeight - 10;
+
+                pickerTooltip.style.left = leftPosition + "px";
+                pickerTooltip.style.top = topPosition + "px";
+
+                pickerTooltip.textContent = this.getSelector(target as Element);
+            }, false);
+
+
             /* ~ main : split view ~ */
             const main_splitView = document.createElement("div");
             main_splitView.classList.add("nkch-css__split-view");
@@ -694,8 +816,7 @@ class nkchCSS {
 
             let storageValue: string | null = localStorage.getItem("mw-nkch-css");
 
-            if (storageValue != null)
-            {
+            if (storageValue != null) {
                 let storageObject: nkch.css.LocalStorageObject = JSON.parse(storageValue);
 
                 this.setValue(storageObject.value);
