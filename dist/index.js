@@ -598,6 +598,9 @@ class nkchCSS {
                 },
                 minimap: {
                     enabled: false
+                },
+                stickyScroll: {
+                    enabled: true
                 }
             });
             setInterval(() => {
