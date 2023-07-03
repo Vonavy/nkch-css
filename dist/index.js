@@ -534,16 +534,22 @@ class nkchCSS {
                 pickerBlocker.addEventListener("mouseup", () => {
                     pickerBlocker.remove();
                     this.disablePicker();
-                    var selection = this.editor.getSelection();
-                    this.editor.executeEdits("nkch-css-picker", [{
-                            range: selection,
-                            text: this.getSelector(element),
-                            forceMoveMarkers: true
-                        }]);
+                    let selections = this.editor.getSelections();
+                    if (selections) {
+                        let edits = [], text = this.getSelector(element);
+                        selections.forEach(selection => {
+                            edits.push({
+                                range: selection,
+                                text: text,
+                                forceMoveMarkers: true
+                            });
+                        });
+                        this.editor.executeEdits("nkch-css-picker", edits);
+                    }
                 }, false);
             }, false);
             document.addEventListener("keydown", e => {
-                if (e.key === "Escape")
+                if (e.key === "Escape" && this.checks.editor.isPickerEnabled)
                     this.disablePicker();
             }, false);
             const pickerTooltip = document.createElement("div");
