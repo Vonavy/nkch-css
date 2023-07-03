@@ -46,7 +46,7 @@ class nkchCSS {
         }
 
         this.versions = new Map([
-            ["monaco-editor", "0.37.1"],
+            ["monaco-editor", "0.39.0"],
             ["less", "4.1.3"]
         ]);
 
@@ -719,17 +719,27 @@ class nkchCSS {
                     pickerBlocker.remove();
                     this.disablePicker();
 
-                    var selection = this.editor.getSelection()!;
-                    this.editor.executeEdits("nkch-css-picker", [{
-                        range: selection,
-                        text: this.getSelector(element),
-                        forceMoveMarkers: true
-                    }]);
+                    let selections: monaco.Selection[] | null = this.editor.getSelections();
+
+                    if (selections) {
+                        let edits: monaco.editor.IIdentifiedSingleEditOperation[] = [],
+                            text: string = this.getSelector(element);
+
+                        selections.forEach(selection => {
+                            edits.push({
+                                range: selection,
+                                text: text,
+                                forceMoveMarkers: true
+                            })
+                        });
+
+                        this.editor.executeEdits("nkch-css-picker", edits);
+                    }
                 }, false);
             }, false);
 
             document.addEventListener("keydown", e => {
-                if (e.key === "Escape") this.disablePicker();
+                if (e.key === "Escape" && this.checks.editor.isPickerEnabled) this.disablePicker();
             }, false);
 
             const pickerTooltip = document.createElement("div");
@@ -798,6 +808,9 @@ class nkchCSS {
                 },
                 minimap: {
                     enabled: false
+                },
+                stickyScroll: {
+                    enabled: true
                 }
             });
 
