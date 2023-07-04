@@ -613,6 +613,32 @@ class nkchCSS {
             this.editor.onDidChangeModelContent(() => {
                 this.updateCode(this.editor.getValue(), this.getLanguage());
             });
+            let completionItemProviders = [{
+                    triggerCharacters: ["!"],
+                    provideCompletionItems: (model, position) => {
+                        const propertyCheck = /[^;{}]+\s*:\s*[^;{}]+\s*;?$/;
+                        const textValue = model.getValueInRange({
+                            startLineNumber: position.lineNumber,
+                            startColumn: 1,
+                            endLineNumber: position.lineNumber,
+                            endColumn: position.column
+                        });
+                        if (propertyCheck.test(textValue)) {
+                            const word = model.getWordUntilPosition(position);
+                            return {
+                                suggestions: [{
+                                        label: '!important',
+                                        kind: monaco.languages.CompletionItemKind.Keyword,
+                                        insertText: "!important",
+                                        range: new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn)
+                                    }]
+                            };
+                        }
+                        else
+                            return { suggestions: [] };
+                    },
+                }];
+            completionItemProviders.forEach(itemProvider => monaco.languages.registerCompletionItemProvider(["css", "less"], itemProvider));
             let storageValue = localStorage.getItem("mw-nkch-css");
             if (storageValue != null) {
                 let storageObject = JSON.parse(storageValue);
