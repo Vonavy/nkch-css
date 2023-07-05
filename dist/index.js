@@ -637,6 +637,46 @@ class nkchCSS {
                         else
                             return { suggestions: [] };
                     },
+                }, {
+                    triggerCharacters: ["--"],
+                    provideCompletionItems: (model, position) => {
+                        const word = model.getWordUntilPosition(position);
+                        let editorProperties = getEditorCustomProperties(), filteredProperties = getAllCustomProperties().filter(item => !editorProperties.includes(item));
+                        const suggestions = filteredProperties.map(property => {
+                            return {
+                                label: property,
+                                kind: monaco.languages.CompletionItemKind.Property,
+                                insertText: property,
+                                range: new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn)
+                            };
+                        });
+                        return { suggestions: suggestions };
+                        function getAllCustomProperties() {
+                            const customProperties = new Set();
+                            const styleSheets = Array.from(document.styleSheets).filter(sheet => !sheet.href || sheet.href.startsWith(window.location.origin));
+                            styleSheets.forEach(sheet => {
+                                const cssRules = sheet.cssRules;
+                                for (let i = 0; i < cssRules.length; i++) {
+                                    const cssRule = cssRules[i];
+                                    if (cssRule instanceof CSSStyleRule) {
+                                        const declarations = cssRule.style;
+                                        Array.from(declarations).forEach(property => {
+                                            if (property.startsWith("--") && !property.startsWith("--vscode"))
+                                                customProperties.add(property);
+                                        });
+                                    }
+                                }
+                            });
+                            return Array.from(customProperties);
+                        }
+                        function getEditorCustomProperties() {
+                            let existingProperties = [], content = model.getValue(), propertyRegex = /--([^:;]+)\s*:\s*([^;]+);/g, match;
+                            while ((match = propertyRegex.exec(content)) !== null) {
+                                existingProperties.push(`--${match[1].trim()}`);
+                            }
+                            return existingProperties;
+                        }
+                    }
                 }];
             completionItemProviders.forEach(itemProvider => monaco.languages.registerCompletionItemProvider(["css", "less"], itemProvider));
             let storageValue = localStorage.getItem("mw-nkch-css");
