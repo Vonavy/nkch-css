@@ -856,6 +856,72 @@ class nkchCSS {
                         };
                     } else return { suggestions: [] };
                 },
+            }, {
+                triggerCharacters: ["--"],
+                provideCompletionItems: (model, position) => {
+                    const word = model.getWordUntilPosition(position);
+
+                    let editorProperties: string[] = getEditorCustomProperties(),
+                        filteredProperties = getAllCustomProperties().filter(item =>
+                            !editorProperties.includes(item)
+                        );
+
+                    const suggestions = filteredProperties.map(property => {
+                        return {
+                            label: property,
+                            kind: monaco.languages.CompletionItemKind.Property,
+                            insertText: property,
+                            range: new monaco.Range(
+                                position.lineNumber,
+                                word.startColumn,
+                                position.lineNumber,
+                                word.endColumn
+                            )
+                        };
+                    });
+
+                    return { suggestions: suggestions };
+
+                    function getAllCustomProperties(): string[] {
+                        const customProperties: Set<string> = new Set<string>();
+
+                        const styleSheets: CSSStyleSheet[] = Array.from(document.styleSheets).filter(sheet =>
+                            !sheet.href || sheet.href.startsWith(window.location.origin)
+                        );
+
+                        styleSheets.forEach(sheet => {
+                            const cssRules = sheet.cssRules;
+
+                            for (let i = 0; i < cssRules.length; i++) {
+                                const cssRule: CSSRule = cssRules[i];
+
+                                if (cssRule instanceof CSSStyleRule) {
+                                    const declarations: CSSStyleDeclaration = cssRule.style;
+
+                                    Array.from(declarations).forEach(property => {
+                                        if (property.startsWith("--") && !property.startsWith("--vscode"))
+                                            customProperties.add(property);
+                                    });
+                                }
+                            }
+                        });
+
+                        return Array.from(customProperties);
+                    }
+
+                    function getEditorCustomProperties(): string[] {
+                        let existingProperties: string[] = [],
+                            content: string = model.getValue(),
+                            propertyRegex: RegExp = /--([^:;]+)\s*:\s*([^;]+);/g,
+                            match: RegExpExecArray | null;
+
+                        while ((match = propertyRegex.exec(content)) !== null) {
+                            existingProperties.push(`--${match[1].trim()}`);
+                        }
+
+                        return existingProperties;
+                    }
+                }
             }];
 
             completionItemProviders.forEach(itemProvider => monaco.languages.registerCompletionItemProvider(["css", "less"], itemProvider));
