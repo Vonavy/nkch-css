@@ -39,8 +39,8 @@ class nkchCSS {
             theme: mw.config.get("isDarkTheme") ? "dark" : "light"
         };
         this.versions = new Map([
-            ["monaco-editor", "0.39.0"],
-            ["less", "4.1.3"]
+            ["monaco-editor", "0.41.0"],
+            ["less", "4.2.0"]
         ]);
         this.initialize();
     }
