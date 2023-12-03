@@ -46,7 +46,7 @@ class nkchCSS {
         }
 
         this.versions = new Map([
-            ["monaco-editor", "0.41.0"],
+            ["monaco-editor", "0.44.0"],
             ["less", "4.2.0"]
         ]);
 
@@ -54,7 +54,7 @@ class nkchCSS {
     }
 
     public open(event?: Event): Promise<void> | void {
-        if (event) event.preventDefault();
+        event?.preventDefault();
 
         if (!this.checks.editor.isInitialized) return this.initializeEditor();
         else if (this.checks.editor.isOpen) return;
@@ -81,7 +81,7 @@ class nkchCSS {
     }
 
     public close(event?: Event): Promise<void> | void {
-        if (event) event.preventDefault();
+        event?.preventDefault();
 
         if (!this.checks.editor.isInitialized) return this.initializeEditor();
         else if (!this.checks.editor.isOpen) return;
@@ -750,18 +750,13 @@ class nkchCSS {
             document.addEventListener("mousemove", e => {
                 let target = e.target;
 
-                let tooltipWidth = pickerTooltip.offsetWidth,
-                    tooltipHeight = pickerTooltip.offsetHeight,
-                    pageWidth = window.innerWidth,
-                    pageHeight = window.innerHeight;
-
                 let leftPosition = e.pageX + 10;
-                if (leftPosition + tooltipWidth > pageWidth)
-                    leftPosition = e.pageX - tooltipWidth - 10;
+                if (leftPosition + pickerTooltip.offsetWidth > window.innerWidth)
+                    leftPosition = e.pageX - pickerTooltip.offsetWidth - 10;
 
                 let topPosition = e.pageY + 10;
-                if (topPosition + tooltipHeight > pageHeight)
-                    topPosition = e.pageY - tooltipHeight - 10;
+                if (topPosition + pickerTooltip.offsetHeight > window.innerHeight)
+                    topPosition = e.pageY - pickerTooltip.offsetHeight - 10;
 
                 pickerTooltip.style.left = leftPosition + "px";
                 pickerTooltip.style.top = topPosition + "px";
