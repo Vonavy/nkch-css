@@ -3,12 +3,11 @@
     "compile": "tsc"
   },
   "devDependencies": {
-    "@types/jquery": "^3.5.29",
-    "@types/jqueryui": "^1.12.21",
+    "@types/jquery": "^3.5.30",
     "@types/less": "^3.0.6",
     "@types/requirejs": "^2.1.37",
-    "monaco-editor": "^0.46.0",
+    "monaco-editor": "^0.50.0-dev-20240608",
     "types-mediawiki": "^1.5.0",
-    "typescript": "^5.3.2"
+    "typescript": "^5.5.1-rc"
   }
 }
