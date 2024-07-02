@@ -6,7 +6,7 @@
     "@types/jquery": "^3.5.30",
     "@types/less": "^3.0.6",
     "@types/requirejs": "^2.1.37",
-    "monaco-editor": "^0.50.0",
+    "monaco-editor": "^0.50.0-dev-20240608",
     "types-mediawiki": "^1.5.0",
     "typescript": "^5.5.1-rc"
   }
