@@ -1,5 +1,6 @@
 // Hello from TypeScript
 /// <reference types="../node_modules/monaco-editor/monaco" />
+/// <reference types="../node_modules/types-mediawiki" />
 
 class nkchCSS {
     editor!: monaco.editor.IStandaloneCodeEditor;
@@ -46,7 +47,7 @@ class nkchCSS {
         }
 
         this.versions = new Map([
-            ["monaco-editor", "0.50.0-dev-20240608"],
+            ["monaco-editor", "0.49.0"],
             ["less", "4.2.0"]
         ]);
 

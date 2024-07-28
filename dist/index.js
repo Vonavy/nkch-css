@@ -1,6 +1,7 @@
 "use strict";
 // Hello from TypeScript
 /// <reference types="../node_modules/monaco-editor/monaco" />
+/// <reference types="../node_modules/types-mediawiki" />
 class nkchCSS {
     editor;
     options;
@@ -39,7 +40,7 @@ class nkchCSS {
             theme: mw.config.get("isDarkTheme") ? "dark" : "light"
         };
         this.versions = new Map([
-            ["monaco-editor", "0.46.0"],
+            ["monaco-editor", "0.49.0"],
             ["less", "4.2.0"]
         ]);
         this.initialize();
