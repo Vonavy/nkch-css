@@ -296,6 +296,16 @@ class nkchCSS {
         this.onModuleLoad();
     }
     onModuleLoad() {
+        function getPreferredLanguage() {
+            const supportedLanguages = ["en", "de", "es", "fr", "it", "ja", "ko", "ru", "zh-cn", "zh-tw"];
+            for (const lang of navigator.languages) {
+                const normalizedLang = lang.toLowerCase();
+                if (supportedLanguages.includes(normalizedLang)) {
+                    return normalizedLang;
+                }
+            }
+            return "en";
+        }
         require.config({
             paths: {
                 "less": `https://cdnjs.cloudflare.com/ajax/libs/less.js/${this.versions.get("less")}/less.min`,
@@ -304,7 +314,7 @@ class nkchCSS {
             // @ts-ignore
             "vs/nls": {
                 availableLanguages: {
-                    "*": globalThis.navigator.language || "en"
+                    "*": getPreferredLanguage()
                 }
             },
             waitSeconds: 100
