@@ -114,7 +114,6 @@ class nkchCSS {
                 this.elements.main_headerButton__toggle.classList.add("is-enabled");
                 this.elements.main_headerButton__toggle.classList.remove("is-disabled");
 
-                this.elements.main_headerButtonIconPath__toggle.setAttribute("d", SvgPath.Eye);
                 this.checks.editor.isEnabled = true;
 
                 this.updateCode(this.editor.getValue(), this.getLanguage());
@@ -124,7 +123,6 @@ class nkchCSS {
                 this.elements.main_headerButton__toggle.classList.add("is-disabled");
                 this.elements.main_headerButton__toggle.classList.remove("is-enabled");
 
-                this.elements.main_headerButtonIconPath__toggle.setAttribute("d", SvgPath.EyeCrossed);
                 this.checks.editor.isEnabled = false;
 
                 this.elements.style.innerHTML = "";
@@ -371,6 +369,7 @@ class nkchCSS {
             `https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs/editor/editor.main.min.css`,
         ], "text/css");
 
+        await mw.loader.getScript("https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js");
         await mw.loader.getScript(`https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs/loader.min.js`);
 
         this.onModuleLoad();
@@ -382,7 +381,7 @@ class nkchCSS {
 
             for (const lang of navigator.languages) {
                 const normalizedLang = lang.toLowerCase();
-                
+
                 if (supportedLanguages.includes(normalizedLang)) {
                     return normalizedLang;
                 }
@@ -394,7 +393,7 @@ class nkchCSS {
         require.config({
             paths: {
                 "less": `https://cdnjs.cloudflare.com/ajax/libs/less.js/${this.versions.get("less")}/less.min`,
-                "vs": `https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs`
+                "vs": `https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs`,
             },
             // @ts-ignore
             "vs/nls": {
@@ -545,23 +544,8 @@ class nkchCSS {
 
 
             /* ~ [svg] main : header button icon (beautify) ~ */
-            const main_headerButtonIcon__beautify = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            main_headerButtonIcon__beautify.classList.add("nkch-css__header-icon");
-            main_headerButtonIcon__beautify.setAttribute("viewBox", "0 0 18 18");
-            main_headerButtonIcon__beautify.setAttribute("aria-hidden", "true");
-
-            this.elements.main_headerButtonIcon__beautify = main_headerButtonIcon__beautify;
-            main_headerButton__beautify.append(main_headerButtonIcon__beautify);
-
-
-            /* ~ [svg] main : header button icon path (beautify) ~ */
-            const main_headerButtonIconPath__beautify = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            main_headerButtonIconPath__beautify.setAttribute("d", SvgPath.Star);
-            main_headerButtonIconPath__beautify.setAttribute("fill-rule", "evenodd");
-            main_headerButtonIconPath__beautify.setAttribute("clip-rule", "evenodd");
-
-            this.elements.main_headerButtonIconPath__beautify = main_headerButtonIconPath__beautify;
-            main_headerButtonIcon__beautify.append(main_headerButtonIconPath__beautify);
+            //@ts-ignore
+            main_headerButton__beautify.append(lucide.createElement(lucide.Sparkles, { height: 18, width: 18 }));
 
 
             /* ~ main : header button (toggle) ~ */
@@ -576,23 +560,8 @@ class nkchCSS {
 
 
             /* ~ [svg] main : header button icon (toggle) ~ */
-            const main_headerButtonIcon__toggle = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            main_headerButtonIcon__toggle.classList.add("nkch-css__header-icon");
-            main_headerButtonIcon__toggle.setAttribute("viewBox", "0 0 18 18");
-            main_headerButtonIcon__toggle.setAttribute("aria-hidden", "true");
-
-            this.elements.main_headerButtonIcon__toggle = main_headerButtonIcon__toggle;
-            main_headerButton__toggle.append(main_headerButtonIcon__toggle);
-
-
-            /* ~ [svg] main : header button icon path (toggle) ~ */
-            const main_headerButtonIconPath__toggle = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            main_headerButtonIconPath__toggle.setAttribute("d", this.checks.editor.isEnabled ? SvgPath.Eye : SvgPath.EyeCrossed);
-            main_headerButtonIconPath__toggle.setAttribute("fill-rule", "evenodd");
-            main_headerButtonIconPath__toggle.setAttribute("clip-rule", "evenodd");
-
-            this.elements.main_headerButtonIconPath__toggle = main_headerButtonIconPath__toggle;
-            main_headerButtonIcon__toggle.append(main_headerButtonIconPath__toggle);
+            //@ts-ignore
+            main_headerButton__toggle.append(lucide.createElement(lucide.Eye, { height: 18, width: 18 }));
 
 
             /* ~ main : header button (close) ~ */
@@ -607,23 +576,8 @@ class nkchCSS {
 
 
             /* ~ [svg] main : header button icon (close) ~ */
-            const main_headerButtonIcon__close = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            main_headerButtonIcon__close.classList.add("nkch-css__header-icon");
-            main_headerButtonIcon__close.setAttribute("viewBox", "0 0 18 18");
-            main_headerButtonIcon__close.setAttribute("aria-hidden", "true");
-
-            this.elements.main_headerButtonIcon__close = main_headerButtonIcon__close;
-            main_headerButton__close.append(main_headerButtonIcon__close);
-
-
-            /* ~ [svg] main : header button icon path (close) ~ */
-            const main_headerButtonIconPath__close = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            main_headerButtonIconPath__close.setAttribute("d", SvgPath.Close);
-            main_headerButtonIconPath__close.setAttribute("fill-rule", "evenodd");
-            main_headerButtonIconPath__close.setAttribute("clip-rule", "evenodd");
-
-            this.elements.main_headerButtonIconPath__close = main_headerButtonIconPath__close;
-            main_headerButtonIcon__close.append(main_headerButtonIconPath__close);
+            //@ts-ignore
+            main_headerButton__close.append(lucide.createElement(lucide.X, { height: 18, width: 18 }));
 
 
             /* ~ main : content ~ */
@@ -698,7 +652,9 @@ class nkchCSS {
             const main_action__picker = document.createElement("button");
             main_action__picker.classList.add("nkch-css__action", "nkch-css__action--pointer");
             main_action__picker.setAttribute("type", "button");
-            main_action__picker.innerText = "🎯";
+
+            //@ts-ignore
+            main_action__picker.append(lucide.createElement(lucide.SquareDashedMousePointer, { height: 18, width: 18 }));
 
             this.elements.main_action__picker = main_action__picker;
             main_actions.append(main_action__picker);
@@ -970,23 +926,8 @@ class nkchCSS {
 
 
             /* ~ [svg] main : markers panel close button icon ~ */
-            const main_markersPanelCloseButtonIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            main_markersPanelCloseButtonIcon.classList.add("nkch-css__markers-panel-close-button-icon");
-            main_markersPanelCloseButtonIcon.setAttribute("viewBox", "0 0 18 18");
-            main_markersPanelCloseButtonIcon.setAttribute("aria-hidden", "true");
-
-            this.elements.main_markersPanelCloseButtonIcon = main_markersPanelCloseButtonIcon;
-            main_markersPanelCloseButton.append(main_markersPanelCloseButtonIcon);
-
-
-            /* ~ [svg] main : markers panel close button icon path  ~ */
-            const main_markersPanelCloseButtonIconPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            main_markersPanelCloseButtonIconPath.setAttribute("d", SvgPath.Close);
-            main_markersPanelCloseButtonIconPath.setAttribute("fill-rule", "evenodd");
-            main_markersPanelCloseButtonIconPath.setAttribute("clip-rule", "evenodd");
-
-            this.elements.main_markersPanelCloseButtonIconPath = main_markersPanelCloseButtonIconPath;
-            main_markersPanelCloseButtonIcon.append(main_markersPanelCloseButtonIconPath);
+            //@ts-ignore
+            main_markersPanelCloseButton.append(lucide.createElement(lucide.X, { width: 18, height: 18 }));
 
 
             /* ~ main : markers list ~ */
@@ -1204,23 +1145,8 @@ class nkchCSS {
 
 
             /* ~ [svg] main : statusbar item icon (file download) ~ */
-            const main_statusbarItemIcon__fileDownload = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            main_statusbarItemIcon__fileDownload.classList.add("nkch-css__statusbar-item-icon", "nkch-css__statusbar-item-icon--file-download");
-            main_statusbarItemIcon__fileDownload.setAttribute("viewBox", "0 0 18 18");
-            main_statusbarItemIcon__fileDownload.setAttribute("aria-hidden", "true");
-
-            this.elements.main_statusbarItemIcon__fileDownload = main_statusbarItemIcon__fileDownload;
-            main_statusbarItem__fileDownload.append(main_statusbarItemIcon__fileDownload);
-
-
-            /* ~ [svg] main : statusbar item icon path (file download) ~ */
-            const main_statusbarItemIconPath__fileDownload = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            main_statusbarItemIconPath__fileDownload.setAttribute("d", SvgPath.Download);
-            main_statusbarItemIconPath__fileDownload.setAttribute("fill-rule", "evenodd");
-            main_statusbarItemIconPath__fileDownload.setAttribute("clip-rule", "evenodd");
-
-            this.elements.main_statusbarItemIconPath__fileDownload = main_statusbarItemIconPath__fileDownload;
-            main_statusbarItemIcon__fileDownload.append(main_statusbarItemIconPath__fileDownload);
+            //@ts-ignore
+            main_statusbarItem__fileDownload.append(lucide.createElement(lucide.Download, { height: 12, width: 12 }));
 
 
             /* ~ main : statusbar item input (file upload) ~ */
@@ -1267,23 +1193,8 @@ class nkchCSS {
 
 
             /* ~ [svg] main : statusbar item icon (file upload) ~ */
-            const main_statusbarItemIcon__fileUpload = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            main_statusbarItemIcon__fileUpload.classList.add("nkch-css__statusbar-item-icon", "nkch-css__statusbar-item-icon--file-upload");
-            main_statusbarItemIcon__fileUpload.setAttribute("viewBox", "0 0 18 18");
-            main_statusbarItemIcon__fileUpload.setAttribute("aria-hidden", "true");
-
-            this.elements.main_statusbarItemIcon__fileUpload = main_statusbarItemIcon__fileUpload;
-            main_statusbarItem__fileUpload.append(main_statusbarItemIcon__fileUpload);
-
-
-            /* ~ [svg] main : statusbar item icon path (file upload) ~ */
-            const main_statusbarItemIconPath__fileUpload = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            main_statusbarItemIconPath__fileUpload.setAttribute("d", SvgPath.Upload);
-            main_statusbarItemIconPath__fileUpload.setAttribute("fill-rule", "evenodd");
-            main_statusbarItemIconPath__fileUpload.setAttribute("clip-rule", "evenodd");
-
-            this.elements.main_statusbarItemIconPath__fileUpload = main_statusbarItemIconPath__fileUpload;
-            main_statusbarItemIcon__fileUpload.append(main_statusbarItemIconPath__fileUpload);
+            //@ts-ignore
+            main_statusbarItem__fileUpload.append(lucide.createElement(lucide.Upload, { height: 12, width: 12 }));
 
 
             /* ~ main : statusbar item (markers) ~ */
@@ -1410,37 +1321,3 @@ function onPageLoad() {
             return;
     }
 })();
-
-
-enum SvgPath {
-    Star = "M6.15008 5.30832C6.06799 5.48263 5.90933 5.60345 5.72578 5.63141L0.4831 6.42984C0.0208923 6.50023 " +
-    "-0.163665 7.09555 0.170791 7.43724L3.96443 11.3129C4.09725 11.4486 4.15785 11.6441 4.1265 11.8357L3.23094 17.3082C3.15199 " +
-    "17.7907 3.63516 18.1586 4.04857 17.9308L8.73777 15.3471C8.90194 15.2566 9.09806 15.2566 9.26223 15.3471L13.9514 17.9308C14.3648 " +
-    "18.1586 14.848 17.7907 14.7691 17.3082L13.8735 11.8357C13.8421 11.6441 13.9028 11.4486 14.0356 11.3129L17.8292 7.43724C18.1637 " +
-    "7.09555 17.9791 6.50023 17.5169 6.42984L12.2742 5.63141C12.0907 5.60345 11.932 5.48263 11.8499 5.30832L9.50532 0.329227C9.29862 " +
-    "-0.109742 8.70138 -0.109742 8.49467 0.329226L6.15008 5.30832ZM9 2.99274L7.56499 6.04019C7.25307 6.70259 6.65014 7.16171 5.95267 " +
-    "7.26793L2.74389 7.75661L5.06579 10.1287C5.57048 10.6443 5.80078 11.3872 5.68164 12.1152L5.13351 15.4647L8.00354 13.8833C8.62737 " +
-    "13.5396 9.37263 13.5396 9.99646 13.8833L12.8665 15.4647L12.3184 12.1152C12.1992 11.3872 12.4295 10.6443 12.9342 10.1287L15.2561 " +
-    "7.75661L12.0473 7.26793C11.3499 7.16171 10.7469 6.70259 10.435 6.04019L9 2.99274Z",
-    Eye = "M9 11.402c-1.108 0-2.01-.853-2.01-1.902 0-1.05.902-1.902 2.01-1.902 1.108 0 2.01.853 2.01 1.902s-.902 1.902-2.01 1.902M2.056 " +
-    "9.5c1.058 2.768 3.81 4.608 6.943 4.608 3.134 0 5.886-1.84 6.945-4.608C14.886 6.732 12.134 4.892 9 4.892c-3.133 0-5.885 1.84-6.944 " +
-    "4.608M9 16C4.883 16 1.284 13.502.046 9.785a.895.895 0 0 1 0-.57C1.284 5.498 4.883 3 9 3c4.117 0 7.715 2.498 8.953 6.215a.895.895 " +
-    "0 0 1 0 .57C16.715 13.502 13.117 16 9 16",
-    EyeCrossed = "M7.214 8.628L4.746 6.16a7.036 7.036 0 0 0-2.69 3.34c1.058 2.768 3.81 4.608 6.943 4.608a7.757 7.757 0 0 0 3.069-.626L9.82 " +
-    "11.236c-.25.106-.529.166-.821.166-1.108 0-2.01-.853-2.01-1.902 0-.314.08-.61.224-.872zm1.799-1.03c1.102.007 1.997.857 1.997 1.902l-.003.093 " +
-    "2.822 2.822A6.989 6.989 0 0 0 15.944 9.5C14.886 6.732 12.134 4.892 9 4.892a7.79 7.79 0 0 0-2.337.356l2.35 2.35zM3.359 4.773L1.293 " +
-    "2.707C.35 1.764 1.764.35 2.707 1.293l2.47 2.47A9.862 9.862 0 0 1 9 3c4.117 0 7.716 2.498 8.954 6.215a.895.895 0 0 1 0 .57 8.855 8.855 " +
-    "0 0 1-2.747 4.007l1.501 1.5c.943.944-.471 2.358-1.414 1.415l-1.788-1.788A9.814 9.814 0 0 1 8.999 16C4.883 16 1.284 13.502.046 " +
-    "9.785a.895.895 0 0 1 0-.57A8.899 8.899 0 0 1 3.36 4.773z",
-    Close = "M10.414 9l6.293-6.293a.999.999 0 1 0-1.414-1.414L9 7.586 2.707 1.293a.999.999 0 1 0-1.414 1.414L7.586 9l-6.293 6.293a.999.999 " +
-    "0 1 0 1.414 1.414L9 10.414l6.293 6.293a.997.997 0 0 0 1.414 0 .999.999 0 0 0 0-1.414L10.414 9z",
-    Download = "M16 12a1 1 0 0 0-1 1v2H3v-2a1 1 0 1 0-2 0v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1m-7.707.707a1.009 1.009 0 0 0 " +
-    ".704.293h.006a.988.988 0 0 0 .704-.293l5-5a.999.999 0 1 0-1.414-1.414L10 9.586V2a1 1 0 1 0-2 0v7.586L4.707 6.293a.999.999 0 1 " +
-    "0-1.414 1.414l5 5z",
-    Upload = "M13.293 7.70725C13.488 7.90225 13.744 8.00025 14 8.00025C14.256 8.00025 14.512 7.90225 14.707 7.70725C15.098 7.31625 15.098 6.68425 " +
-    "14.707 6.29325L9.707 1.29325C9.316 0.90225 8.684 0.90225 8.293 1.29325L3.293 6.29325C2.902 6.68425 2.902 7.31625 3.293 7.70725C3.488 7.90225 " +
-    "3.744 8.00025 4 8.00025C4.256 8.00025 4.512 7.90225 4.707 7.70725L8 4.41425V12.1669C8 12.6278 8.448 13.0002 9 13.0002C9.552 13.0002 10 12.6278 " +
-    "10 12.1669V4.41425L13.293 7.70725ZM16 17.0002C16.552 17.0002 17 16.5532 17 16.0002V13.0002C17 12.4473 16.552 12.0002 16 12.0002C15.448 12.0002 15 " +
-    "12.4473 15 13.0002V15.0002H3V13.0002C3 12.4473 2.552 12.0002 2 12.0002C1.448 12.0002 1 12.4473 1 13.0002V16.0002C1 16.5532 1.448 17.0002 " +
-    "2 17.0002H16Z"
-}
