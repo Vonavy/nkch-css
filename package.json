@@ -8,6 +8,6 @@
     "@types/requirejs": "^2.1.37",
     "monaco-editor": "^0.52.2",
     "types-mediawiki": "^1.8.0",
-    "typescript": "^5.8.1-rc"
+    "typescript": "^5.8.3"
   }
 }
