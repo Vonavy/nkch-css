@@ -371,7 +371,6 @@ class nkchCSS {
             `https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs/editor/editor.main.min.css`,
         ], "text/css");
 
-        await mw.loader.using(["oojs-ui"]);
         await mw.loader.getScript(`https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs/loader.min.js`);
 
         this.onModuleLoad();
