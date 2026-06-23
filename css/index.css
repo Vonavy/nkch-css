@@ -5,6 +5,9 @@
     --theme-nkch-css-page-background-color--secondary: #f8f9fa;
     --theme-nkch-css-page-background-color--secondary--rgb: 248, 249, 250;
 
+    --theme-nkch-css-page-text-color: #202122;
+    --theme-nkch-css-page-text-color--rgb: 32, 33, 34;
+
     --theme-nkch-css-border-color: lightgray;
 
     --theme-nkch-css-link-color: #3366CC;
@@ -549,6 +552,10 @@
 .nkch-css__quickbar-button,
 .nkch-css__sidebar-button {
     gap: 8px;
+}
+
+.nkch-css__sidebar-button--citizen {
+    display: flex;
 }
 
 .nkch-css__quickbar-button-spinner,

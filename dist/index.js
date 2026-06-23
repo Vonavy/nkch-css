@@ -20,18 +20,10 @@ class nkchCSS {
                 isPickerEnabled: false
             },
             state: {
-                drag: {
-                    isHolding: false,
-                    isDragging: false,
-                },
-                resize: {
-                    isHolding: false,
-                    isResizing: false
-                }
+                drag: { isHolding: false, isDragging: false },
+                resize: { isHolding: false, isResizing: false }
             },
-            code: {
-                isInvalid: false
-            }
+            code: { isInvalid: false }
         };
         this.elements = {};
         this.env = {
@@ -40,8 +32,8 @@ class nkchCSS {
             theme: mw.config.get("isDarkTheme") ? "dark" : "light"
         };
         this.versions = new Map([
-            ["monaco-editor", "0.52.2"],
-            ["less", "4.2.1"]
+            ["monaco-editor", "0.53.0"],
+            ["less", "4.4.1"]
         ]);
         this.initialize();
     }
@@ -49,10 +41,10 @@ class nkchCSS {
         event?.preventDefault();
         if (!this.checks.editor.isInitialized)
             return this.initializeEditor();
-        else if (this.checks.editor.isOpen)
+        if (this.checks.editor.isOpen)
             return;
         this.elements.main.classList.remove("nkch-css--is-closed");
-        const showAnimation = this.elements.main.animate([{
+        this.elements.main.animate([{
                 opacity: 0,
                 transform: "translateY(10px)"
             }, {
@@ -72,7 +64,7 @@ class nkchCSS {
         event?.preventDefault();
         if (!this.checks.editor.isInitialized)
             return this.initializeEditor();
-        else if (!this.checks.editor.isOpen)
+        if (!this.checks.editor.isOpen)
             return;
         const hideAnimation = this.elements.main.animate([{
                 opacity: 1,
@@ -92,19 +84,17 @@ class nkchCSS {
         this.checks.editor.isOpen = false;
     }
     toggle(state) {
-        switch (state) {
-            case true:
-                this.elements.main_headerButton__toggle.classList.add("is-enabled");
-                this.elements.main_headerButton__toggle.classList.remove("is-disabled");
-                this.checks.editor.isEnabled = true;
-                this.updateCode(this.editor.getValue(), this.getLanguage());
-                break;
-            case false:
-                this.elements.main_headerButton__toggle.classList.add("is-disabled");
-                this.elements.main_headerButton__toggle.classList.remove("is-enabled");
-                this.checks.editor.isEnabled = false;
-                this.elements.style.innerHTML = "";
-                break;
+        if (state) {
+            this.elements.main_headerButton__toggle.classList.add("is-enabled");
+            this.elements.main_headerButton__toggle.classList.remove("is-disabled");
+            this.checks.editor.isEnabled = true;
+            this.updateCode(this.editor.getValue(), this.getLanguage());
+        }
+        else {
+            this.elements.main_headerButton__toggle.classList.add("is-disabled");
+            this.elements.main_headerButton__toggle.classList.remove("is-enabled");
+            this.checks.editor.isEnabled = false;
+            this.elements.style.innerHTML = "";
         }
     }
     updateCode(code, language, saveToStorage = true) {
@@ -138,7 +128,7 @@ class nkchCSS {
         }));
     }
     setValue(text) {
-        let model = this.editor.getModel();
+        const model = this.editor.getModel();
         if (model) {
             this.editor.pushUndoStop();
             this.editor.executeEdits("", [{
@@ -149,24 +139,17 @@ class nkchCSS {
         }
     }
     getLanguage() {
-        let model = this.editor.getModel();
+        const model = this.editor.getModel();
         return model.getLanguageId();
     }
     setLanguage(lang, changeTab = true) {
-        let model = this.editor.getModel();
+        const model = this.editor.getModel();
         if (model)
             monaco.editor.setModelLanguage(model, lang);
         if (changeTab) {
-            switch (lang) {
-                case "css":
-                    this.elements.main_tab__css.classList.toggle("nkch-css__tab--is-selected", true);
-                    this.elements.main_tab__less.classList.toggle("nkch-css__tab--is-selected", false);
-                    break;
-                case "less":
-                    this.elements.main_tab__less.classList.toggle("nkch-css__tab--is-selected", true);
-                    this.elements.main_tab__css.classList.toggle("nkch-css__tab--is-selected", false);
-                    break;
-            }
+            const isCss = lang === "css";
+            this.elements.main_tab__css.classList.toggle("nkch-css__tab--is-selected", isCss);
+            this.elements.main_tab__less.classList.toggle("nkch-css__tab--is-selected", !isCss);
         }
     }
     compileLess(code) {
@@ -182,12 +165,12 @@ class nkchCSS {
         });
     }
     enablePicker() {
-        document.querySelector("html").classList.add("nkch-css-html-picker-enabled");
+        document.documentElement.classList.add("nkch-css-html-picker-enabled");
         this.elements.main.classList.add("nkch-css--is-picker-enabled");
         this.checks.editor.isPickerEnabled = true;
     }
     disablePicker() {
-        document.querySelector("html").classList.remove("nkch-css-html-picker-enabled");
+        document.documentElement.classList.remove("nkch-css-html-picker-enabled");
         this.elements.main.classList.remove("nkch-css--is-picker-enabled");
         this.checks.editor.isPickerEnabled = false;
         this.removePickerSelector();
@@ -197,16 +180,11 @@ class nkchCSS {
             .forEach(el => el.classList.remove("nkch-css-picker-element"));
     }
     getParents(element) {
-        let parents = [], currentElement = element, reachedEnd = false;
-        while (reachedEnd != true) {
-            let parent = currentElement.parentElement;
-            if (parent) {
-                parents.push(parent);
-                currentElement = parent;
-            }
-            else {
-                reachedEnd = true;
-            }
+        const parents = [];
+        let currentElement = element;
+        while (currentElement && currentElement.parentElement) {
+            parents.push(currentElement.parentElement);
+            currentElement = currentElement.parentElement;
         }
         return parents;
     }
@@ -216,29 +194,26 @@ class nkchCSS {
         if (element.tagName.toLowerCase() === "body")
             return "body";
         if (element.classList) {
-            let classList = new Set(Array.from(element.classList));
+            const classList = new Set(Array.from(element.classList));
             classList.delete("nkch-css-picker-element");
             if (classList.size > 0)
                 return "." + Array.from(classList).join(".");
         }
-        if (element.parentElement)
+        if (element.parentElement) {
             return `${this.getSelector(element.parentElement)} > ${element.tagName.toLowerCase()}`;
-        else
-            return element.tagName.toLowerCase();
+        }
+        return element.tagName.toLowerCase();
     }
     initialize() {
         switch (this.env.skin) {
-            case "fandomdesktop":
-                /* ~ quickbar item ~ */
+            case "fandomdesktop": {
                 const quickbarItem = document.createElement("li");
                 quickbarItem.classList.add("nkch-css__quickbar-button");
                 this.elements.quickbarItem = quickbarItem;
-                /* ~ quickbar item : spinner ~ */
                 const quickbarItem_spinner = document.createElement("span");
                 quickbarItem_spinner.classList.add("nkch-css__quickbar-button-spinner", "is-hidden");
                 this.elements.quickbarItem_spinner = quickbarItem_spinner;
                 quickbarItem.append(quickbarItem_spinner);
-                /* ~ quickbar item : link ~ */
                 const quickbarItem_link = document.createElement("a");
                 quickbarItem_link.classList.add("nkch-css__quickbar-button-link");
                 quickbarItem_link.setAttribute("href", "#");
@@ -248,21 +223,23 @@ class nkchCSS {
                 quickbarItem_link.addEventListener("click", () => this.open(), false);
                 document.querySelector("#WikiaBar .toolbar .tools").append(quickbarItem);
                 break;
+            }
             default:
+            case "citizen":
             case "vector":
-            case "vector-2022":
-                /* ~ sidebar item ~ */
+            case "vector-2022": {
                 const sidebarItem = document.createElement("li");
                 sidebarItem.classList.add("nkch-css__sidebar-button", "mw-list-item");
                 sidebarItem.id = "n-nkchcss";
                 this.elements.sidebarItem = sidebarItem;
-                document.querySelector("#mw-panel .vector-menu-content-list").append(sidebarItem);
-                /* ~ sidebar item : spinner ~ */
+                if (this.env.skin === "citizen")
+                    sidebarItem.classList.add("nkch-css__sidebar-button--citizen");
+                const menuTarget = document.querySelector("#mw-panel .vector-menu-content-list, #p-tb ul, .page-tools ul") || document.body;
+                menuTarget.append(sidebarItem);
                 const sidebarItem_spinner = document.createElement("span");
                 sidebarItem_spinner.classList.add("nkch-css__sidebar-button-spinner", "is-hidden");
                 this.elements.sidebarItem_spinner = sidebarItem_spinner;
                 sidebarItem.append(sidebarItem_spinner);
-                /* ~ sidebar item : link ~ */
                 const sidebarItem_link = document.createElement("a");
                 sidebarItem_link.classList.add("nkch-css__sidebar-button-link");
                 sidebarItem_link.setAttribute("href", "#");
@@ -271,20 +248,13 @@ class nkchCSS {
                 sidebarItem.append(sidebarItem_link);
                 sidebarItem_link.addEventListener("click", () => this.open(), false);
                 break;
+            }
         }
     }
     async initializeEditor() {
-        let targetSpinner;
-        switch (this.env.skin) {
-            case "fandomdesktop":
-                targetSpinner = this.elements.quickbarItem_spinner;
-                break;
-            default:
-            case "vector":
-            case "vector-2022":
-                targetSpinner = this.elements.sidebarItem_spinner;
-                break;
-        }
+        const targetSpinner = this.env.skin === "fandomdesktop"
+            ? this.elements.quickbarItem_spinner
+            : this.elements.sidebarItem_spinner;
         targetSpinner.classList.remove("is-hidden");
         mw.loader.load([
             `https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs/editor/editor.main.min.css`,
@@ -294,664 +264,605 @@ class nkchCSS {
         this.onModuleLoad();
     }
     onModuleLoad() {
-        function getPreferredLanguage() {
+        const getPreferredLanguage = () => {
             const supportedLanguages = ["en", "de", "es", "fr", "it", "ja", "ko", "ru", "zh-cn", "zh-tw"];
             for (const lang of navigator.languages) {
                 const normalizedLang = lang.toLowerCase();
-                if (supportedLanguages.includes(normalizedLang)) {
+                if (supportedLanguages.includes(normalizedLang))
                     return normalizedLang;
-                }
             }
             return "en";
-        }
+        };
         require.config({
             paths: {
                 "less": `https://cdnjs.cloudflare.com/ajax/libs/less.js/${this.versions.get("less")}/less.min`,
                 "vs": `https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs`,
             },
-            // @ts-ignore
-            "vs/nls": {
-                availableLanguages: {
-                    "*": getPreferredLanguage()
-                }
-            },
+            "vs/nls": { availableLanguages: { "*": getPreferredLanguage() } },
             waitSeconds: 100
         });
         require(["less", "vs/editor/editor.main"], () => {
-            /* ~ style ~ */
-            const style = document.createElement("style");
-            style.classList.add("nkch-css-style");
-            this.elements.style = style;
-            document.head.append(style);
-            /* ~ main ~ */
-            const main = document.createElement("div");
-            main.classList.add("nkch-css");
-            this.elements.main = main;
-            document.body.after(main);
-            let main_position = {
-                x: 0,
-                y: 0
-            };
-            main.style.position = "fixed";
-            main.addEventListener("mousedown", e => {
-                if (e.button !== 0)
-                    return;
-                let cancelElements = [main_splitView, main_statusbar, main_headerButtonGroup, main_actions, main_tabs, main_statusbar], parents = this.getParents(e.target);
-                for (let element of cancelElements) {
-                    if (parents.includes(element))
-                        return;
-                }
-                this.checks.state.drag.isHolding = true;
-                main_position.x = e.clientX;
-                main_position.y = e.clientY;
-                this.elements.main.dispatchEvent(new CustomEvent("nkch-css-drag:hold", {
-                    cancelable: true,
-                    detail: this
-                }));
-            }, false);
-            main.addEventListener("mouseup", () => {
-                this.checks.state.drag.isHolding = false;
-                this.checks.state.drag.isDragging = false;
-                main.classList.remove("nkch-css--is-dragging");
-                this.elements.main.dispatchEvent(new CustomEvent("nkch-css-drag:release", {
-                    cancelable: true,
-                    detail: this
-                }));
-            }, false);
-            window.addEventListener("mousemove", e => {
-                if (this.checks.state.drag.isHolding) {
-                    this.checks.state.drag.isDragging = true;
-                    main.style.top = main.offsetTop - (main_position.y - e.clientY) + "px";
-                    main.style.left = main.offsetLeft - (main_position.x - e.clientX) + "px";
-                    main.style.bottom = "auto";
-                    main.style.right = "auto";
-                    main_position.x = e.clientX;
-                    main_position.y = e.clientY;
-                    main.classList.add("nkch-css--is-dragging");
-                    this.elements.main.dispatchEvent(new CustomEvent("nkch-css-drag", {
-                        cancelable: true,
-                        detail: this
-                    }));
-                }
-            }, false);
-            /* ~ main : container ~ */
-            const main_container = document.createElement("div");
-            main_container.classList.add("nkch-css__container");
-            this.elements.main_container = main_container;
-            main.append(main_container);
-            /* ~ main : header ~ */
-            const main_header = document.createElement("div");
-            main_header.classList.add("nkch-css__header");
-            this.elements.main_header = main_header;
-            main_container.append(main_header);
-            /* ~ main : header left ~ */
-            const main_headerLeft = document.createElement("div");
-            main_headerLeft.classList.add("nkch-css__header-left");
-            this.elements.main_headerLeft = main_headerLeft;
-            main_header.append(main_headerLeft);
-            /* ~ main : header title ~ */
-            const main_headerTitle = document.createElement("div");
-            main_headerTitle.classList.add("nkch-css__header-title");
-            main_headerTitle.innerHTML = "nkchCSS";
-            this.elements.main_headerTitle = main_headerTitle;
-            main_headerLeft.append(main_headerTitle);
-            /* ~ main : header right ~ */
-            const main_headerRight = document.createElement("div");
-            main_headerRight.classList.add("nkch-css__header-right");
-            this.elements.main_headerRight = main_headerRight;
-            main_header.append(main_headerRight);
-            /* ~ main : header button group ~ */
-            const main_headerButtonGroup = document.createElement("div");
-            main_headerButtonGroup.classList.add("nkch-css__header-button-group");
-            this.elements.main_headerButtonGroup = main_headerButtonGroup;
-            main_headerRight.append(main_headerButtonGroup);
-            /* ~ main : header button (beautify) ~ */
-            const main_headerButton__beautify = document.createElement("button");
-            main_headerButton__beautify.classList.add("nkch-css__header-button", "nkch-css__header-button--beautify");
-            main_headerButton__beautify.setAttribute("type", "button");
-            this.elements.main_headerButton__beautify = main_headerButton__beautify;
-            main_headerButtonGroup.append(main_headerButton__beautify);
-            main_headerButton__beautify.addEventListener("click", () => this.editor.getAction("editor.action.formatDocument")?.run(), false);
-            /* ~ [svg] main : header button icon (beautify) ~ */
-            //@ts-ignore
-            main_headerButton__beautify.append(lucide.createElement(lucide.Sparkles, { height: 18, width: 18 }));
-            /* ~ main : header button (toggle) ~ */
-            const main_headerButton__toggle = document.createElement("button");
-            main_headerButton__toggle.classList.add("nkch-css__header-button", "nkch-css__header-button--toggle", this.checks.editor.isEnabled ? "is-enabled" : "is-disabled");
-            main_headerButton__toggle.setAttribute("type", "button");
-            this.elements.main_headerButton__toggle = main_headerButton__toggle;
-            main_headerButtonGroup.append(main_headerButton__toggle);
-            main_headerButton__toggle.addEventListener("click", () => this.toggle(!this.checks.editor.isEnabled), false);
-            /* ~ [svg] main : header button icon (toggle) ~ */
-            //@ts-ignore
-            main_headerButton__toggle.append(lucide.createElement(lucide.Eye, { height: 18, width: 18 }));
-            /* ~ main : header button (close) ~ */
-            const main_headerButton__close = document.createElement("button");
-            main_headerButton__close.classList.add("nkch-css__header-button", "nkch-css__header-button--close");
-            main_headerButton__close.setAttribute("type", "button");
-            this.elements.main_headerButton__close = main_headerButton__close;
-            main_headerButtonGroup.append(main_headerButton__close);
-            main_headerButton__close.addEventListener("click", () => this.close(), false);
-            /* ~ [svg] main : header button icon (close) ~ */
-            //@ts-ignore
-            main_headerButton__close.append(lucide.createElement(lucide.X, { height: 18, width: 18 }));
-            /* ~ main : content ~ */
-            const main_content = document.createElement("div");
-            main_content.classList.add("nkch-css__content");
-            this.elements.main_content = main_content;
-            main_container.append(main_content);
-            /* ~ main : actions header ~ */
-            const main_actionsHeader = document.createElement("div");
-            main_actionsHeader.classList.add("nkch-css__actions-header");
-            this.elements.main_actionsHeader = main_actionsHeader;
-            main_content.append(main_actionsHeader);
-            /* ~ main : tabs ~ */
-            const main_tabs = document.createElement("div");
-            main_tabs.classList.add("nkch-css__tabs");
-            this.elements.main_tabs = main_tabs;
-            main_actionsHeader.append(main_tabs);
-            /* ~ main : tab (css) ~ */
-            const main_tab__css = document.createElement("div");
-            main_tab__css.classList.add("nkch-css__tab", "nkch-css__tab--css");
-            main_tab__css.innerText = "CSS";
-            this.elements.main_tab__css = main_tab__css;
-            main_tabs.append(main_tab__css);
-            main_tab__css.addEventListener("click", () => this.setLanguage("css", true), false);
-            /* ~ main : tab (less) ~ */
-            const main_tab__less = document.createElement("div");
-            main_tab__less.classList.add("nkch-css__tab", "nkch-css__tab--less");
-            main_tab__less.innerText = "Less";
-            this.elements.main_tab__less = main_tab__less;
-            main_tabs.append(main_tab__less);
-            main_tab__less.addEventListener("click", () => this.setLanguage("less", true), false);
-            /* ~ main : actions ~ */
-            const main_actions = document.createElement("div");
-            main_actions.classList.add("nkch-css__actions");
-            this.elements.actions = main_actions;
-            main_actionsHeader.append(main_actions);
-            /* ~ main : action (compile less) ~ */
-            const main_action__compileLess = document.createElement("button");
-            main_action__compileLess.classList.add("nkch-css__action", "nkch-css__action--compile-less");
-            main_action__compileLess.setAttribute("type", "button");
-            main_action__compileLess.innerText = "Less → CSS";
-            this.elements.main_action__compileLess = main_action__compileLess;
-            main_actions.append(main_action__compileLess);
-            main_action__compileLess.addEventListener("click", () => {
-                this.compileLess(this.editor.getValue());
-            });
-            /* ~ main : action (picker) ~ */
-            const main_action__picker = document.createElement("button");
-            main_action__picker.classList.add("nkch-css__action", "nkch-css__action--pointer");
-            main_action__picker.setAttribute("type", "button");
-            //@ts-ignore
-            main_action__picker.append(lucide.createElement(lucide.SquareDashedMousePointer, { height: 18, width: 18 }));
-            this.elements.main_action__picker = main_action__picker;
-            main_actions.append(main_action__picker);
-            main_action__picker.addEventListener("click", () => {
-                this.enablePicker();
-            });
-            let pickerTarget;
-            document.addEventListener("mousemove", e => {
-                if (!this.checks.editor.isPickerEnabled)
-                    return;
-                if (pickerTarget && pickerTarget !== e.target)
-                    this.removePickerSelector();
-                pickerTarget = e.target;
-                pickerTarget.classList.add("nkch-css-picker-element");
-            }, false);
-            document.addEventListener("mousedown", e => {
-                if (!this.checks.editor.isPickerEnabled)
-                    return;
-                let element = e.target;
-                let pickerBlocker = document.createElement("div");
-                pickerBlocker.classList.add("nkch-css-picker-blocker");
-                document.body.append(pickerBlocker);
-                pickerBlocker.addEventListener("mouseup", () => {
-                    pickerBlocker.remove();
-                    this.disablePicker();
-                    let selections = this.editor.getSelections();
-                    if (selections) {
-                        let edits = [], text = this.getSelector(element);
-                        selections.forEach(selection => {
-                            edits.push({
-                                range: selection,
-                                text: text,
-                                forceMoveMarkers: true
-                            });
-                        });
-                        this.editor.executeEdits("nkch-css-picker", edits);
-                    }
-                }, false);
-            }, false);
-            document.addEventListener("keydown", e => {
-                if (e.key === "Escape" && this.checks.editor.isPickerEnabled)
-                    this.disablePicker();
-            }, false);
-            const pickerTooltip = document.createElement("div");
-            pickerTooltip.classList.add("nkch-css-picker-tooltip");
-            document.body.append(pickerTooltip);
-            document.addEventListener("mousemove", e => {
-                let target = e.target;
-                let leftPosition = e.pageX + 10;
-                if (leftPosition + pickerTooltip.offsetWidth > window.innerWidth)
-                    leftPosition = e.pageX - pickerTooltip.offsetWidth - 10;
-                let topPosition = e.pageY + 10;
-                if (topPosition + pickerTooltip.offsetHeight > window.innerHeight)
-                    topPosition = e.pageY - pickerTooltip.offsetHeight - 10;
-                pickerTooltip.style.left = leftPosition + "px";
-                pickerTooltip.style.top = topPosition + "px";
-                pickerTooltip.textContent = this.getSelector(target);
-            }, false);
-            /* ~ main : split view ~ */
-            const main_splitView = document.createElement("div");
-            main_splitView.classList.add("nkch-css__split-view");
-            this.elements.main_codearea = main_splitView;
-            main_content.append(main_splitView);
-            let splitViewRect = main_splitView.getBoundingClientRect();
-            main_splitView.style.width = `${splitViewRect.width}px`;
-            main_splitView.style.height = `${splitViewRect.height}px`;
-            /* ~ main : codearea ~ */
-            const main_codearea = document.createElement("div");
-            main_codearea.classList.add("nkch-css__codearea");
-            this.elements.main_codearea = main_codearea;
-            main_splitView.append(main_codearea);
-            let editorThemes = new Map([
-                ["light", "vs"],
-                ["dark", "vs-dark"]
-            ]);
-            this.editor = monaco.editor.create(main_codearea, {
-                language: "css",
-                theme: editorThemes.get(this.env.theme),
-                fontSize: 13,
-                automaticLayout: true,
-                scrollBeyondLastLine: false,
-                cursorBlinking: "smooth",
-                cursorSmoothCaretAnimation: "on",
-                scrollbar: {
-                    useShadows: false
-                },
-                minimap: {
-                    enabled: false
-                },
-                stickyScroll: {
-                    enabled: true
-                }
-            });
-            setInterval(() => {
-                let targetTheme = mw.config.get("isDarkTheme") ? "dark" : "light";
-                if (this.env.theme !== targetTheme) {
-                    monaco.editor.setTheme(editorThemes.get(targetTheme));
-                    this.env.theme = targetTheme;
-                }
-            }, 100);
-            this.editor.onDidChangeModelContent(() => {
-                this.updateCode(this.editor.getValue(), this.getLanguage());
-            });
-            let completionItemProviders = [{
-                    triggerCharacters: ["!"],
-                    provideCompletionItems: (model, position) => {
-                        const propertyCheck = /[^;{}]+\s*:\s*[^;{}]+\s*;?$/;
-                        const textValue = model.getValueInRange({
-                            startLineNumber: position.lineNumber,
-                            startColumn: 1,
-                            endLineNumber: position.lineNumber,
-                            endColumn: position.column
-                        });
-                        if (propertyCheck.test(textValue)) {
-                            const word = model.getWordUntilPosition(position);
-                            return {
-                                suggestions: [{
-                                        label: '!important',
-                                        kind: monaco.languages.CompletionItemKind.Keyword,
-                                        insertText: "!important",
-                                        range: new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn)
-                                    }]
-                            };
-                        }
-                        else
-                            return { suggestions: [] };
-                    },
-                }, {
-                    triggerCharacters: ["--"],
-                    provideCompletionItems: (model, position) => {
-                        const word = model.getWordUntilPosition(position);
-                        let editorProperties = getEditorCustomProperties(), filteredProperties = getAllCustomProperties().filter(item => !editorProperties.includes(item));
-                        const suggestions = filteredProperties.map(property => {
-                            return {
-                                label: property,
-                                kind: monaco.languages.CompletionItemKind.Property,
-                                insertText: property,
-                                range: new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn)
-                            };
-                        });
-                        return { suggestions: suggestions };
-                        function getAllCustomProperties() {
-                            const customProperties = new Set();
-                            const styleSheets = Array.from(document.styleSheets).filter(sheet => !sheet.href || sheet.href.startsWith(window.location.origin));
-                            styleSheets.forEach(sheet => {
-                                const cssRules = sheet.cssRules;
-                                for (let i = 0; i < cssRules.length; i++) {
-                                    const cssRule = cssRules[i];
-                                    if (cssRule instanceof CSSStyleRule) {
-                                        const declarations = cssRule.style;
-                                        Array.from(declarations).forEach(property => {
-                                            if (property.startsWith("--") && !property.startsWith("--vscode"))
-                                                customProperties.add(property);
-                                        });
-                                    }
-                                }
-                            });
-                            return Array.from(customProperties);
-                        }
-                        function getEditorCustomProperties() {
-                            let existingProperties = [], content = model.getValue(), propertyRegex = /--([^:;]+)\s*:\s*([^;]+);/g, match;
-                            while ((match = propertyRegex.exec(content)) !== null) {
-                                existingProperties.push(`--${match[1].trim()}`);
-                            }
-                            return existingProperties;
-                        }
-                    }
-                }];
-            completionItemProviders.forEach(itemProvider => monaco.languages.registerCompletionItemProvider(["css", "less"], itemProvider));
-            let storageValue = localStorage.getItem("mw-nkch-css");
-            if (storageValue != null) {
-                let storageObject = JSON.parse(storageValue);
-                this.setValue(storageObject.value);
-                this.setLanguage(storageObject.lang);
+            this.buildCoreDOM();
+            this.setupWindowInteractions();
+            this.setupElementPicker();
+            this.setupMonacoConfig();
+            this.setupStatusbar();
+            this.loadInitialData();
+            if (this.env.skin === "fandomdesktop") {
+                this.elements.quickbarItem_spinner.classList.add("is-hidden");
             }
-            else
-                this.setLanguage("css");
-            /* ~ main : markers panel ~ */
-            const main_markersPanel = document.createElement("div");
-            main_markersPanel.classList.add("nkch-css__markers-panel", "nkch-css__markers-panel--is-hidden");
-            this.elements.main_markersPanel = main_markersPanel;
-            main_splitView.append(main_markersPanel);
-            /* ~ main : markers panel header ~ */
-            const main_markersPanelHeader = document.createElement("div");
-            main_markersPanelHeader.classList.add("nkch-css__markers-panel-header");
-            this.elements.main_markersPanelHeader = main_markersPanelHeader;
-            main_markersPanel.append(main_markersPanelHeader);
-            /* ~ main : markers panel close button ~ */
-            const main_markersPanelCloseButton = document.createElement("button");
-            main_markersPanelCloseButton.classList.add("nkch-css__markers-panel-close-button");
-            this.elements.main_markersPanelCloseButton = main_markersPanelCloseButton;
-            main_markersPanelHeader.append(main_markersPanelCloseButton);
-            /* ~ [svg] main : markers panel close button icon ~ */
-            //@ts-ignore
-            main_markersPanelCloseButton.append(lucide.createElement(lucide.X, { width: 18, height: 18 }));
-            /* ~ main : markers list ~ */
-            const main_markersList = document.createElement("div");
-            main_markersList.classList.add("nkch-css__markers-list");
-            this.elements.main_markersList = main_markersList;
-            main_markersPanel.append(main_markersList);
-            monaco.editor.onDidChangeMarkers(([uri]) => {
-                const markers = monaco.editor.getModelMarkers({ resource: uri });
-                let markersError = markers.filter(element => element.severity === monaco.MarkerSeverity.Error);
-                let markersWarning = markers.filter(element => element.severity === monaco.MarkerSeverity.Warning);
-                main_statusbarItemValue__markers__error.innerText = markersError.length.toString();
-                main_statusbarItemValue__markers__warning.innerText = markersWarning.length.toString();
-                main_markersList.innerHTML = "";
-                for (let marker of markers) {
-                    addMarkerItem(marker);
-                }
-            });
-            let addMarkerItem = (markerData) => {
-                /* ~ marker item ~ */
-                let markerItem = document.createElement("div");
-                markerItem.classList.add("nkch-css__marker-item", "nkch-css-marker-item");
-                markerItem.title = markerData.message;
-                main_markersList.append(markerItem);
-                /* ~ marker item : icon ~ */
-                let markerItem_icon = document.createElement("span");
-                markerItem_icon.classList.add("nkch-css-marker-item__icon");
-                markerItem.append(markerItem_icon);
-                switch (markerData.severity) {
-                    case monaco.MarkerSeverity.Error:
-                        markerItem_icon.classList.add("nkch-css-marker-item__icon--error");
-                        break;
-                    case monaco.MarkerSeverity.Warning:
-                        markerItem_icon.classList.add("nkch-css-marker-item__icon--warning");
-                        break;
-                    case monaco.MarkerSeverity.Info:
-                        markerItem_icon.classList.add("nkch-css-marker-item__icon--info");
-                        break;
-                    case monaco.MarkerSeverity.Hint:
-                        markerItem_icon.classList.add("nkch-css-marker-item__icon--hint");
-                        break;
-                }
-                /* ~ marker item : label ~ */
-                let markerItem_label = document.createElement("span");
-                markerItem_label.classList.add("nkch-css-marker-item__label");
-                markerItem_label.innerText = markerData.message;
-                markerItem.append(markerItem_label);
-                if ("string" === typeof markerData.source) {
-                    let markerItem_source = document.createElement("span");
-                    markerItem_source.classList.add("nkch-css-marker-item__source");
-                    markerItem_source.innerText = markerData.source;
-                    markerItem.append(markerItem_source);
-                }
-                if ("string" === typeof markerData.code) {
-                    let markerItem_code = document.createElement("span");
-                    markerItem_code.classList.add("nkch-css-marker-item__code");
-                    markerItem_code.innerText = markerData.code;
-                    markerItem.append(markerItem_code);
-                }
-                /* ~ marker item : position ~ */
-                let markerItem_position = document.createElement("span");
-                markerItem_position.classList.add("nkch-css-marker-item__position");
-                markerItem_position.innerText = `${markerData.startLineNumber}:${markerData.startColumn}`;
-                markerItem.append(markerItem_position);
-                markerItem.addEventListener("click", () => {
-                    this.editor.setSelection({
-                        startLineNumber: markerData.startLineNumber,
-                        startColumn: markerData.startColumn,
-                        endLineNumber: markerData.endLineNumber,
-                        endColumn: markerData.endColumn
-                    });
-                    this.editor.revealLineInCenter(markerData.startLineNumber, monaco.editor.ScrollType.Smooth);
-                }, false);
-            };
-            /* ~ main : resizer ~ */
-            const main_resizer = document.createElement("div");
-            main_resizer.classList.add("nkch-css__resizer");
-            this.elements.main_resizer = main_resizer;
-            main_splitView.append(main_resizer);
-            let mouse_position = { x: 0, y: 0 }, codearea_size = { width: 0, height: 0 }, codearea_clientRect;
-            main_resizer.addEventListener("mousedown", e => {
-                this.checks.state.resize.isHolding = true;
-                codearea_clientRect = main_splitView.getBoundingClientRect();
-                mouse_position = { x: e.clientX, y: e.clientY };
-                codearea_size = { width: codearea_clientRect.width, height: codearea_clientRect.height };
-                this.elements.main.dispatchEvent(new CustomEvent("nkch-css-resize:hold", {
-                    cancelable: true,
-                    detail: this
-                }));
-            }, false);
-            window.addEventListener("mouseup", () => {
-                this.checks.state.resize.isHolding = false;
-                this.checks.state.resize.isResizing = false;
-                this.elements.main.dispatchEvent(new CustomEvent("nkch-css-resize:release", {
-                    cancelable: true,
-                    detail: this
-                }));
-            }, false);
-            window.addEventListener("mousemove", e => {
-                if (this.checks.state.resize.isHolding) {
-                    this.checks.state.resize.isResizing = true;
-                    let calculatedWidth = codearea_size.width + e.clientX - mouse_position.x, calculatedHeight = codearea_size.height + e.clientY - mouse_position.y;
-                    if (calculatedWidth >= 450)
-                        main_splitView.style.width = calculatedWidth + "px";
-                    if (calculatedHeight >= 280)
-                        main_splitView.style.height = calculatedHeight + "px";
-                    this.elements.main.dispatchEvent(new CustomEvent("nkch-css-resize", {
-                        cancelable: true,
-                        detail: this
-                    }));
-                }
-            }, false);
-            /* ~ main : statusbar ~ */
-            const main_statusbar = document.createElement("div");
-            main_statusbar.classList.add("nkch-css__statusbar");
-            this.elements.main_statusbar = main_statusbar;
-            main_content.append(main_statusbar);
-            /* ~ main : statusbar container (left) ~ */
-            const main_statusbarContainer__left = document.createElement("div");
-            main_statusbarContainer__left.classList.add("nkch-css__statusbar-container", "nkch-css__statusbar-container--left");
-            this.elements.main_statusbarContainer__left = main_statusbarContainer__left;
-            main_statusbar.append(main_statusbarContainer__left);
-            /* ~ main : statusbar item (file download) ~ */
-            const main_statusbarItem__fileDownload = document.createElement("a");
-            main_statusbarItem__fileDownload.classList.add("nkch-css__statusbar-item", "nkch-css__statusbar-item--file-download");
-            main_statusbarItem__fileDownload.setAttribute("role", "button");
-            this.elements.main_statusbarItem__fileDownload = main_statusbarItem__fileDownload;
-            main_statusbarContainer__left.append(main_statusbarItem__fileDownload);
-            let downloadFile = () => {
-                if (this.editor.getValue().replaceAll(" ", "").replaceAll("\n", "").length < 1) {
-                    main_statusbarItem__fileDownload.removeAttribute("download");
-                    main_statusbarItem__fileDownload.removeAttribute("href");
-                    return;
-                }
-                let fileTypes = new Map([
-                    ["css", "text/css"],
-                    ["less", "text/x-less"]
-                ]);
-                let now = new Date(), date = {
-                    year: now.getFullYear(),
-                    month: (now.getMonth() + 1).toString().padStart(2, "0"),
-                    day: now.getDate().toString().padStart(2, "0"),
-                    hours: now.getHours().toString().padStart(2, "0"),
-                    minutes: now.getMinutes().toString().padStart(2, "0"),
-                    seconds: now.getSeconds().toString().padStart(2, "0"),
-                };
-                let modelLanguage = this.getLanguage();
-                let fileName = `${window.location.host} ${date.year}-${date.month}-${date.day} ${date.hours}-${date.minutes}-${date.seconds}.${modelLanguage ?? "css"}`, fileType = modelLanguage ? fileTypes.get(modelLanguage) : "text/css";
-                main_statusbarItem__fileDownload.setAttribute("download", fileName);
-                main_statusbarItem__fileDownload.setAttribute("href", URL.createObjectURL(new Blob([this.editor.getValue()], { type: fileType })));
-            };
-            main_statusbarItem__fileDownload.addEventListener("click", downloadFile, false);
-            /* ~ [svg] main : statusbar item icon (file download) ~ */
-            //@ts-ignore
-            main_statusbarItem__fileDownload.append(lucide.createElement(lucide.Download, { height: 12, width: 12 }));
-            /* ~ main : statusbar item input (file upload) ~ */
-            const main_statusbarItemInput__fileUpload = document.createElement("input");
-            main_statusbarItemInput__fileUpload.classList.add("nkch-css__statusbar-item-input", "nkch-css__statusbar-item-input--file-upload");
-            main_statusbarItemInput__fileUpload.setAttribute("type", "file");
-            main_statusbarItemInput__fileUpload.setAttribute("accept", "text/css,.less");
-            main_statusbarItemInput__fileUpload.setAttribute("name", "nkch-css__statusbar-item-input--file-upload");
-            main_statusbarItemInput__fileUpload.style.display = "none";
-            this.elements.main_statusbarItemInput__fileUpload = main_statusbarItemInput__fileUpload;
-            main_statusbarContainer__left.append(main_statusbarItemInput__fileUpload);
-            let uploadFile = () => {
-                if (!main_statusbarItemInput__fileUpload.files || main_statusbarItemInput__fileUpload.files.length < 1)
-                    return;
-                let file = main_statusbarItemInput__fileUpload.files[0];
-                file.text().then(text => {
-                    if (file.name.endsWith(".css"))
-                        this.setLanguage("css", true);
-                    else if (file.name.endsWith(".less"))
-                        this.setLanguage("less", true);
-                    this.setValue(text);
-                    this.updateCode(this.editor.getValue(), this.getLanguage());
-                });
-                main_statusbarItemInput__fileUpload.value = "";
-            };
-            main_statusbarItemInput__fileUpload.addEventListener("change", uploadFile, false);
-            /* ~ main : statusbar item (file upload) ~ */
-            const main_statusbarItem__fileUpload = document.createElement("a");
-            main_statusbarItem__fileUpload.classList.add("nkch-css__statusbar-item", "nkch-css__statusbar-item--file-upload");
-            main_statusbarItem__fileUpload.setAttribute("role", "button");
-            this.elements.main_statusbarItem__fileUpload = main_statusbarItem__fileUpload;
-            main_statusbarContainer__left.append(main_statusbarItem__fileUpload);
-            main_statusbarItem__fileUpload.addEventListener("click", () => main_statusbarItemInput__fileUpload.click(), false);
-            /* ~ [svg] main : statusbar item icon (file upload) ~ */
-            //@ts-ignore
-            main_statusbarItem__fileUpload.append(lucide.createElement(lucide.Upload, { height: 12, width: 12 }));
-            /* ~ main : statusbar item (markers) ~ */
-            const main_statusbarItem__markers = document.createElement("a");
-            main_statusbarItem__markers.classList.add("nkch-css__statusbar-item", "nkch-css__statusbar-item--markers");
-            this.elements.main_statusbarItem__markers = main_statusbarItem__markers;
-            main_statusbarContainer__left.append(main_statusbarItem__markers);
-            let toggleMarkersPanel = () => {
-                if (this.checks.editor.isMarkersPanelOpen) {
-                    this.elements.main_markersPanel.classList.add("nkch-css__markers-panel--is-hidden");
-                    this.checks.editor.isMarkersPanelOpen = false;
-                }
-                else {
-                    this.elements.main_markersPanel.classList.remove("nkch-css__markers-panel--is-hidden");
-                    this.checks.editor.isMarkersPanelOpen = true;
-                }
-            };
-            main_markersPanelCloseButton.addEventListener("click", toggleMarkersPanel, false);
-            main_statusbarItem__markers.addEventListener("click", toggleMarkersPanel, false);
-            /* ~ main : statusbar item icon (markers) (error) ~ */
-            const main_statusbarItemIcon__markers__error = document.createElement("span");
-            main_statusbarItemIcon__markers__error.classList.add("nkch-css__statusbar-item-icon", "nkch-css__statusbar-item-icon--marker", "nkch-css__statusbar-item-icon--marker-error");
-            this.elements.main_statusbarItemIcon__markers__error = main_statusbarItemIcon__markers__error;
-            main_statusbarItem__markers.append(main_statusbarItemIcon__markers__error);
-            /* ~ main : statusbar item value (markers) (error) ~ */
-            const main_statusbarItemValue__markers__error = document.createElement("span");
-            main_statusbarItemValue__markers__error.innerText = "0";
-            this.elements.main_statusbarItemValue__markers__error = main_statusbarItemValue__markers__error;
-            main_statusbarItem__markers.append(main_statusbarItemValue__markers__error);
-            /* ~ main : statusbar item icon (markers) (warning) ~ */
-            const main_statusbarItemIcon__markers__warning = document.createElement("span");
-            main_statusbarItemIcon__markers__warning.classList.add("nkch-css__statusbar-item-icon", "nkch-css__statusbar-item-icon--marker", "nkch-css__statusbar-item-icon--marker-warning");
-            this.elements.main_statusbarItemIcon__markers__warning = main_statusbarItemIcon__markers__warning;
-            main_statusbarItem__markers.append(main_statusbarItemIcon__markers__warning);
-            /* ~ main : statusbar item value (markers) (warning) ~ */
-            const main_statusbarItemValue__markers__warning = document.createElement("span");
-            main_statusbarItemValue__markers__warning.innerText = "0";
-            this.elements.main_statusbarItemValue__markers__warning = main_statusbarItemValue__markers__warning;
-            main_statusbarItem__markers.append(main_statusbarItemValue__markers__warning);
-            /* ~ main : statusbar container (right) ~ */
-            const main_statusbarContainer__right = document.createElement("div");
-            main_statusbarContainer__right.classList.add("nkch-css__statusbar-container", "nkch-css__statusbar-container--right");
-            this.elements.main_statusbarContainer__right = main_statusbarContainer__right;
-            main_statusbar.append(main_statusbarContainer__right);
-            /* ~ main : statusbar item (selection) ~ */
-            const main_statusbarItem__selection = document.createElement("a");
-            main_statusbarItem__selection.classList.add("nkch-css__statusbar-item", "nkch-css__statusbar-item--file-upload");
-            main_statusbarItem__selection.setAttribute("role", "button");
-            main_statusbarItem__selection.innerText = "L: 1 • C: 1";
-            this.elements.main_statusbarItem__selection = main_statusbarItem__selection;
-            main_statusbarContainer__right.append(main_statusbarItem__selection);
-            this.editor.onDidChangeCursorPosition((event) => {
-                main_statusbarItem__selection.innerText = `L: ${event.position.lineNumber} • C: ${event.position.column}`;
-                let selection = this.editor.getSelection(), model = this.editor.getModel();
-                if (!selection?.isEmpty() && model)
-                    main_statusbarItem__selection.innerText += ` • S: ${model.getValueInRange(selection.toJSON()).length}`;
-            });
-            main_statusbarItem__selection.addEventListener("click", () => {
-                this.editor.focus();
-                this.editor.getAction("editor.action.gotoLine")?.run();
-            }, false);
-            switch (this.env.skin) {
-                case "fandomdesktop":
-                    this.elements.quickbarItem_spinner.classList.add("is-hidden");
-                    break;
-                case "vector":
-                case "vector-2022":
-                    this.elements.sidebarItem_spinner.classList.add("is-hidden");
-                    break;
+            else {
+                this.elements.sidebarItem_spinner.classList.add("is-hidden");
             }
             this.checks.editor.isInitialized = true;
             this.open();
         });
     }
+    buildCoreDOM() {
+        const style = document.createElement("style");
+        style.classList.add("nkch-css-style");
+        this.elements.style = style;
+        document.head.append(style);
+        const main = document.createElement("div");
+        main.classList.add("nkch-css");
+        main.style.position = "fixed";
+        this.elements.main = main;
+        document.body.appendChild(main); // Fixed invalid DOM tree placement
+        const main_container = document.createElement("div");
+        main_container.classList.add("nkch-css__container");
+        this.elements.main_container = main_container;
+        main.append(main_container);
+        // Header Section
+        const main_header = document.createElement("div");
+        main_header.classList.add("nkch-css__header");
+        this.elements.main_header = main_header;
+        main_container.append(main_header);
+        const main_headerLeft = document.createElement("div");
+        main_headerLeft.classList.add("nkch-css__header-left");
+        main_header.append(main_headerLeft);
+        const main_headerTitle = document.createElement("div");
+        main_headerTitle.classList.add("nkch-css__header-title");
+        main_headerTitle.innerHTML = "nkchCSS";
+        main_headerLeft.append(main_headerTitle);
+        const main_headerRight = document.createElement("div");
+        main_headerRight.classList.add("nkch-css__header-right");
+        main_header.append(main_headerRight);
+        const main_headerButtonGroup = document.createElement("div");
+        main_headerButtonGroup.classList.add("nkch-css__header-button-group");
+        this.elements.main_headerButtonGroup = main_headerButtonGroup;
+        main_headerRight.append(main_headerButtonGroup);
+        // Beautify button
+        const main_headerButton__beautify = document.createElement("button");
+        main_headerButton__beautify.classList.add("nkch-css__header-button", "nkch-css__header-button--beautify");
+        main_headerButton__beautify.setAttribute("type", "button");
+        main_headerButtonGroup.append(main_headerButton__beautify);
+        main_headerButton__beautify.addEventListener("click", () => this.editor.getAction("editor.action.formatDocument")?.run(), false);
+        main_headerButton__beautify.append(lucide.createElement(lucide.Sparkles, { height: 18, width: 18 }));
+        // Toggle button
+        const main_headerButton__toggle = document.createElement("button");
+        main_headerButton__toggle.classList.add("nkch-css__header-button", "nkch-css__header-button--toggle", this.checks.editor.isEnabled ? "is-enabled" : "is-disabled");
+        main_headerButton__toggle.setAttribute("type", "button");
+        this.elements.main_headerButton__toggle = main_headerButton__toggle;
+        main_headerButtonGroup.append(main_headerButton__toggle);
+        main_headerButton__toggle.addEventListener("click", () => this.toggle(!this.checks.editor.isEnabled), false);
+        main_headerButton__toggle.append(lucide.createElement(lucide.Eye, { height: 18, width: 18 }));
+        // Close button
+        const main_headerButton__close = document.createElement("button");
+        main_headerButton__close.classList.add("nkch-css__header-button", "nkch-css__header-button--close");
+        main_headerButton__close.setAttribute("type", "button");
+        main_headerButtonGroup.append(main_headerButton__close);
+        main_headerButton__close.addEventListener("click", () => this.close(), false);
+        main_headerButton__close.append(lucide.createElement(lucide.X, { height: 18, width: 18 }));
+        // Content Frame
+        const main_content = document.createElement("div");
+        main_content.classList.add("nkch-css__content");
+        this.elements.main_content = main_content;
+        main_container.append(main_content);
+        const main_actionsHeader = document.createElement("div");
+        main_actionsHeader.classList.add("nkch-css__actions-header");
+        main_content.append(main_actionsHeader);
+        // Navigation Tabs
+        const main_tabs = document.createElement("div");
+        main_tabs.classList.add("nkch-css__tabs");
+        this.elements.main_tabs = main_tabs;
+        main_actionsHeader.append(main_tabs);
+        const main_tab__css = document.createElement("div");
+        main_tab__css.classList.add("nkch-css__tab", "nkch-css__tab--css");
+        main_tab__css.innerText = "CSS";
+        this.elements.main_tab__css = main_tab__css;
+        main_tabs.append(main_tab__css);
+        main_tab__css.addEventListener("click", () => this.setLanguage("css", true), false);
+        const main_tab__less = document.createElement("div");
+        main_tab__less.classList.add("nkch-css__tab", "nkch-css__tab--less");
+        main_tab__less.innerText = "Less";
+        this.elements.main_tab__less = main_tab__less;
+        main_tabs.append(main_tab__less);
+        main_tab__less.addEventListener("click", () => this.setLanguage("less", true), false);
+        const main_actions = document.createElement("div");
+        main_actions.classList.add("nkch-css__actions");
+        this.elements.main_actions = main_actions;
+        main_actionsHeader.append(main_actions);
+        const main_action__compileLess = document.createElement("button");
+        main_action__compileLess.classList.add("nkch-css__action", "nkch-css__action--compile-less");
+        main_action__compileLess.setAttribute("type", "button");
+        main_action__compileLess.innerText = "Less → CSS";
+        this.elements.main_action__compileLess = main_action__compileLess;
+        main_actions.append(main_action__compileLess);
+        main_action__compileLess.addEventListener("click", () => this.compileLess(this.editor.getValue()));
+        const main_action__picker = document.createElement("button");
+        main_action__picker.classList.add("nkch-css__action", "nkch-css__action--pointer");
+        main_action__picker.setAttribute("type", "button");
+        main_action__picker.append(lucide.createElement(lucide.SquareDashedMousePointer, { height: 18, width: 18 }));
+        this.elements.main_action__picker = main_action__picker;
+        main_actions.append(main_action__picker);
+        main_action__picker.addEventListener("click", () => this.enablePicker());
+        // Code Window Split Frame
+        const main_splitView = document.createElement("div");
+        main_splitView.classList.add("nkch-css__split-view");
+        this.elements.main_splitView = main_splitView;
+        main_content.append(main_splitView);
+        const splitViewRect = main_splitView.getBoundingClientRect();
+        main_splitView.style.width = `${splitViewRect.width || 500}px`;
+        main_splitView.style.height = `${splitViewRect.height || 350}px`;
+        const main_codearea = document.createElement("div");
+        main_codearea.classList.add("nkch-css__codearea");
+        this.elements.main_codearea = main_codearea;
+        main_splitView.append(main_codearea);
+        // Validation Overlay UI
+        const main_markersPanel = document.createElement("div");
+        main_markersPanel.classList.add("nkch-css__markers-panel", "nkch-css__markers-panel--is-hidden");
+        this.elements.main_markersPanel = main_markersPanel;
+        main_splitView.append(main_markersPanel);
+        const main_markersPanelHeader = document.createElement("div");
+        main_markersPanelHeader.classList.add("nkch-css__markers-panel-header");
+        main_markersPanel.append(main_markersPanelHeader);
+        const main_markersPanelCloseButton = document.createElement("button");
+        main_markersPanelCloseButton.classList.add("nkch-css__markers-panel-close-button");
+        this.elements.main_markersPanelCloseButton = main_markersPanelCloseButton;
+        main_markersPanelHeader.append(main_markersPanelCloseButton);
+        main_markersPanelCloseButton.append(lucide.createElement(lucide.X, { width: 18, height: 18 }));
+        const main_markersList = document.createElement("div");
+        main_markersList.classList.add("nkch-css__markers-list");
+        this.elements.main_markersList = main_markersList;
+        main_markersPanel.append(main_markersList);
+        const main_resizer = document.createElement("div");
+        main_resizer.classList.add("nkch-css__resizer");
+        this.elements.main_resizer = main_resizer;
+        main_splitView.append(main_resizer);
+    }
+    setupWindowInteractions() {
+        const main = this.elements.main;
+        const main_splitView = this.elements.main_splitView;
+        const main_resizer = this.elements.main_resizer;
+        const dragPosition = { x: 0, y: 0 };
+        // Draggable Core Mechanics
+        main.addEventListener("mousedown", (e) => {
+            if (e.button !== 0)
+                return;
+            const cancelElements = [
+                this.elements.main_splitView,
+                this.elements.main_statusbar,
+                this.elements.main_headerButtonGroup,
+                this.elements.main_actions,
+                this.elements.main_tabs
+            ];
+            const parents = this.getParents(e.target);
+            for (const element of cancelElements) {
+                if (element && (e.target === element || parents.includes(element)))
+                    return;
+            }
+            this.checks.state.drag.isHolding = true;
+            dragPosition.x = e.clientX;
+            dragPosition.y = e.clientY;
+            main.dispatchEvent(new CustomEvent("nkch-css-drag:hold", { cancelable: true, detail: this }));
+        }, false);
+        window.addEventListener("mouseup", () => {
+            if (this.checks.state.drag.isHolding) {
+                this.checks.state.drag.isHolding = false;
+                this.checks.state.drag.isDragging = false;
+                main.classList.remove("nkch-css--is-dragging");
+                main.dispatchEvent(new CustomEvent("nkch-css-drag:release", { cancelable: true, detail: this }));
+            }
+            if (this.checks.state.resize.isHolding) {
+                this.checks.state.resize.isHolding = false;
+                this.checks.state.resize.isResizing = false;
+                main.dispatchEvent(new CustomEvent("nkch-css-resize:release", { cancelable: true, detail: this }));
+            }
+        }, false);
+        // Window Resizer Logic
+        let resizeMousePos = { x: 0, y: 0 };
+        let resizeStartSize = { width: 0, height: 0 };
+        main_resizer.addEventListener("mousedown", (e) => {
+            this.checks.state.resize.isHolding = true;
+            const rect = main_splitView.getBoundingClientRect();
+            resizeMousePos = { x: e.clientX, y: e.clientY };
+            resizeStartSize = { width: rect.width, height: rect.height };
+            main.dispatchEvent(new CustomEvent("nkch-css-resize:hold", { cancelable: true, detail: this }));
+        }, false);
+        window.addEventListener("mousemove", (e) => {
+            if (this.checks.state.drag.isHolding) {
+                this.checks.state.drag.isDragging = true;
+                main.style.top = main.offsetTop - (dragPosition.y - e.clientY) + "px";
+                main.style.left = main.offsetLeft - (dragPosition.x - e.clientX) + "px";
+                main.style.bottom = "auto";
+                main.style.right = "auto";
+                dragPosition.x = e.clientX;
+                dragPosition.y = e.clientY;
+                main.classList.add("nkch-css--is-dragging");
+                main.dispatchEvent(new CustomEvent("nkch-css-drag", { cancelable: true, detail: this }));
+            }
+            if (this.checks.state.resize.isHolding) {
+                this.checks.state.resize.isResizing = true;
+                const calculatedWidth = resizeStartSize.width + e.clientX - resizeMousePos.x;
+                const calculatedHeight = resizeStartSize.height + e.clientY - resizeMousePos.y;
+                if (calculatedWidth >= 450)
+                    main_splitView.style.width = calculatedWidth + "px";
+                if (calculatedHeight >= 280)
+                    main_splitView.style.height = calculatedHeight + "px";
+                main.dispatchEvent(new CustomEvent("nkch-css-resize", { cancelable: true, detail: this }));
+            }
+        }, false);
+    }
+    setupElementPicker() {
+        let pickerTarget = null;
+        const pickerTooltip = document.createElement("div");
+        pickerTooltip.classList.add("nkch-css-picker-tooltip");
+        document.body.append(pickerTooltip);
+        document.addEventListener("mousemove", (e) => {
+            if (!this.checks.editor.isPickerEnabled)
+                return;
+            const target = e.target;
+            if (pickerTarget && pickerTarget !== target)
+                this.removePickerSelector();
+            pickerTarget = target;
+            pickerTarget.classList.add("nkch-css-picker-element");
+            // Optimized Layout Measurements - Only execution during an open pick sequence
+            let leftPosition = e.pageX + 10;
+            if (leftPosition + pickerTooltip.offsetWidth > window.innerWidth) {
+                leftPosition = e.pageX - pickerTooltip.offsetWidth - 10;
+            }
+            let topPosition = e.pageY + 10;
+            if (topPosition + pickerTooltip.offsetHeight > window.innerHeight) {
+                topPosition = e.pageY - pickerTooltip.offsetHeight - 10;
+            }
+            pickerTooltip.style.left = leftPosition + "px";
+            pickerTooltip.style.top = topPosition + "px";
+            pickerTooltip.textContent = this.getSelector(target);
+        }, false);
+        document.addEventListener("mousedown", (e) => {
+            if (!this.checks.editor.isPickerEnabled)
+                return;
+            const element = e.target;
+            const pickerBlocker = document.createElement("div");
+            pickerBlocker.classList.add("nkch-css-picker-blocker");
+            document.body.append(pickerBlocker);
+            pickerBlocker.addEventListener("mouseup", () => {
+                pickerBlocker.remove();
+                this.disablePicker();
+                const selections = this.editor.getSelections();
+                if (selections) {
+                    const edits = [];
+                    const text = this.getSelector(element);
+                    selections.forEach(selection => {
+                        edits.push({
+                            range: selection,
+                            text: text,
+                            forceMoveMarkers: true
+                        });
+                    });
+                    this.editor.executeEdits("nkch-css-picker", edits);
+                }
+            }, false);
+        }, false);
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && this.checks.editor.isPickerEnabled)
+                this.disablePicker();
+        }, false);
+    }
+    setupMonacoConfig() {
+        const editorThemes = new Map([
+            ["light", "vs"],
+            ["dark", "vs-dark"]
+        ]);
+        this.editor = monaco.editor.create(this.elements.main_codearea, {
+            language: "css",
+            theme: editorThemes.get(this.env.theme),
+            fontSize: 13,
+            automaticLayout: true,
+            scrollBeyondLastLine: false,
+            cursorBlinking: "smooth",
+            cursorSmoothCaretAnimation: "on",
+            scrollbar: { useShadows: false },
+            minimap: { enabled: false },
+            stickyScroll: { enabled: true }
+        });
+        // Theme sync listener instead of explicit heavy polling loops
+        setInterval(() => {
+            const targetTheme = mw.config.get("isDarkTheme") ? "dark" : "light";
+            if (this.env.theme !== targetTheme) {
+                monaco.editor.setTheme(editorThemes.get(targetTheme));
+                this.env.theme = targetTheme;
+            }
+        }, 200);
+        this.editor.onDidChangeModelContent(() => {
+            this.updateCode(this.editor.getValue(), this.getLanguage());
+        });
+        this.registerCustomCompletionProviders();
+    }
+    registerCustomCompletionProviders() {
+        const completionItemProviders = [{
+                triggerCharacters: ["!"],
+                provideCompletionItems: (model, position) => {
+                    const propertyCheck = /[^;{}]+\s*:\s*[^;{}]+\s*;?$/;
+                    const textValue = model.getValueInRange({
+                        startLineNumber: position.lineNumber,
+                        startColumn: 1,
+                        endLineNumber: position.lineNumber,
+                        endColumn: position.column
+                    });
+                    if (propertyCheck.test(textValue)) {
+                        const word = model.getWordUntilPosition(position);
+                        return {
+                            suggestions: [{
+                                    label: '!important',
+                                    kind: monaco.languages.CompletionItemKind.Keyword,
+                                    insertText: "!important",
+                                    range: new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn)
+                                }]
+                        };
+                    }
+                    return { suggestions: [] };
+                },
+            }, {
+                triggerCharacters: ["--"],
+                provideCompletionItems: (model, position) => {
+                    const word = model.getWordUntilPosition(position);
+                    const editorProperties = getEditorCustomProperties();
+                    const filteredProperties = getAllCustomProperties().filter(item => !editorProperties.includes(item));
+                    const suggestions = filteredProperties.map(property => ({
+                        label: property,
+                        kind: monaco.languages.CompletionItemKind.Property,
+                        insertText: property,
+                        range: new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn)
+                    }));
+                    return { suggestions };
+                    function getAllCustomProperties() {
+                        const customProperties = new Set();
+                        const styleSheets = Array.from(document.styleSheets).filter(sheet => !sheet.href || sheet.href.startsWith(window.location.origin));
+                        styleSheets.forEach(sheet => {
+                            try {
+                                const cssRules = sheet.cssRules;
+                                for (let i = 0; i < cssRules.length; i++) {
+                                    const cssRule = cssRules[i];
+                                    if (cssRule instanceof CSSStyleRule) {
+                                        Array.from(cssRule.style).forEach(property => {
+                                            if (property.startsWith("--") && !property.startsWith("--vscode")) {
+                                                customProperties.add(property);
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+                            catch { /* Avoid cross-origin block extensions exceptions */ }
+                        });
+                        return Array.from(customProperties);
+                    }
+                    function getEditorCustomProperties() {
+                        const existingProperties = [];
+                        const content = model.getValue();
+                        const propertyRegex = /--([^:;]+)\s*:\s*([^;]+);/g;
+                        let match;
+                        while ((match = propertyRegex.exec(content)) !== null) {
+                            existingProperties.push(`--${match[1].trim()}`);
+                        }
+                        return existingProperties;
+                    }
+                }
+            }];
+        completionItemProviders.forEach(provider => monaco.languages.registerCompletionItemProvider(["css", "less"], provider));
+    }
+    setupStatusbar() {
+        const main_content = this.elements.main_content;
+        const main_statusbar = document.createElement("div");
+        main_statusbar.classList.add("nkch-css__statusbar");
+        this.elements.main_statusbar = main_statusbar;
+        main_content.append(main_statusbar);
+        const main_statusbarContainer__left = document.createElement("div");
+        main_statusbarContainer__left.classList.add("nkch-css__statusbar-container", "nkch-css__statusbar-container--left");
+        main_statusbar.append(main_statusbarContainer__left);
+        // Download Action
+        const main_statusbarItem__fileDownload = document.createElement("a");
+        main_statusbarItem__fileDownload.classList.add("nkch-css__statusbar-item", "nkch-css__statusbar-item--file-download");
+        main_statusbarItem__fileDownload.setAttribute("role", "button");
+        this.elements.main_statusbarItem__fileDownload = main_statusbarItem__fileDownload;
+        main_statusbarContainer__left.append(main_statusbarItem__fileDownload);
+        main_statusbarItem__fileDownload.addEventListener("click", () => {
+            if (this.editor.getValue().replace(/\s/g, "").length < 1) {
+                main_statusbarItem__fileDownload.removeAttribute("download");
+                main_statusbarItem__fileDownload.removeAttribute("href");
+                return;
+            }
+            const fileTypes = new Map([
+                ["css", "text/css"],
+                ["less", "text/x-less"]
+            ]);
+            const now = new Date();
+            const date = {
+                year: now.getFullYear(),
+                month: (now.getMonth() + 1).toString().padStart(2, "0"),
+                day: now.getDate().toString().padStart(2, "0"),
+                hours: now.getHours().toString().padStart(2, "0"),
+                minutes: now.getMinutes().toString().padStart(2, "0"),
+                seconds: now.getSeconds().toString().padStart(2, "0"),
+            };
+            const modelLanguage = this.getLanguage();
+            const fileName = `${window.location.host} ${date.year}-${date.month}-${date.day} ${date.hours}-${date.minutes}-${date.seconds}.${modelLanguage || "css"}`;
+            const fileType = fileTypes.get(modelLanguage) || "text/css";
+            main_statusbarItem__fileDownload.setAttribute("download", fileName);
+            main_statusbarItem__fileDownload.setAttribute("href", URL.createObjectURL(new Blob([this.editor.getValue()], { type: fileType })));
+        }, false);
+        main_statusbarItem__fileDownload.append(lucide.createElement(lucide.Download, { height: 12, width: 12 }));
+        // Upload Action File System hooks
+        const main_statusbarItemInput__fileUpload = document.createElement("input");
+        main_statusbarItemInput__fileUpload.classList.add("nkch-css__statusbar-item-input", "nkch-css__statusbar-item-input--file-upload");
+        main_statusbarItemInput__fileUpload.setAttribute("type", "file");
+        main_statusbarItemInput__fileUpload.setAttribute("accept", "text/css,.less");
+        main_statusbarItemInput__fileUpload.style.display = "none";
+        this.elements.main_statusbarItemInput__fileUpload = main_statusbarItemInput__fileUpload;
+        main_statusbarContainer__left.append(main_statusbarItemInput__fileUpload);
+        main_statusbarItemInput__fileUpload.addEventListener("change", () => {
+            if (!main_statusbarItemInput__fileUpload.files || main_statusbarItemInput__fileUpload.files.length < 1)
+                return;
+            const file = main_statusbarItemInput__fileUpload.files[0];
+            file.text().then(text => {
+                this.setLanguage(file.name.endsWith(".less") ? "less" : "css", true);
+                this.setValue(text);
+                this.updateCode(text, this.getLanguage());
+            });
+            main_statusbarItemInput__fileUpload.value = "";
+        }, false);
+        const main_statusbarItem__fileUpload = document.createElement("a");
+        main_statusbarItem__fileUpload.classList.add("nkch-css__statusbar-item", "nkch-css__statusbar-item--file-upload");
+        main_statusbarItem__fileUpload.setAttribute("role", "button");
+        main_statusbarContainer__left.append(main_statusbarItem__fileUpload);
+        main_statusbarItem__fileUpload.addEventListener("click", () => main_statusbarItemInput__fileUpload.click(), false);
+        main_statusbarItem__fileUpload.append(lucide.createElement(lucide.Upload, { height: 12, width: 12 }));
+        // Markers & Validation Indicators Panel
+        const main_statusbarItem__markers = document.createElement("a");
+        main_statusbarItem__markers.classList.add("nkch-css__statusbar-item", "nkch-css__statusbar-item--markers");
+        main_statusbarContainer__left.append(main_statusbarItem__markers);
+        const toggleMarkersPanel = () => {
+            const isCurrentlyOpen = this.checks.editor.isMarkersPanelOpen;
+            this.elements.main_markersPanel.classList.toggle("nkch-css__markers-panel--is-hidden", isCurrentlyOpen);
+            this.checks.editor.isMarkersPanelOpen = !isCurrentlyOpen;
+        };
+        this.elements.main_markersPanelCloseButton.addEventListener("click", toggleMarkersPanel, false);
+        main_statusbarItem__markers.addEventListener("click", toggleMarkersPanel, false);
+        const main_statusbarItemIcon__markers__error = document.createElement("span");
+        main_statusbarItemIcon__markers__error.classList.add("nkch-css__statusbar-item-icon", "nkch-css__statusbar-item-icon--marker", "nkch-css__statusbar-item-icon--marker-error");
+        main_statusbarItem__markers.append(main_statusbarItemIcon__markers__error);
+        const main_statusbarItemValue__markers__error = document.createElement("span");
+        main_statusbarItemValue__markers__error.innerText = "0";
+        main_statusbarItem__markers.append(main_statusbarItemValue__markers__error);
+        const main_statusbarItemIcon__markers__warning = document.createElement("span");
+        main_statusbarItemIcon__markers__warning.classList.add("nkch-css__statusbar-item-icon", "nkch-css__statusbar-item-icon--marker", "nkch-css__statusbar-item-icon--marker-warning");
+        main_statusbarItem__markers.append(main_statusbarItemIcon__markers__warning);
+        const main_statusbarItemValue__markers__warning = document.createElement("span");
+        main_statusbarItemValue__markers__warning.innerText = "0";
+        main_statusbarItem__markers.append(main_statusbarItemValue__markers__warning);
+        // Right Selection Indicators
+        const main_statusbarContainer__right = document.createElement("div");
+        main_statusbarContainer__right.classList.add("nkch-css__statusbar-container", "nkch-css__statusbar-container--right");
+        main_statusbar.append(main_statusbarContainer__right);
+        const main_statusbarItem__selection = document.createElement("a");
+        main_statusbarItem__selection.classList.add("nkch-css__statusbar-item");
+        main_statusbarItem__selection.setAttribute("role", "button");
+        main_statusbarItem__selection.innerText = "L: 1 • C: 1";
+        main_statusbarContainer__right.append(main_statusbarItem__selection);
+        this.editor.onDidChangeCursorPosition((event) => {
+            main_statusbarItem__selection.innerText = `L: ${event.position.lineNumber} • C: ${event.position.column}`;
+            const selection = this.editor.getSelection();
+            const model = this.editor.getModel();
+            if (selection && !selection.isEmpty() && model) {
+                main_statusbarItem__selection.innerText += ` • S: ${model.getValueInRange(selection).length}`;
+            }
+        });
+        main_statusbarItem__selection.addEventListener("click", () => {
+            this.editor.focus();
+            this.editor.getAction("editor.action.gotoLine")?.run();
+        }, false);
+        // Real-Time Diagnostic Engine Link
+        monaco.editor.onDidChangeMarkers(([uri]) => {
+            const markers = monaco.editor.getModelMarkers({ resource: uri });
+            const errors = markers.filter(m => m.severity === monaco.MarkerSeverity.Error);
+            const warnings = markers.filter(m => m.severity === monaco.MarkerSeverity.Warning);
+            main_statusbarItemValue__markers__error.innerText = errors.length.toString();
+            main_statusbarItemValue__markers__warning.innerText = warnings.length.toString();
+            this.elements.main_markersList.innerHTML = "";
+            markers.forEach(marker => this.addMarkerItem(marker));
+        });
+    }
+    addMarkerItem(markerData) {
+        const markerItem = document.createElement("div");
+        markerItem.classList.add("nkch-css__marker-item", "nkch-css-marker-item");
+        markerItem.title = markerData.message;
+        this.elements.main_markersList.append(markerItem);
+        const markerItem_icon = document.createElement("span");
+        markerItem_icon.classList.add("nkch-css-marker-item__icon");
+        markerItem.append(markerItem_icon);
+        switch (markerData.severity) {
+            case monaco.MarkerSeverity.Error:
+                markerItem_icon.classList.add("nkch-css-marker-item__icon--error");
+                break;
+            case monaco.MarkerSeverity.Warning:
+                markerItem_icon.classList.add("nkch-css-marker-item__icon--warning");
+                break;
+            case monaco.MarkerSeverity.Info:
+                markerItem_icon.classList.add("nkch-css-marker-item__icon--info");
+                break;
+            case monaco.MarkerSeverity.Hint:
+                markerItem_icon.classList.add("nkch-css-marker-item__icon--hint");
+                break;
+        }
+        const markerItem_label = document.createElement("span");
+        markerItem_label.classList.add("nkch-css-marker-item__label");
+        markerItem_label.innerText = markerData.message;
+        markerItem.append(markerItem_label);
+        if (typeof markerData.source === "string") {
+            const markerItem_source = document.createElement("span");
+            markerItem_source.classList.add("nkch-css-marker-item__source");
+            markerItem_source.innerText = markerData.source;
+            markerItem.append(markerItem_source);
+        }
+        if (typeof markerData.code === "string") {
+            const markerItem_code = document.createElement("span");
+            markerItem_code.classList.add("nkch-css-marker-item__code");
+            markerItem_code.innerText = markerData.code;
+            markerItem.append(markerItem_code);
+        }
+        const markerItem_position = document.createElement("span");
+        markerItem_position.classList.add("nkch-css-marker-item__position");
+        markerItem_position.innerText = `${markerData.startLineNumber}:${markerData.startColumn}`;
+        markerItem.append(markerItem_position);
+        markerItem.addEventListener("click", () => {
+            this.editor.setSelection({
+                startLineNumber: markerData.startLineNumber,
+                startColumn: markerData.startColumn,
+                endLineNumber: markerData.endLineNumber,
+                endColumn: markerData.endColumn
+            });
+            this.editor.revealLineInCenter(markerData.startLineNumber, monaco.editor.ScrollType.Smooth);
+        }, false);
+    }
+    loadInitialData() {
+        const storageValue = localStorage.getItem("mw-nkch-css");
+        if (storageValue != null) {
+            const storageObject = JSON.parse(storageValue);
+            this.setValue(storageObject.value);
+            this.setLanguage(storageObject.lang);
+        }
+        else {
+            this.setLanguage("css");
+        }
+    }
 }
 function onPageLoad() {
-    let options = {};
-    mw.loader.load("https://raw.githack.com/Vonavy/nkch-css/main/css/index.css", "text/css");
-    if (window.nkch) {
-        if (window.nkch.css4)
+    const options = {};
+    const isMiraheze = window.location.hostname.includes("miraheze.org");
+    const stylesheetUrl = isMiraheze
+        ? "https://cdn.jsdelivr.net/gh/Vonavy/nkch-css@main/css/index.css"
+        : "https://raw.githack.com/Vonavy/nkch-css/main/css/index.css";
+    mw.loader.load(stylesheetUrl, "text/css");
+    const globalContext = window;
+    if (globalContext.nkch) {
+        if (globalContext.nkch.css4)
             return;
-        else
-            window.nkch.css4 = new nkchCSS(options);
+        globalContext.nkch.css4 = new nkchCSS(options);
     }
-    else
-        window.nkch = { css4: new nkchCSS(options) };
+    else {
+        globalContext.nkch = { css4: new nkchCSS(options) };
+    }
 }
-;
 (() => {
     switch (document.readyState) {
         case "complete":
