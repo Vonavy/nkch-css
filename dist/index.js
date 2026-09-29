@@ -9,6 +9,11 @@ class nkchCSS {
     elements;
     env;
     versions;
+    loading;
+    closeAnimation;
+    lessTimer;
+    lessRun = 0;
+    customPropertiesCache;
     constructor(options) {
         this.options = options;
         this.checks = {
@@ -32,17 +37,19 @@ class nkchCSS {
             theme: mw.config.get("isDarkTheme") ? "dark" : "light"
         };
         this.versions = new Map([
-            ["monaco-editor", "0.53.0"],
-            ["less", "4.4.1"]
+            ["monaco-editor", "0.57.0"],
+            ["less", "4.9.1"],
+            ["lucide", "1.48.0"]
         ]);
         this.initialize();
     }
     open(event) {
         event?.preventDefault();
         if (!this.checks.editor.isInitialized)
-            return this.initializeEditor();
+            return (this.loading ??= this.initializeEditor());
         if (this.checks.editor.isOpen)
             return;
+        this.closeAnimation?.cancel();
         this.elements.main.classList.remove("nkch-css--is-closed");
         this.elements.main.animate([{
                 opacity: 0,
@@ -62,9 +69,7 @@ class nkchCSS {
     }
     close(event) {
         event?.preventDefault();
-        if (!this.checks.editor.isInitialized)
-            return this.initializeEditor();
-        if (!this.checks.editor.isOpen)
+        if (!this.checks.editor.isInitialized || !this.checks.editor.isOpen)
             return;
         const hideAnimation = this.elements.main.animate([{
                 opacity: 1,
@@ -74,8 +79,10 @@ class nkchCSS {
                 transform: "translateY(10px)"
             }], {
             duration: 300,
-            easing: "ease"
+            easing: "ease",
+            fill: "forwards"
         });
+        this.closeAnimation = hideAnimation;
         hideAnimation.onfinish = () => this.elements.main.classList.add("nkch-css--is-closed");
         this.elements.main.dispatchEvent(new CustomEvent("nkch-css-close", {
             cancelable: true,
@@ -94,32 +101,43 @@ class nkchCSS {
             this.elements.main_headerButton__toggle.classList.add("is-disabled");
             this.elements.main_headerButton__toggle.classList.remove("is-enabled");
             this.checks.editor.isEnabled = false;
-            this.elements.style.innerHTML = "";
+            this.elements.style.textContent = "";
         }
     }
     updateCode(code, language, saveToStorage = true) {
+        if (saveToStorage) {
+            try {
+                localStorage.setItem("mw-nkch-css", JSON.stringify({ lang: language, value: code }));
+            }
+            catch { /* storage full or blocked */ }
+        }
         if (!this.checks.editor.isEnabled)
             return;
-        if (saveToStorage) {
-            localStorage.setItem("mw-nkch-css", JSON.stringify({ lang: language, value: code }));
-        }
+        clearTimeout(this.lessTimer);
+        const run = ++this.lessRun;
         switch (language) {
             default:
             case "css":
                 this.checks.code.isInvalid = false;
-                this.elements.style.innerHTML = code;
+                this.elements.style.textContent = code;
                 break;
             case "less":
-                less.render(code)
-                    .then(output => {
-                    this.checks.code.isInvalid = false;
-                    this.elements.main_action__compileLess.classList.toggle("nkch-css__action--is-disabled", false);
-                    this.updateCode(output.css, "css", false);
-                })
-                    .catch(() => {
-                    this.checks.code.isInvalid = true;
-                    this.elements.main_action__compileLess.classList.toggle("nkch-css__action--is-disabled", true);
-                });
+                this.lessTimer = window.setTimeout(() => {
+                    less.render(code)
+                        .then(output => {
+                        if (run !== this.lessRun)
+                            return;
+                        this.checks.code.isInvalid = false;
+                        this.elements.main_action__compileLess.classList.toggle("nkch-css__action--is-disabled", false);
+                        this.updateCode(output.css, "css", false);
+                    })
+                        .catch(() => {
+                        if (run !== this.lessRun)
+                            return;
+                        this.checks.code.isInvalid = true;
+                        this.elements.main_action__compileLess.classList.toggle("nkch-css__action--is-disabled", true);
+                    });
+                }, 150);
                 break;
         }
         this.elements.main.dispatchEvent(new CustomEvent("nkch-css-update", {
@@ -158,11 +176,12 @@ class nkchCSS {
         less.render(code)
             .then(output => {
             if (!this.checks.code.isInvalid) {
-                this.setValue(output.css);
                 this.setLanguage("css");
+                this.setValue(output.css);
                 this.updateCode(output.css, "css");
             }
-        });
+        })
+            .catch(() => { });
     }
     enablePicker() {
         document.documentElement.classList.add("nkch-css-html-picker-enabled");
@@ -173,6 +192,7 @@ class nkchCSS {
         document.documentElement.classList.remove("nkch-css-html-picker-enabled");
         this.elements.main.classList.remove("nkch-css--is-picker-enabled");
         this.checks.editor.isPickerEnabled = false;
+        document.querySelector(".nkch-css-picker-blocker")?.remove();
         this.removePickerSelector();
     }
     removePickerSelector() {
@@ -190,14 +210,14 @@ class nkchCSS {
     }
     getSelector(element) {
         if (element.id)
-            return '#' + element.id;
+            return '#' + CSS.escape(element.id);
         if (element.tagName.toLowerCase() === "body")
             return "body";
         if (element.classList) {
             const classList = new Set(Array.from(element.classList));
             classList.delete("nkch-css-picker-element");
             if (classList.size > 0)
-                return "." + Array.from(classList).join(".");
+                return "." + Array.from(classList, c => CSS.escape(c)).join(".");
         }
         if (element.parentElement) {
             return `${this.getSelector(element.parentElement)} > ${element.tagName.toLowerCase()}`;
@@ -221,7 +241,7 @@ class nkchCSS {
                 this.elements.quickbarItem_link = quickbarItem_link;
                 quickbarItem.append(quickbarItem_link);
                 quickbarItem_link.addEventListener("click", () => this.open(), false);
-                document.querySelector("#WikiaBar .toolbar .tools").append(quickbarItem);
+                document.querySelector("#WikiaBar .toolbar .tools")?.append(quickbarItem);
                 break;
             }
             default:
@@ -251,34 +271,47 @@ class nkchCSS {
             }
         }
     }
-    async initializeEditor() {
-        const targetSpinner = this.env.skin === "fandomdesktop"
+    setSpinner(hidden) {
+        const spinner = this.env.skin === "fandomdesktop"
             ? this.elements.quickbarItem_spinner
             : this.elements.sidebarItem_spinner;
-        targetSpinner.classList.remove("is-hidden");
-        mw.loader.load([
-            `https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs/editor/editor.main.min.css`,
-        ], "text/css");
-        await mw.loader.getScript("https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js");
-        await mw.loader.getScript(`https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs/loader.min.js`);
+        spinner?.classList.toggle("is-hidden", hidden);
+    }
+    async initializeEditor() {
+        this.setSpinner(false);
+        try {
+            mw.loader.load(`https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs/editor/editor.main.min.css`, "text/css");
+            // Order matters: monaco's loader defines a global AMD `define`, which would hijack lucide's UMD wrapper.
+            await mw.loader.getScript(`https://cdn.jsdelivr.net/npm/lucide@${this.versions.get("lucide")}/dist/umd/lucide.js`);
+            await mw.loader.getScript(`https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs/loader.min.js`);
+        }
+        catch {
+            this.loadFailed();
+            return;
+        }
         this.onModuleLoad();
     }
+    loadFailed() {
+        this.loading = undefined; // allow a retry on next click
+        this.setSpinner(true);
+    }
     onModuleLoad() {
-        const getPreferredLanguage = () => {
-            const supportedLanguages = ["en", "de", "es", "fr", "it", "ja", "ko", "ru", "zh-cn", "zh-tw"];
-            for (const lang of navigator.languages) {
-                const normalizedLang = lang.toLowerCase();
-                if (supportedLanguages.includes(normalizedLang))
-                    return normalizedLang;
-            }
-            return "en";
-        };
+        // const getPreferredLanguage = (): string => {
+        //     const supportedLanguages = ["en", "de", "es", "fr", "it", "ja", "ko", "ru", "zh-cn", "zh-tw"];
+        //     for (const lang of navigator.languages) {
+        //         const normalizedLang = lang.toLowerCase();
+        //         const match = [normalizedLang, normalizedLang.split("-")[0]].find(l => supportedLanguages.includes(l));
+        //         console.log(match);
+        //         if (match) return match;
+        //     }
+        //     return "en";
+        // };
         require.config({
             paths: {
                 "less": `https://cdnjs.cloudflare.com/ajax/libs/less.js/${this.versions.get("less")}/less.min`,
                 "vs": `https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/${this.versions.get("monaco-editor")}/min/vs`,
             },
-            "vs/nls": { availableLanguages: { "*": getPreferredLanguage() } },
+            // "vs/nls": { availableLanguages: { "*": getPreferredLanguage() } },
             waitSeconds: 100
         });
         require(["less", "vs/editor/editor.main"], () => {
@@ -288,15 +321,10 @@ class nkchCSS {
             this.setupMonacoConfig();
             this.setupStatusbar();
             this.loadInitialData();
-            if (this.env.skin === "fandomdesktop") {
-                this.elements.quickbarItem_spinner.classList.add("is-hidden");
-            }
-            else {
-                this.elements.sidebarItem_spinner.classList.add("is-hidden");
-            }
+            this.setSpinner(true);
             this.checks.editor.isInitialized = true;
             this.open();
-        });
+        }, () => this.loadFailed());
     }
     buildCoreDOM() {
         const style = document.createElement("style");
@@ -307,7 +335,7 @@ class nkchCSS {
         main.classList.add("nkch-css");
         main.style.position = "fixed";
         this.elements.main = main;
-        document.body.appendChild(main); // Fixed invalid DOM tree placement
+        document.body.appendChild(main);
         const main_container = document.createElement("div");
         main_container.classList.add("nkch-css__container");
         this.elements.main_container = main_container;
@@ -435,7 +463,8 @@ class nkchCSS {
         const main_splitView = this.elements.main_splitView;
         const main_resizer = this.elements.main_resizer;
         const dragPosition = { x: 0, y: 0 };
-        // Draggable Core Mechanics
+        for (const type of ["keydown", "keypress", "keyup"])
+            main.addEventListener(type, (e) => e.stopPropagation(), false);
         main.addEventListener("mousedown", (e) => {
             if (e.button !== 0)
                 return;
@@ -446,11 +475,8 @@ class nkchCSS {
                 this.elements.main_actions,
                 this.elements.main_tabs
             ];
-            const parents = this.getParents(e.target);
-            for (const element of cancelElements) {
-                if (element && (e.target === element || parents.includes(element)))
-                    return;
-            }
+            if (cancelElements.some(el => el?.contains(e.target)))
+                return;
             this.checks.state.drag.isHolding = true;
             dragPosition.x = e.clientX;
             dragPosition.y = e.clientY;
@@ -513,21 +539,20 @@ class nkchCSS {
                 return;
             const target = e.target;
             if (pickerTarget && pickerTarget !== target)
-                this.removePickerSelector();
+                pickerTarget.classList.remove("nkch-css-picker-element");
             pickerTarget = target;
             pickerTarget.classList.add("nkch-css-picker-element");
-            // Optimized Layout Measurements - Only execution during an open pick sequence
+            pickerTooltip.textContent = this.getSelector(target);
             let leftPosition = e.pageX + 10;
-            if (leftPosition + pickerTooltip.offsetWidth > window.innerWidth) {
+            if (e.clientX + 10 + pickerTooltip.offsetWidth > window.innerWidth) {
                 leftPosition = e.pageX - pickerTooltip.offsetWidth - 10;
             }
             let topPosition = e.pageY + 10;
-            if (topPosition + pickerTooltip.offsetHeight > window.innerHeight) {
+            if (e.clientY + 10 + pickerTooltip.offsetHeight > window.innerHeight) {
                 topPosition = e.pageY - pickerTooltip.offsetHeight - 10;
             }
             pickerTooltip.style.left = leftPosition + "px";
             pickerTooltip.style.top = topPosition + "px";
-            pickerTooltip.textContent = this.getSelector(target);
         }, false);
         document.addEventListener("mousedown", (e) => {
             if (!this.checks.editor.isPickerEnabled)
@@ -578,6 +603,8 @@ class nkchCSS {
         });
         // Theme sync listener instead of explicit heavy polling loops
         setInterval(() => {
+            if (!this.checks.editor.isOpen)
+                return;
             const targetTheme = mw.config.get("isDarkTheme") ? "dark" : "light";
             if (this.env.theme !== targetTheme) {
                 monaco.editor.setTheme(editorThemes.get(targetTheme));
@@ -618,7 +645,11 @@ class nkchCSS {
                 provideCompletionItems: (model, position) => {
                     const word = model.getWordUntilPosition(position);
                     const editorProperties = getEditorCustomProperties();
-                    const filteredProperties = getAllCustomProperties().filter(item => !editorProperties.includes(item));
+                    const now = Date.now();
+                    if (!this.customPropertiesCache || now - this.customPropertiesCache.at > 5000) {
+                        this.customPropertiesCache = { at: now, list: getAllCustomProperties() }; // full stylesheet scan is expensive
+                    }
+                    const filteredProperties = this.customPropertiesCache.list.filter(item => !editorProperties.includes(item));
                     const suggestions = filteredProperties.map(property => ({
                         label: property,
                         kind: monaco.languages.CompletionItemKind.Property,
@@ -699,7 +730,9 @@ class nkchCSS {
             const fileName = `${window.location.host} ${date.year}-${date.month}-${date.day} ${date.hours}-${date.minutes}-${date.seconds}.${modelLanguage || "css"}`;
             const fileType = fileTypes.get(modelLanguage) || "text/css";
             main_statusbarItem__fileDownload.setAttribute("download", fileName);
-            main_statusbarItem__fileDownload.setAttribute("href", URL.createObjectURL(new Blob([this.editor.getValue()], { type: fileType })));
+            const url = URL.createObjectURL(new Blob([this.editor.getValue()], { type: fileType }));
+            main_statusbarItem__fileDownload.setAttribute("href", url);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
         }, false);
         main_statusbarItem__fileDownload.append(lucide.createElement(lucide.Download, { height: 12, width: 12 }));
         // Upload Action File System hooks
@@ -760,12 +793,13 @@ class nkchCSS {
         main_statusbarItem__selection.innerText = "L: 1 • C: 1";
         main_statusbarContainer__right.append(main_statusbarItem__selection);
         this.editor.onDidChangeCursorPosition((event) => {
-            main_statusbarItem__selection.innerText = `L: ${event.position.lineNumber} • C: ${event.position.column}`;
             const selection = this.editor.getSelection();
             const model = this.editor.getModel();
+            let text = `L: ${event.position.lineNumber} • C: ${event.position.column}`;
             if (selection && !selection.isEmpty() && model) {
-                main_statusbarItem__selection.innerText += ` • S: ${model.getValueInRange(selection).length}`;
+                text += ` • S: ${model.getValueLengthInRange(selection)}`;
             }
+            main_statusbarItem__selection.textContent = text;
         });
         main_statusbarItem__selection.addEventListener("click", () => {
             this.editor.focus();
@@ -776,9 +810,9 @@ class nkchCSS {
             const markers = monaco.editor.getModelMarkers({ resource: uri });
             const errors = markers.filter(m => m.severity === monaco.MarkerSeverity.Error);
             const warnings = markers.filter(m => m.severity === monaco.MarkerSeverity.Warning);
-            main_statusbarItemValue__markers__error.innerText = errors.length.toString();
-            main_statusbarItemValue__markers__warning.innerText = warnings.length.toString();
-            this.elements.main_markersList.innerHTML = "";
+            main_statusbarItemValue__markers__error.textContent = errors.length.toString();
+            main_statusbarItemValue__markers__warning.textContent = warnings.length.toString();
+            this.elements.main_markersList.replaceChildren();
             markers.forEach(marker => this.addMarkerItem(marker));
         });
     }
@@ -835,33 +869,27 @@ class nkchCSS {
         }, false);
     }
     loadInitialData() {
-        const storageValue = localStorage.getItem("mw-nkch-css");
-        if (storageValue != null) {
-            const storageObject = JSON.parse(storageValue);
-            this.setValue(storageObject.value);
-            this.setLanguage(storageObject.lang);
+        let saved = null;
+        try {
+            saved = JSON.parse(localStorage.getItem("mw-nkch-css") ?? "null");
         }
-        else {
-            this.setLanguage("css");
-        }
+        catch { /* corrupted or blocked storage: start empty */ }
+        this.setLanguage(saved?.lang === "less" ? "less" : "css");
+        if (typeof saved?.value === "string")
+            this.setValue(saved.value);
     }
 }
 function onPageLoad() {
-    const options = {};
+    const globalContext = window;
+    if (globalContext.nkch?.css4)
+        return;
     const isMiraheze = window.location.hostname.includes("miraheze.org");
     const stylesheetUrl = isMiraheze
         ? "https://cdn.jsdelivr.net/gh/Vonavy/nkch-css@main/css/index.css"
         : "https://raw.githack.com/Vonavy/nkch-css/main/css/index.css";
     mw.loader.load(stylesheetUrl, "text/css");
-    const globalContext = window;
-    if (globalContext.nkch) {
-        if (globalContext.nkch.css4)
-            return;
-        globalContext.nkch.css4 = new nkchCSS(options);
-    }
-    else {
-        globalContext.nkch = { css4: new nkchCSS(options) };
-    }
+    const options = {};
+    (globalContext.nkch ??= {}).css4 = new nkchCSS(options);
 }
 (() => {
     switch (document.readyState) {
